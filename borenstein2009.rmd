@@ -13,7 +13,7 @@ output:
     toc_float:
       collapsed: true
     theme: default
-    # # lots of nice themes can be used: https://bootswatch.com/
+    # lots of nice themes can be used: https://bootswatch.com/
   # rmarkdown::github_document
   # pdf_document:
   #   toc: true
