@@ -1,0 +1,1371 @@
+---
+title: "R Code Corresponding to the Book *Introduction to Meta-Analysis* by Borenstein et al. (2009)"
+author: |
+  | Wolfgang Viechtbauer
+  | Maastricht University
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: default
+    toc: true
+    number_sections: false
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+    theme: default
+    # # lots of nice themes can be used: https://bootswatch.com/
+  # rmarkdown::github_document
+  # pdf_document:
+  #   toc: true
+  #   number_sections: false
+  #   toc_depth: 3
+  # word_document
+fig_caption: no
+# bibliography: references.bib
+---
+
+<!-- ####################################################################### -->
+
+## General Notes / Setup
+
+This document provides the R code to reproduce all examples and illustrations from the book *Introduction to Meta-Analysis* by Borenstein et al. (2009). The analyses are reproduced using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/). Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+
+
+```{r, eval=FALSE}
+install.packages("remotes")
+remotes::install_github("wviechtb/metafor")
+```
+
+This step will become obsolete once a new release of the `metafor` package is published on CRAN.
+
+Once the package is installed, we can load it with:
+
+```{r, eval=FALSE}
+library(metafor)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(metafor)
+```
+
+A few additional notes:
+
+1. Results are only reproduced for chapters containing worked examples.
+2. Ocasionally, there are some minor discrepancies between the results shown in the book and those obtained below. Where such discrepancies arise, they are noted (and the reasons for them).
+3. I did not attempt to reproduce the figures exactly as they appear in the book. There are some fundamental differences in the aesthetics of the figures shown in the book and the functions in the `metafor` package for producing the corresponding figures. I made some adjustments to the defaults here and there to make the figures below look similar to the ones shown in the book and made sure to include all relevant elements.
+4. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+.rmspace <- TRUE
+pointsize <- 14
+runperm <- TRUE
+runperm <- FALSE
+
+options(width=94)
+
+knitr::opts_chunk$set(
+  fig.path = "borenstein2009_figs/"
+)
+```
+
+<!-- ####################################################################### -->
+
+## 1) How a Meta-Analysis Works
+
+```{r}
+### analysis of the Canon et al. (2006) data using (log) risk ratios
+
+dat <- dat.cannon2006[,1:6] # keep only variables we really need
+dat <- escalc(measure="RR", ai=ep1t, n1i=nt, ci=ep1c, n2i=nc, data=dat, slab=trial)
+dat
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+
+predict(res, transf=exp, digits=2) # summary effect size (risk ratio)
+
+dat$weights <- paste0(round(weights(res)), "%")   # weights in % (rounded)
+dat$pvals   <- round(summary(dat)$pval, digits=3) # p-values of the individual trials
+```
+
+```{r, figure_01_1, fig.width=8, fig.height=4, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 1.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-1,2), atransf=exp, at=log(c(2/3, 1, 3/2)),
+       header=TRUE, top=2, mlab="Summary", efac=c(0,1,3),
+       ilab=data.frame(dat$weights, dat$pvals), ilab.xpos=c(0.8,1.2), ilab.pos=2)
+text(0.8, -1, "100%", pos=2)
+text(1.2, -1, formatC(res$pval, format="f", digits=5), pos=2)
+text(0.8,  6, "Weight",  pos=2, font=2)
+text(1.2,  6, "P-Value", pos=2, font=2)
+```
+
+<!-- ####################################################################### -->
+
+## 2) Why Perform a Meta-Analysis
+
+```{r}
+### analysis of the Lau et al. (1992) data using (log) risk ratios
+
+dat <- dat.lau1992
+dat <- escalc(measure="RR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat, slab=trial)
+dat
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+
+predict(res, transf=exp, digits=2) # summary effect size (risk ratio)
+formatC(res$pval, format="f", digits=7) # p-value of the summary estimate
+```
+
+```{r, figure_02_1, fig.width=8, fig.height=7.8, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 2.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-10,9), atransf=exp, at=log(c(.01, 0.1, 1, 10, 100)),
+       header=TRUE, top=2, ilab=dat$year, ilab.xpos=-6, digits=3L, cex=0.8,
+       efac=c(0,1), fonts=c("sans", "inconsolata"))
+# note: using a monospaced font for the annotations on the right, so they are
+# fully aligned; if the "Inconsolata" font is not available, can also use "mono"
+text(-6, 35, "Year", font=2, cex=0.8)
+```
+
+<!-- ####################################################################### -->
+
+## 4) Effect Sizes Based on Means
+
+```{r}
+### mean difference assuming sigma^2_1 = sigma^2_1
+
+dat <- escalc("MD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50, vtype="HO")
+summary(dat) # note: summary() so we can also see the standard error (sei)
+
+### mean difference not assuming sigma^2_1 = sigma^2_1
+
+dat <- escalc("MD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
+summary(dat)
+
+# note: since n1i=n2i in this example, the results are exactly the same
+```
+
+```{r}
+### mean change
+
+# note: if the pre- and post-test means and SDs are not available, but we know
+# the mean and SD of the change scores, then set m2i=0, sd2i=0, and ri=0
+
+dat <- escalc("MC", m1i=5, m2i=0, sd1i=10, sd2i=0, ni=50, ri=0)
+summary(dat)
+
+dat <- escalc("MC", m1i=105, m2i=100, sd1i=10, sd2i=10, ni=50, ri=0.5)
+summary(dat)
+```
+
+```{r}
+### standardized mean difference (Hedges' g)
+
+dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
+summary(dat)
+
+# note: the sampling variance of Hedges' g is computed in a slightly different
+# way in the book compared to the metafor package; the difference is negligible
+```
+
+```{r}
+### standardized mean change (using raw score standardization)
+
+dat <- escalc("SMCR", m1i=103, m2i=100, sd1i=5.5/sqrt(2*(1-0.7)), ni=50, ri=0.7)
+summary(dat)
+
+# note: 5.5 is the SD of the change scores, which we can convert to the SD of
+# the raw scores by dividing it by sqrt(2*(1-r)) (this assumes that the SD was
+# the same at the pre- and post-test)
+
+# note: the sampling variance is again computed in a slightly different way
+# in the book compared to the metafor package; the difference is negligible
+```
+
+```{r}
+### response ratios (log transformed ratio of means)
+
+dat <- escalc("ROM", m1i=61.515, m2i=51.015, sd1i=19.475, sd2i=19.475, n1i=10, n2i=10)
+summary(dat)
+```
+
+<!-- ####################################################################### -->
+
+## 5) Effect Sizes Based on Binary Data
+
+```{r}
+### risk ratio (log transformed)
+
+dat <- escalc("RR", ai=5, n1i=100, ci=10, n2i=100)
+summary(dat)
+```
+
+```{r}
+### odds ratio (log transformed)
+
+dat <- escalc("OR", ai=5, n1i=100, ci=10, n2i=100)
+summary(dat)
+```
+
+```{r}
+### risk difference
+
+dat <- escalc("RD", ai=5, n1i=100, ci=10, n2i=100)
+summary(dat)
+```
+
+<!-- ####################################################################### -->
+
+## 6) Effect Sizes Based on Correlations
+
+```{r}
+### r-to-z transformed correlation coefficient
+
+dat <- escalc("ZCOR", ri=0.50, ni=100)
+summary(dat)
+```
+
+<!-- ####################################################################### -->
+
+## 14) Worked Examples (Part 1)
+
+### Example for Continuous Data
+
+```{r}
+### Table 14.1: Dataset 1
+
+dat <- read.table(header=TRUE, text = "
+study   mean1 sd1  n1 mean2 sd2  n2
+Carroll    94  22  60    92  20  60
+Grant      98  21  65    92  22  65
+Peck       98  28  40    88  26  40
+Donat      94  19 200    82  17 200
+Stewart    98  21  50    88  22  45
+Young      96  21  85    92  22  85")
+
+dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2, slab=study, data=dat)
+dat
+
+# note: the sampling variance of Hedges' g is computed in a slightly different
+# way in the book compared to the metafor package; this leads to negligible
+# differences between the results in the book and the results obtained here
+```
+
+```{r}
+### fixed-effect model analysis
+
+res <- rma(yi, vi, data=dat, method="FE", digits=2)
+res
+```
+
+```{r, figure_14_1, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 14.1
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-2,3), header=TRUE, top=2, mlab="Summary",
+       ilab=dat$weights, ilab.xpos=1.6, ilab.pos=2, efac=c(0,1,1.5))
+text(1.6, -1, "100%", pos=2)
+text(1.6,  8, "Weight", pos=2, font=2)
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(yi, vi, data=dat, method="DL", digits=2)
+res
+```
+
+```{r, figure_14_2, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 14.2
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-2,3), header=TRUE, top=2, mlab="Summary",
+       ilab=dat$weights, ilab.xpos=1.6, ilab.pos=2, efac=c(0,1,1.5))
+text(1.6, -1, "100%", pos=2)
+text(1.6,  8, "Weight", pos=2, font=2)
+```
+
+### Example for Binary Data
+
+```{r}
+### Table 14.4: Dataset 2
+
+dat <- read.table(header=TRUE, text = "
+study   events1 nonevents1  n1 events2 nonevents2  n2
+Saint        12         53  65      16         49  65
+Kelly         8         32  40      10         30  40
+Pilbeam      14         66  80      19         61  80
+Lane         25        375 400      80        320 400
+Wright        8         32  40      11         29  40
+Day          16         49  65      18         47  65")
+
+dat <- escalc("OR", ai=events1, n1i=n1, ci=events2, n2i=n2, slab=study, data=dat)
+dat
+```
+
+```{r}
+### fixed-effect model analysis
+
+res <- rma(yi, vi, data=dat, method="FE", digits=2)
+res
+predict(res, transf=exp)
+```
+
+```{r, figure_14_3, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 14.3
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
+       atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
+       ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5))
+text(2.5, -1, "100%", pos=2)
+text(2.5,  8, "Weight", pos=2, font=2)
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(yi, vi, data=dat, method="DL", digits=2)
+res
+```
+
+```{r, figure_14_4, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 14.4
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
+       atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
+       ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5))
+text(2.5, -1, "100%", pos=2)
+text(2.5,  8, "Weight", pos=2, font=2)
+```
+
+### Example for Correlational Data
+
+```{r}
+### Table 14.7: Dataset 3
+
+dat <- read.table(header=TRUE, text = "
+study   correl   n
+Fonda     0.50  40
+Newman    0.60  90
+Grant     0.40  25
+Granger   0.20 400
+Milland   0.70  60
+Finch     0.45  50")
+
+dat <- escalc("ZCOR", ri=correl, ni=n, slab=study, data=dat)
+dat
+```
+
+```{r}
+### fixed-effect model analysis
+
+res <- rma(yi, vi, data=dat, method="FE", digits=2)
+res
+predict(res, transf=transf.ztor)
+```
+
+```{r, figure_14_5, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 14.5
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .85)),
+       ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5))
+text(2.2, -1, "100%", pos=2)
+text(2.2,  8, "Weight", pos=2, font=2)
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(yi, vi, data=dat, method="DL", digits=2)
+res
+predict(res, transf=transf.ztor)
+```
+
+```{r, figure_14_6, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 14.6
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .85)),
+       ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5))
+text(2.2, -1, "100%", pos=2)
+text(2.2,  8, "Weight", pos=2, font=2)
+```
+
+<!-- ####################################################################### -->
+
+## 18) Worked Examples (Part 2)
+
+### Notes
+
+1. The prediction interval is computed in a slightly different way in the book compared to what is shown below. For more details on how the prediction interval is computed by the `metafor` package, see [here](http://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt).
+2. The confidence intervals for $\tau^2$ and $I^2$ are also computed in a different way. The `metafor` package uses the Q-profile method, which is an exact method (under the assumptions of the model), while the methods described in the book are based on large-sample approximations.
+
+### Example for Continuous Data
+
+```{r}
+### Table 14.1: Dataset 1
+
+dat <- read.table(header=TRUE, text = "
+study   mean1 sd1  n1 mean2 sd2  n2
+Carroll    94  22  60    92  20  60
+Grant      98  21  65    92  22  65
+Peck       98  28  40    88  26  40
+Donat      94  19 200    82  17 200
+Stewart    98  21  50    88  22  45
+Young      96  21  85    92  22  85")
+
+dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2, slab=study, data=dat)
+dat
+
+# note: the sampling variance of Hedges' g is computed in a slightly different
+# way in the book compared to the metafor package; this leads to negligible
+# differences between the results in the book and the results obtained here
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+predict(res)
+confint(res)
+```
+
+```{r, figure_18_1, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 18.1
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-2,3), header=TRUE, top=2, mlab="Summary",
+       ilab=dat$weights, ilab.xpos=1.6, ilab.pos=2, efac=c(0,1,1.5),
+       addpred=TRUE)
+text(1.6, -1, "100%", pos=2)
+text(1.6,  8, "Weight", pos=2, font=2)
+```
+
+### Example for Binary Data
+
+```{r}
+### Table 14.4: Dataset 2
+
+dat <- read.table(header=TRUE, text = "
+study   events1 nonevents1  n1 events2 nonevents2  n2
+Saint        12         53  65      16         49  65
+Kelly         8         32  40      10         30  40
+Pilbeam      14         66  80      19         61  80
+Lane         25        375 400      80        320 400
+Wright        8         32  40      11         29  40
+Day          16         49  65      18         47  65")
+
+dat <- escalc("OR", ai=events1, n1i=n1, ci=events2, n2i=n2, slab=study, data=dat)
+dat
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+predict(res, transf=exp)
+confint(res)
+```
+
+```{r, figure_18_2, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 18.2
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
+       atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
+       ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5),
+       addpred=TRUE)
+text(2.5, -1, "100%", pos=2)
+text(2.5,  8, "Weight", pos=2, font=2)
+```
+
+### Example for Correlational Data
+
+```{r}
+### Table 14.7: Dataset 3
+
+dat <- read.table(header=TRUE, text = "
+study   correl   n
+Fonda     0.50  40
+Newman    0.60  90
+Grant     0.40  25
+Granger   0.20 400
+Milland   0.70  60
+Finch     0.45  50")
+
+dat <- escalc("ZCOR", ri=correl, ni=n, slab=study, data=dat)
+dat
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+predict(res, transf=transf.ztor)
+confint(res)
+```
+
+```{r, figure_18_3, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 18.3
+
+par(mar=c(4,4,2,2))
+
+dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
+
+forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .85)),
+       ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5),
+       addpred=TRUE)
+text(2.2, -1, "100%", pos=2)
+text(2.2,  8, "Weight", pos=2, font=2)
+```
+
+<!-- ####################################################################### -->
+
+## 19) Subgroup Analyses
+
+```{r}
+dat <- read.table(header=TRUE, text = "
+study     type     g   var
+Thornhill    A 0.110 0.010
+Kendall      A 0.224 0.030
+Vandamm      A 0.338 0.020
+Leonard      A 0.451 0.015
+Professor    A 0.480 0.010
+Jeffries     B 0.440 0.015
+Fremont      B 0.492 0.020
+Doyle        B 0.651 0.015
+Stella       B 0.710 0.025
+Thorwald     B 0.740 0.012")
+dat
+```
+
+### FE models within subgroups
+
+```{r}
+### fixed-effect model for subgroup A
+
+resA <- rma(g, var, data=dat, method="FE", subset=type=="A")
+resA
+
+### fixed-effect model for subgroup B
+
+resB <- rma(g, var, data=dat, method="FE", subset=type=="B")
+resB
+```
+
+```{r}
+### fixed-effect model for all 10 studies
+
+res <- rma(g, var, data=dat, method="FE", slab=study)
+res
+```
+
+```{r, figure_19_1, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 19.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-1,2), cex=1, refline=0.5,
+       header=c("Type / Study", "SMD [95% CI]"),
+       xlab="Standardized Mean Difference", mlab="Combined",
+       at=seq(-.2, 1.2, by=.2), efac=c(0,1,1.5),
+       rows=c(3:7, 12:16), ylim=c(-1.2,21))
+text(-1, 17.5, "Type A", pos=4, font=2)
+text(-1,  8.5, "Type B", pos=4, font=2)
+
+addpoly(resA, row=10.5, mlab="Combined", cex=1, efac=1.5, width=c(4,5,4))
+addpoly(resB, row= 1.5, mlab="Combined", cex=1, efac=1.5, width=c(4,5,4))
+```
+
+```{r}
+### Table 19.2
+
+sav <- list(resA, resB, res)
+tab <- rbind(sapply(sav, function(x) coef(x)),
+             sapply(sav, function(x) vcov(x)),
+             sapply(sav, function(x) x$se),
+             sapply(sav, function(x) x$ci.lb),
+             sapply(sav, function(x) x$ci.ub),
+             sapply(sav, function(x) x$zval),
+             sapply(sav, function(x) x$pval),
+             sapply(sav, function(x) x$QE),
+             sapply(sav, function(x) x$k-1),
+             sapply(sav, function(x) x$QEp),
+             sapply(sav, function(x) x$I2))
+colnames(tab) <- c("A", "B", "Combined")
+rownames(tab) <- c("Y", "V", "SE", "LL", "UB", "Z", "pval", "Q", "df", "pval", "I2")
+round(tab, digits=4)
+```
+
+```{r}
+### compare effects of A and B
+
+dif <- rma(g, var, mods = ~ type, method="FE", data=dat)
+dif
+
+# note: the estimate for 'typeB' is the estimated difference; the values
+# for zval and pval are the test of the difference between A and B
+```
+
+```{r}
+### Table 19.3
+
+tab <- data.frame(Q  = c(resA$QE, resB$QE, dif$QE, dif$QM, res$QE),
+                  df = c(resA$k-1, resB$k-1, dif$k-dif$p, dif$m, res$k-1),
+                  p  = c(resA$QEp, resB$QEp, dif$QEp, dif$QMp, res$QEp))
+rownames(tab) <- c("A", "B", "Within", "Between", "Total")
+round(tab, digits=4)
+```
+
+### RE models with separate $\tau^2$ estimates
+
+```{r}
+### random-effect model within subgroup A
+
+resA <- rma(g, var, data=dat, method="DL", subset=type=="A")
+resA
+
+### random-effect model within subgroup B
+
+resB <- rma(g, var, data=dat, method="DL", subset=type=="B")
+resB
+
+# note: this allows for a different tau^2 value within the two subgroups
+```
+
+```{r}
+### random-effect model for all 10 studies allowing for different tau^2 values within subgroups
+
+# note: rma.mv() uses ML/REML estimation; here, we pass the tau^2 values as
+# estimated by the DL method from the two subgroup models to the function
+
+res <- rma.mv(g, var, random = ~ type | study, struct="DIAG",
+              data=dat, slab=study, tau2=c(resA$tau2, resB$tau2))
+res
+```
+
+```{r, figure_19_5, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 19.5
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-1,2), cex=1, refline=0.5,
+       header=c("Type / Study", "SMD [95% CI]"),
+       xlab="Standardized Mean Difference", mlab="Combined",
+       at=seq(-.2, 1.2, by=.2), efac=c(0,1,1.5),
+       rows=c(3:7, 12:16), ylim=c(-1.2,21))
+text(-1, 17.5, "Type A", pos=4, font=2)
+text(-1,  8.5, "Type B", pos=4, font=2)
+
+addpoly(resA, row=10.5, mlab="Combined", cex=1, efac=1.5, width=c(4,5,4))
+addpoly(resB, row= 1.5, mlab="Combined", cex=1, efac=1.5, width=c(4,5,4))
+```
+
+```{r}
+### Table 19.6
+
+sav <- list(resA, resB, res)
+tab <- rbind(sapply(sav, function(x) coef(x)),
+             sapply(sav, function(x) vcov(x)),
+             sapply(sav, function(x) x$se),
+             sapply(sav, function(x) x$ci.lb),
+             sapply(sav, function(x) x$ci.ub),
+             sapply(sav, function(x) x$zval),
+             sapply(sav, function(x) x$pval))
+colnames(tab) <- c("A", "B", "Combined")
+rownames(tab) <- c("Y", "V", "SE", "LL", "UB", "Z", "pval")
+round(tab, digits=4)
+
+# note: the Q-statistics in the table shown in the book are not traditional Q-test
+# statistics, but incorporate the random-effects model weights (not shown here)
+```
+
+```{r}
+### compare effects of A and B
+
+dif <- rma.mv(g, var, mods = ~ type, random = ~ type | study, struct="DIAG",
+              data=dat, slab=study, tau2=c(resA$tau2, resB$tau2))
+dif
+
+# note: the estimate for 'typeB' is the estimated difference; the values
+# for zval and pval are the test of the difference between A and B
+
+# note: for the decomposition of the Q-statistics to work as shown in Table
+# 19.7, one must compute these statistics incorporating the random-effects model
+# weights; this gets confusing really quickly, because that's not how the
+# Q-statistics for heterogeneity are typically computed, so I'll skip this part;
+# however, note that the QM-test in the output above is the Q_Between test shown
+# in the table and this is what we are interested in anyway
+```
+
+### RE models with pooled $\tau^2$ estimate
+
+```{r}
+### mixed-effect meta-regression model assuming a common tau^2 value for the 2 subgroups
+
+dif <- rma(g, var, mods = ~ type - 1, data=dat, method="DL", slab=study)
+dif
+
+# note: fitted model without intercept so the coefficients are the estimated effects for A and B
+```
+
+```{r}
+### random-effect model for all 10 studies setting tau^2 to the value from the model above
+
+res <- rma(g, var, data=dat, tau2=dif$tau2, slab=study)
+res
+```
+
+```{r, figure_19_8, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 19.8
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-1,2), cex=1, refline=0.5,
+       header=c("Type / Study", "SMD [95% CI]"),
+       xlab="Standardized Mean Difference", mlab="Combined",
+       at=seq(-.2, 1.2, by=.2), efac=c(0,1,1.5),
+       rows=c(3:7, 12:16), ylim=c(-1.2,21))
+text(-1, 17.5, "Type A", pos=4, font=2)
+text(-1,  8.5, "Type B", pos=4, font=2)
+
+addpoly(coef(dif)[1], vcov(dif)[1,1], row=10.5, mlab="Combined", cex=1, efac=1.5, width=c(4,5,4))
+addpoly(coef(dif)[2], vcov(dif)[2,2], row= 1.5, mlab="Combined", cex=1, efac=1.5, width=c(4,5,4))
+```
+
+```{r}
+### Table 19.11
+
+tab <- rbind(c(coef(dif)[1],   coef(dif)[2],   coef(res)),
+             c(vcov(dif)[1,1], vcov(dif)[2,2], vcov(res)),
+             c(dif$se[1],      dif$se[2],      res$se),
+             c(dif$ci.lb[1],   dif$ci.lb[2],   res$ci.lb),
+             c(dif$ci.ub[1],   dif$ci.ub[2],   res$ci.ub),
+             c(dif$zval[1],    dif$zval[2],    res$zval),
+             c(dif$pval[1],    dif$pval[2],    res$pval))
+             colnames(tab) <- c("A", "B", "Combined")
+rownames(tab) <- c("Y", "V", "SE", "LL", "UB", "Z", "pval")
+round(tab, digits=4)
+
+# note: the Q-statistics in the table shown in the book are not traditional Q-test
+# statistics, but incorporate the random-effects model weights (not shown here)
+```
+
+```{r}
+### compare effects of A and B
+
+dif <- rma(g, var, mods = ~ type, data=dat, method="DL", slab=study)
+dif
+
+# note: the estimate for 'typeB' is the estimated difference; the values
+# for zval and pval are the test of the difference between A and B
+```
+
+<!-- ####################################################################### -->
+
+## 20) Meta-Regression
+
+```{r}
+### compute log risk ratios for the BCG vaccine data
+
+dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg,
+              slab=paste(author, year, sep=", "))
+dat
+```
+
+```{r}
+### fixed-effect model
+
+res <- rma(yi, vi, data=dat, method="FE")
+res
+```
+
+```{r, figure_20_1, fig.width=8, fig.height=5.8, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 20.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-8,7), atransf=exp, at=log(c(.10, 1, 10)), digits=3L, cex=0.8,
+       header=TRUE, top=2, mlab="Summary", efac=c(0,1,1.5), order="obs")
+```
+
+```{r}
+### meta-regression model with absolute latitude
+
+reg <- rma(yi, vi, mods = ~ ablat, data=dat, method="FE", digits=5)
+reg
+```
+
+```{r}
+### Table 20.3
+
+tab <- data.frame(Q    = c(reg$QM, reg$QE, res$QE),
+                  df   = c(reg$m, reg$k-reg$m, res$k-1),
+                  pval = c(reg$QMp, reg$QEp, res$QEp))
+rownames(tab) <- c("Model (Q_model)", "Residual (Q_resid)", "Total (Q)")
+round(tab, digits=5)
+```
+
+```{r, figure_20_2, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 20.2
+
+size <- 1 / sqrt(dat$vi)
+size <- 7 * size / max(size)
+
+### set up plot (risk ratios on y-axis, absolute latitude on x-axis)
+plot(dat$ablat, dat$yi, xlim=c(0,70), ylim=c(-3,1),
+     xlab="Latitude", ylab="ln(RR)", las=1, cex=size)
+title("Regression of log risk ratio on latitude (fixed-effect)")
+
+pred <- predict(reg, newmods=c(13,55))
+lines(c(13,55), pred$pred, lwd=2)
+```
+
+```{r}
+### random-effects model
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+predict(res, transf=exp, digits=2)
+```
+
+```{r, figure_20_5, fig.width=8, fig.height=5.8, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 20.5
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-8,7), atransf=exp, at=log(c(.10, 1, 10)), digits=3L, cex=0.8,
+       header=TRUE, top=2, mlab="Summary", efac=c(0,1,1.5), order="obs")
+```
+
+```{r}
+### mixed-effects meta-regression model with absolute latitude
+
+reg <- rma(yi, vi, mods = ~ ablat, data=dat, method="DL", digits=5)
+reg
+```
+
+```{r, figure_20_6, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 20.6
+
+size <- 1 / sqrt(dat$vi + reg$tau2)
+size <- 7 * size / max(size)
+
+### set up plot (risk ratios on y-axis, absolute latitude on x-axis)
+plot(dat$ablat, dat$yi, xlim=c(0,70), ylim=c(-3,1),
+     xlab="Latitude", ylab="ln(RR)", las=1, cex=size)
+title("Regression of log risk ratio on latitude (random-effects)")
+
+pred <- predict(reg, newmods=c(13,55))
+lines(c(13,55), pred$pred, lwd=2)
+```
+
+<!-- ####################################################################### -->
+
+## 21) Subgrouping / Meta-Regression
+
+The following results are not actually shown in the chapter. They are provided here to show how these types of analyses can be conducted using the `metafor` package.
+
+```{r}
+dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
+dat
+```
+
+```{r}
+### random-effects model with Knapp-Hartung method
+
+res <- rma(yi, vi, data=dat, method="DL", test="knha")
+res
+```
+
+```{r}
+### mixed-effects meta-regression model with Knapp-Hartung method
+
+res <- rma(yi, vi, mods = ~ ablat, data=dat, method="DL", test="knha")
+res
+```
+
+```{r, eval=runperm}
+### random-effects model with permutation test
+
+res <- rma(yi, vi, data=dat, method="DL")
+permutest(res, exact=TRUE)
+```
+
+```{r, eval=runperm}
+### mixed-effects meta-regression model with permutation test
+
+# note: an exact permutation test would require 389188800 iterations, which will
+# take forever; instead, we can use a large number of random permutations; for
+# reproducibility, we set the 'seed' of the random number generator beforehand
+
+res <- rma(yi, vi, mods = ~ ablat, data=dat, method="DL")
+set.seed(1234)
+permutest(res)
+```
+
+<!-- ####################################################################### -->
+
+## 23) Subgroups within Studies
+
+```{r}
+### Table 23.1: Independent subgroups – five fictional studies
+
+dat <- read.table(header=TRUE, text = "
+study       subgroup  es  var
+'Study 1'  'Stage 1' 0.3 0.05
+'Study 1'  'Stage 2' 0.1 0.05
+'Study 2'  'Stage 1' 0.2 0.02
+'Study 2'  'Stage 2' 0.1 0.02
+'Study 3'  'Stage 1' 0.4 0.05
+'Study 3'  'Stage 2' 0.2 0.05
+'Study 4'  'Stage 1' 0.2 0.01
+'Study 4'  'Stage 2' 0.1 0.01
+'Study 5'  'Stage 1' 0.4 0.06
+'Study 5'  'Stage 2' 0.3 0.06
+")
+dat
+```
+
+```{r}
+### treat each subgroup as a separate study
+
+res <- rma(es, var, data=dat, method="FE")
+res
+```
+
+```{r}
+### compute combined effect across subgroups within studies
+
+agg <- do.call(rbind, lapply(split(dat, dat$study), function(x) {
+   tmp <- rma(es, var, data=x, method="FE")
+   c(es = unname(coef(tmp)), var = vcov(tmp))}))
+agg
+```
+
+```{r}
+### use study as the unit of analysis
+
+res <- rma(es, var, data=agg, method="FE")
+res
+```
+
+<!-- ####################################################################### -->
+
+## 24) Multiple Outcomes / Time-Points
+
+```{r}
+### Table 24.1: Multiple outcomes – five fictional studies
+
+dat <- read.table(header=TRUE, text = "
+study     outcome  es  var cor
+'Study 1' Reading 0.3 0.05 0.5
+'Study 1'    Math 0.1 0.05 0.5
+'Study 2' Reading 0.2 0.02 0.6
+'Study 2'    Math 0.1 0.02 0.6
+'Study 3' Reading 0.4 0.05 0.6
+'Study 3'    Math 0.2 0.05 0.6
+'Study 4' Reading 0.2 0.01 0.4
+'Study 4'    Math 0.1 0.01 0.4
+'Study 5' Reading 0.4 0.06 0.8
+'Study 5'    Math 0.3 0.06 0.8
+")
+dat
+
+# note: correlations from Table 24.3
+```
+
+```{r}
+### compute combined effect across outcomes and corresponding sampling variance
+
+agg <- do.call(rbind, lapply(split(dat, dat$study), function(x) {
+   R <- matrix(x$cor[1], nrow=nrow(x), ncol=nrow(x))
+   diag(R) <- 1
+   V <- diag(sqrt(x$var)) %*% R %*% diag(sqrt(x$var))
+   c(es = mean(x$es), var = 1/nrow(x)^2 * sum(V))}))
+agg
+```
+
+```{r}
+### fixed-effect model using the aggregated data
+
+rma(es, var, data=agg, method="FE")
+```
+
+```{r}
+### compute difference between outcomes and corresponding sampling variances
+
+dif <- do.call(rbind, lapply(split(dat, dat$study), function(x) {
+   c(es = x$es[1] - x$es[2], var = x$var[1] + x$var[2] - 2*x$cor[1]*sqrt(x$var[1]*x$var[2]))}))
+dif
+```
+
+```{r}
+### fixed-effect model using the differences data
+
+rma(es, var, data=dif, method="FE")
+```
+
+<!-- ####################################################################### -->
+
+## 30) Publication Bias
+
+```{r}
+### copy data into 'dat' and examine data
+
+dat <- dat.hackshaw1998
+dat
+
+# note: the 'yi' values are log odds ratios, not log risk ratios as suggested in
+# the book; also, there are slight differences between the data used in the book
+# and those in 'dat.hackshaw1998'; the differences are negligible though
+```
+
+```{r}
+### fixed-effect model
+
+res <- rma(yi, vi, data=dat, method="FE", slab=paste0(author, ", ", year))
+res
+predict(res, transf=exp, digits=3)
+```
+
+```{r}
+dat$weights <- formatC(weights(res), format="f", digits=2)
+dat$pvals   <- formatC(summary(dat)$pval, format="f", digits=3)
+```
+
+```{r, figure_30_1, fig.width=8, fig.height=7.6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 30.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-5,8), atransf=exp, at=log(c(.1, 1, 10)),
+       header=TRUE, top=2, mlab="Summary",
+       ilab=data.frame(dat$weights, dat$pvals), ilab.xpos=c(3.5,5), ilab.pos=2,
+       efac=c(0,1,1.5), order="prec", cex=0.7)
+text(3.5, 39, "Weight",  pos=2, font=2, cex=0.7)
+text(5.0, 39, "P-Value", pos=2, font=2, cex=0.7)
+```
+
+```{r, figure_30_2, fig.width=8, fig.height=7.0, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 30.2
+
+funnel(res, xlim=c(-2,2), ylim=c(0,0.8))
+title("Funnel Plot of Standard Error by Log Risk Ratio")
+```
+
+```{r}
+### Rosenthal's Fail-safe N
+
+fsn(dat$yi, dat$vi)
+```
+
+```{r}
+### Orwin's Fail-safe N
+
+fsn(dat$yi, dat$vi, type="Orwin", target=log(1.05))
+
+# note: value given in book is 103 (not sure why there is this discrepancy)
+```
+
+```{r}
+### trim and fill analysis
+
+rtf <- trimfill(res, digits=3)
+rtf
+predict(rtf, transf=exp)
+```
+
+```{r, figure_30_3, fig.width=8, fig.height=7.0, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 30.3
+
+funnel(rtf, xlim=c(-2,2), ylim=c(0,0.8), pch=21, pch.fill=19)
+title("Funnel Plot of Standard Error by Log Risk Ratio")
+```
+
+```{r}
+### cumulative meta-analysis
+
+rcm <- cumul(res, order=order(dat$vi))
+rcm
+```
+
+```{r, figure_30_4, fig.width=8, fig.height=7.6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 30.4
+
+par(mar=c(4,4,2,2))
+
+forest(rcm, xlim=c(-1.5,1.5), atransf=exp, at=log(c(.5, 1, 2)),
+       header=TRUE, top=2, efac=c(0,1,1.5), cex=0.7)
+```
+
+<!-- ####################################################################### -->
+
+## 33) Simpson's Paradox
+
+```{r}
+### copy data into 'dat' and examine data
+
+dat <- dat.vanhowe1999
+dat
+```
+
+```{r}
+### naive pooling by summing up the counts and then computing the odds ratio
+### and corresponding confidence interval based on the aggregated table
+
+agg <- escalc(measure="OR", ai=sum(dat$non.pos), bi=sum(dat$non.neg),
+                            ci=sum(dat$cir.pos), di=sum(dat$cir.neg))
+summary(agg, transf=exp, digits=2)
+```
+
+```{r}
+### calculate log odds ratios and corresponding sampling variances
+
+dat <- escalc(measure="OR", ai=non.pos, bi=non.neg, ci=cir.pos, di=cir.neg, data=dat, slab=study)
+```
+
+```{r}
+### proper meta-analysis using a random-effects model
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+predict(res, transf=exp, digits=2)
+```
+
+```{r, figure_33_1, fig.width=8, fig.height=7.6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 33.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-5,7), atransf=exp, at=log(c(.1, 1, 10, 100)),
+       header=TRUE, top=2, mlab="Summary", efac=c(0,1), cex=0.7,
+       fonts=c("sans", "inconsolata"))
+```
+
+```{r}
+### mixed-effects meta-regression model with category as predictor
+
+sub <- rma(yi, vi, mods = ~ category - 1, data=dat, method="DL")
+sub
+
+# note: by removing the intercept, the three coefficients directly provide the
+# estimated average log odds ratios for the three categories
+```
+
+```{r}
+### estimated average odds ratios and corresponding 95% CIs
+
+predict(sub, newmods=diag(3), transf=exp, digits=3)
+```
+
+```{r, figure_33_2, fig.width=8, fig.height=4.2, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 33.2
+
+par(mar=c(4,4,2,2))
+
+est <- coef(sub)
+var <- diag(vcov(sub))
+cat <- c("High risk", "Partner", "Random")
+forest(est, var, slab=cat, header=c("Studies", "OR [95% CI]"), top=2,
+       xlim=c(-2,4), ylim=c(-1.5,5), xlab="Odds Ratio (log scale)",
+       atransf=exp, at=log(c(.5, 1, 2, 4, 8)), digits=3L, efac=0)
+abline(h=0)
+
+res <- rma(est, var, method="DL")
+addpoly(res, row=-1, atransf=exp, digits=3, efac=3, mlab="Summary")
+```
+
+<!-- ####################################################################### -->
+
+## 36) Methods Based on p-Values
+
+```{r}
+### sign test
+
+dat <- dat.lau1992
+dat <- escalc(measure="RR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat, slab=trial)
+table(sign(dat$yi))
+binom.test(table(sign(dat$yi)))
+```
+
+```{r}
+### compute one-sided p-values
+
+dat$pval <- pnorm(dat$yi / sqrt(dat$vi))
+dat
+```
+
+```{r}
+### load/install the poolr package if it is not already installed
+
+if (suppressWarnings(!require(poolr, quietly=TRUE))) {
+   install.packages("poolr", quiet=TRUE)
+   library(poolr)
+}
+```
+
+
+```{r}
+### apply Fisher's method for pooling the p-values
+
+fisher(c(dat$pval))
+
+### apply Stouffer's method for pooling the p-values
+
+stouffer(c(dat$pval))
+```
+
+<!-- ####################################################################### -->
+
+## 37) Methods for Dichotomous Data
+
+```{r}
+### Table 37.2 (like Table 14.4)
+
+dat <- read.table(header=TRUE, text = "
+study   events1 nonevents1  n1 events2 nonevents2  n2
+Saint        12         53  65      16         49  65
+Kelly         8         32  40      10         30  40
+Pilbeam      14         66  80      19         61  80
+Lane         25        375 400      80        320 400
+Wright        8         32  40      11         29  40
+Day          16         49  65      18         47  65")
+dat
+```
+
+```{r}
+### Mantel-Haenszel method
+
+rma.mh(measure="OR", ai=events1, n1i=n1, ci=events2, n2i=n2, data=dat)
+```
+
+```{r}
+### Peto's method
+
+rma.peto(ai=events1, n1i=n1, ci=events2, n2i=n2, data=dat)
+```
+
+<!-- ####################################################################### -->
+
+## 38) Psychometric Meta-Analysis
+
+```{r}
+### Table 38.1: Fictional data for psychometric meta-analysis
+
+dat <- read.table(header=TRUE, text = "
+study            n    r  rel
+'University 1' 130 0.24 0.75
+'University 2'  90 0.11 0.75
+'Private 1'     30 0.05 0.60
+'Private 2'     25 0.17 0.60
+'Volunteer 1'   50 0.38 0.90
+'Volunteer 2'   65 0.50 0.90")
+```
+
+```{r}
+### psychometric meta-analysis with the observed (attenuated) correlations
+
+dat <- escalc(measure="COR", ri=r, ni=n, data=dat, vtype="AV")
+res <- rma(yi, vi, weights=n, data=dat, method="HS")
+res
+```
+
+```{r}
+### psychometric meta-analysis with the corrected (unattenuated) correlations
+
+dat$yi.c <- dat$yi / sqrt(dat$rel)
+dat$vi.c <- dat$vi / (dat$rel)
+res.u <- rma(yi.c, vi.c, weights=1/vi.c, data=dat, method="HS")
+res.u
+```
+
+```{r}
+### explained variance
+
+S2 <- sum(dat$n * (dat$r - coef(res))^2) / sum(dat$n)
+round((S2 - res.u$tau2) / S2, digits=4)
+
+# note: minor difference probably due to rounding in book
+```
+
+<!-- ####################################################################### -->
+
+## 42) Cumulative Meta-Analysis
+
+```{r}
+### analysis of the Lau et al. (1992) data using (log) risk ratios
+
+dat <- dat.lau1992
+dat <- escalc(measure="RR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat, slab=trial)
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+predict(res, transf=exp, digits=3)
+```
+
+```{r, figure_42_1, fig.width=8, fig.height=7.6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 42.1
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-10,9), atransf=exp, at=log(c(.01, 0.1, 1, 10, 100)),
+       header=TRUE, top=2, ilab=dat$year, ilab.xpos=-6, digits=3L, cex=0.8,
+       efac=c(0,1), fonts=c("sans", "inconsolata"))
+text(-6, 35, "Year", font=2, cex=0.8)
+```
+
+```{r}
+### cumulative meta-analysis
+
+rcm <- cumul(res)
+```
+
+```{r, figure_42_2, fig.width=8, fig.height=7.6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 42.2
+
+par(mar=c(4,4,2,2))
+
+forest(rcm, xlim=c(-5,3), atransf=exp, at=log(c(0.1, 0.25, 0.5, 1, 2)),
+       header=TRUE, top=2, ilab=dat$year, ilab.xpos=-3, digits=3L, cex=0.8,
+       efac=c(0,1))
+text(-3, 35, "Year", font=2, cex=0.8)
+```
