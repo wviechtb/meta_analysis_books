@@ -1511,7 +1511,7 @@ div.tocify {
 <h1 class="title toc-ignore">R Code Corresponding to the Book <em>Introduction to Meta-Analysis</em> by Borenstein et al. (2009)</h1>
 <h4 class="author"><div class="line-block">Wolfgang Viechtbauer<br />
 Maastricht University</div></h4>
-<h4 class="date">16 July, 2020</h4>
+<h4 class="date">17 July, 2020</h4>
 
 </div>
 
@@ -1519,7 +1519,7 @@ Maastricht University</div></h4>
 <!-- ####################################################################### -->
 <div id="general-notes-setup" class="section level2">
 <h2>General Notes / Setup</h2>
-<p>This document provides the R code to reproduce all examples and illustrations from the book <em>Introduction to Meta-Analysis</em> by Borenstein et al. (2009). The analyses are reproduced using the <code>metafor</code> package. To read more about the package, see the <a href="http://www.metafor-project.org/">package website</a> and the <a href="https://wviechtb.github.io/metafor/">package documentation</a>. Note that the ‘devel’ version of <code>metafor</code> needs to be installed as some of the datasets used below are not currently in the official release of the package on <a href="https://cran.r-project.org/package=metafor">CRAN</a>. The ‘devel’ version of the package can be installed with:</p>
+<p>As the title promises, the book <em>Introduction to Meta-Analysis</em> by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the <code>metafor</code> package. To read more about the package, see the <a href="http://www.metafor-project.org/">package website</a> and the <a href="https://wviechtb.github.io/metafor/">package documentation</a>. Note that the ‘devel’ version of <code>metafor</code> needs to be installed as some of the datasets used below are not currently in the official release of the package on <a href="https://cran.r-project.org/package=metafor">CRAN</a>. The ‘devel’ version of the package can be installed with:</p>
 <pre class="r"><code>install.packages(&quot;remotes&quot;)
 remotes::install_github(&quot;wviechtb/metafor&quot;)</code></pre>
 <p>This step will become obsolete once a new release of the <code>metafor</code> package is published on CRAN.</p>
@@ -2908,6 +2908,14 @@ res</code></pre>
 
 res &lt;- rma(yi, vi, data=dat, method=&quot;DL&quot;)
 permutest(res, exact=TRUE)</code></pre>
+<pre><code>## Running 8192 iterations for exact permutation test.</code></pre>
+<pre><code>## Model Results:
+## 
+## estimate      se     zval   pval*    ci.lb    ci.ub 
+##  -0.7141  0.1787  -3.9952  0.0017  -1.0644  -0.3638  ** 
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <pre class="r"><code>### mixed-effects meta-regression model with permutation test
 
 # note: an exact permutation test would require 389188800 iterations, which will
@@ -2917,6 +2925,18 @@ permutest(res, exact=TRUE)</code></pre>
 res &lt;- rma(yi, vi, mods = ~ ablat, data=dat, method=&quot;DL&quot;)
 set.seed(1234)
 permutest(res)</code></pre>
+<pre><code>## Running 1000 iterations for approximate permutation test.</code></pre>
+<pre><code>## Test of Moderators (coefficient 2):
+## QM(df = 1) = 18.8452, p-val* = 0.0070
+## 
+## Model Results:
+## 
+##          estimate      se     zval   pval*    ci.lb    ci.ub 
+## intrcpt    0.2595  0.2323   1.1172  0.6300  -0.1958   0.7149     
+## ablat     -0.0292  0.0067  -4.3411  0.0070  -0.0424  -0.0160  ** 
+## 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <!-- ####################################################################### -->
 </div>
 <div id="subgroups-within-studies" class="section level2">
