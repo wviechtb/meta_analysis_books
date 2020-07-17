@@ -28,7 +28,7 @@ fig_caption: no
 
 ## General Notes / Setup
 
-This document provides the R code to reproduce all examples and illustrations from the book *Introduction to Meta-Analysis* by Borenstein et al. (2009). The analyses are reproduced using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/). Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/). Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
 
 
 ```{r, eval=FALSE}
@@ -59,7 +59,7 @@ A few additional notes:
 .rmspace <- TRUE
 pointsize <- 14
 runperm <- TRUE
-runperm <- FALSE
+# runperm <- FALSE
 
 options(width=94)
 
