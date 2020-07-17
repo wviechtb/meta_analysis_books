@@ -62,10 +62,6 @@ runperm <- TRUE
 # runperm <- FALSE
 
 options(width=94)
-
-knitr::opts_chunk$set(
-  fig.path = "borenstein2009_figs/"
-)
 ```
 
 <!-- ####################################################################### -->

@@ -1,0 +1,188 @@
+---
+title: "R Code Corresponding to the Book *Practical Meta-Analysis* by Lipsey and Wilson (2001)"
+author: |
+  | Wolfgang Viechtbauer
+  | Maastricht University
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: default
+    toc: true
+    number_sections: false
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+    theme: default
+    # lots of nice themes can be used: https://bootswatch.com/
+  # rmarkdown::github_document
+  # pdf_document:
+  #   toc: true
+  #   number_sections: false
+  #   toc_depth: 3
+  # word_document
+fig_caption: no
+# bibliography: references.bib
+---
+
+<!-- ####################################################################### -->
+
+## General Notes / Setup
+
+The book *Practical Meta-Analysis* by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the fixed-, random-, and the mixed-effects model) using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+
+The package can be installed with:
+
+```{r, eval=FALSE}
+install.packages("metafor")
+```
+
+Once the package is installed, we can load it with:
+
+```{r, eval=FALSE}
+library(metafor)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(metafor)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+.rmspace <- TRUE
+pointsize <- 14
+
+options(width=94)
+
+fc <- function(x, digits=4)
+   formatC(x, format="f", digits=digits)
+```
+
+<!-- ####################################################################### -->
+
+## 1) Data
+
+The data used for the analyses are provided in the book on page 130 in Table 7.1. We can create the same dataset with:
+
+```{r}
+dat <- data.frame(
+   id = c(100, 308, 1596, 2479, 9021, 9028, 161, 172, 537, 7049),
+   yi = c(-0.33, 0.32, 0.39, 0.31, 0.17, 0.64, -0.33, 0.15, -0.02, 0.00),
+   vi = c(0.084, 0.035, 0.017, 0.034, 0.072, 0.117, 0.102, 0.093, 0.012, 0.067),
+   random = c(0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+   intensity = c(7, 3, 7, 5, 7, 7, 4, 4, 5, 6))
+dat
+```
+
+The `yi` values are standardized mean differences based on studies examining the effectiveness of 'challenge programs' to treat juvenile delinquency (presumably with positive values indicating that delinquent behaviors were reduced in the group of juveniles participating in such a challenge program compared to those who did not). The `vi` values are the corresponding sampling variances. The dummy variable `random` indicates whether juveniles were randomly assigned to the two conditions (1 = yes, 0 = no). Finally, `intensity` is a variable coded for the purposes of the meta-analysis which indicates (based on assessment of the coder) the intensity of the challenge program (coded from 1 = 'very low' to 7 = 'very high'). These last two variables are potential moderators of the treatment effectiveness.
+
+<!-- ####################################################################### -->
+
+## 2) Fixed-Effects Model
+
+We can fit a fixed-effects model to these data with:
+
+```{r}
+res.fe <- rma(yi, vi, data=dat, method="FE")
+res.fe
+```
+
+These results match what is reported on page 132-133 (see Exhibit 7.3).
+
+## 3) Random-Effects Model
+
+A random-effects model (using the DerSimonian-Laird estimator for $\tau^2$) can be fitted with:
+
+```{r}
+res.re <- rma(yi, vi, data=dat, method="DL")
+res.re
+```
+
+Again, these results match what is shown in Exhibit 7.3 and on pages 134-135.
+
+A forest plot showing the results of the individual studies and the results from the random-effects model can be created as follows:
+
+```{r, forestplot, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
+par(mar=c(4,4,2,2))
+
+forest(res.re, xlim=c(-2,3), header=c("Study", "SMD [95% CI]"), top=2,
+       xlab="Standardized Mean Difference")
+```
+
+## 4) Analog to the ANOVA
+
+Next, we can carry out the ANOVA-type analysis described on pages 135-138. In particular, a fixed-effects model with the ''random'' variable as moderator can be fitted with:
+
+```{r}
+res.anova <- rma(yi, vi, mods = ~ random, data=dat, method="FE")
+res.anova
+```
+
+Note that the $Q_E$ and $Q_M$ statistics add up to the $Q$ statistic given earlier for the fixed/random-effects models (i.e., $`r fc(res.anova$QE)` + `r fc(res.anova$QM)` = `r fc(res.fe$QE)`$).
+
+The tests for heterogeneity within the two subgroups formed by the moderator can be obtained with:
+
+```{r}
+res.r0 <- rma(yi, vi, data=dat, method="FE", subset=random==0)
+res.r0
+res.r1 <- rma(yi, vi, data=dat, method="FE", subset=random==1)
+res.r1
+```
+
+Here, we note that the two separate $Q$ statistics add up to the $Q_E$ statistic given earlier (i.e., $`r fc(res.r0$QE)` + `r fc(res.r1$QE)` = `r fc(res.anova$QE)`$).
+
+Finally, the predicted/estimated effect for ''random = 0'' and ''random = 1'' can be obtained with:
+
+```{r}
+predict(res.anova, newmods=c(0,1))
+```
+
+All of the values shown in Exhibit 7.4 have now been computed.
+
+## 5) Weighted Regression Analysis
+
+The 'weighted regression analysis' described on pages 138-140 is again nothing else than a fixed-effects model with moderators. Here, the authors are including both the `random` and the `intensity` moderators in the model. This can be done with:
+
+```{r}
+res.wr <- rma(yi, vi, mods = ~ random + intensity, data=dat, method="FE")
+res.wr
+```
+
+Exhibit 7.6 (page 141) shows the same results.
+
+## 6) Mixed-Effects Model
+
+Finally, the mixed-effects meta-regression model is described on pages 140-142. These results can be obtained with:
+
+```{r}
+res.me <- rma(yi, vi, mods = ~ random + intensity, data=dat, method="DL")
+res.me
+```
+
+These are the same results as shown in Exhibit 7.7 (page 141).
+
+In essence, the model describes the (linear) relationship between the treatment intensity and the standardized mean differences and allows the intercept of the regression line to differ depending on whether random assignment was used within the studies or not. We can visualize the results as follows:
+
+```{r, scatterplot, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+size <- weights(res.me)
+size <- 4 * sqrt(size / max(size))
+
+par(mar=c(5,4,2,2))
+
+plot(dat$intensity, dat$yi, xlab="Intensity", ylab="Standardized Mean Difference",
+     xlim=c(1,7), ylim=c(-.4,.7), pch=ifelse(dat$random == 0, 21, 19), cex=size)
+abline(a=coef(res.me)[1], b=coef(res.me)[3], lwd=2, lty="dotted")
+abline(a=coef(res.me)[1] + coef(res.me)[2], b=coef(res.me)[3], lwd=2)
+legend("topleft", inset=.02, lty=c("dotted", "solid"), lwd=2,
+       pch=c(21,19) ,legend=c("No Random Assignment", "Random Assignment"))
+```
+
+The points are drawn in size proportional to the weight the various studies received according to the model.
+
+## 7) Heterogeneity Accounted For
+
+The amount of heterogeneity accounted for by the moderator(s) included in the model is typically computed by comparing the amount of heterogeneity from the random-effects model with the amount of residual heterogeneity from the mixed-effects model (for more details, see the [here](http://www.metafor-project.org/doku.php/faq#for_mixed-effects_models_how_i)). The value is given in the output above. We can also carry out this computation explicitly by doing a full versus reduced model comparison with:
+
+```{r}
+anova(res.re, res.me)
+```
+
+The value under `R^2` is the amount of variance (heterogeneity) accounted for. In this particular example, we estimate that `r fc(res.me$R2, 1)`% of the total amount of heterogeneity is accounted for by the two moderators. Note that Lipsey and Wilson calculate $R^2$ in a different way than is usually done in meta-analyses, so the value for $R^2$ shown in Exhibit 7.7 (page 141) is different from the value computed above.
