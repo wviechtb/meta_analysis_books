@@ -24,8 +24,6 @@ fig_caption: no
 # bibliography: references.bib
 ---
 
-<!-- ####################################################################### -->
-
 ## General Notes / Setup
 
 The book *Practical Meta-Analysis* by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the fixed-, random-, and the mixed-effects model) using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
@@ -56,8 +54,6 @@ fc <- function(x, digits=4)
    formatC(x, format="f", digits=digits)
 ```
 
-<!-- ####################################################################### -->
-
 ## 1) Data
 
 The data used for the analyses are provided in the book on page 130 in Table 7.1. We can create the same dataset with:
@@ -73,8 +69,6 @@ dat
 ```
 
 The `yi` values are standardized mean differences based on studies examining the effectiveness of 'challenge programs' to treat juvenile delinquency (presumably with positive values indicating that delinquent behaviors were reduced in the group of juveniles participating in such a challenge program compared to those who did not). The `vi` values are the corresponding sampling variances. The dummy variable `random` indicates whether juveniles were randomly assigned to the two conditions (1 = yes, 0 = no). Finally, `intensity` is a variable coded for the purposes of the meta-analysis which indicates (based on assessment of the coder) the intensity of the challenge program (coded from 1 = 'very low' to 7 = 'very high'). These last two variables are potential moderators of the treatment effectiveness.
-
-<!-- ####################################################################### -->
 
 ## 2) Fixed-Effects Model
 

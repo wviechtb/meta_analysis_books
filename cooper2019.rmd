@@ -1,0 +1,660 @@
+---
+title: "R Code Corresponding to the Book *The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019)"
+author: |
+  | Wolfgang Viechtbauer
+  | Maastricht University
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: default
+    toc: true
+    number_sections: false
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+    theme: default
+    # lots of nice themes can be used: https://bootswatch.com/
+  # rmarkdown::github_document
+  # pdf_document:
+  #   toc: true
+  #   number_sections: false
+  #   toc_depth: 3
+  # word_document
+fig_caption: no
+# bibliography: references.bib
+---
+
+<!-- ####################################################################### -->
+
+## General Notes / Setup
+
+*The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+
+The package can be installed with:
+
+```{r, eval=FALSE}
+install.packages("metafor")
+```
+
+Once the package is installed, we can load it with:
+
+```{r, eval=FALSE}
+library(metafor)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(metafor)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+.rmspace <- TRUE
+pointsize <- 14
+
+options(width=94)
+
+fc <- function(x, digits=4)
+   formatC(x, format="f", digits=digits)
+```
+
+## 1) Research Synthesis as a Scientific Process
+
+To recreate Figure 1.1 (showing the number of citations to articles including the terms 'research synthesis', 'systematic review', or 'meta-analysis' in their titles), I redid the search in the Web of Science Core Collection, which yielded the following data:
+
+```{r}
+dat <- read.table(header=TRUE, text = "
+year hits
+2020 15973
+2019 32120
+2018 26293
+2017 23885
+2016 21318
+2015 18487
+2014 14781
+2013 12357
+2012 9802
+2011 7528
+2010 6120
+2009 5121
+2008 4006
+2007 3553
+2006 2771
+2005 2336
+2004 1911
+2003 1526
+2002 1309
+2001 1005
+2000 891
+1999 832
+1998 729
+1997 580
+1996 466
+1995 70
+1994 25
+1993 11
+1992 5
+1991 9
+1990 20
+1989 127
+1988 104
+")
+dat <- dat[-1,] # remove current year (not complete)
+dat <- dat[dat$year >= 1995,] # keep only 1995 or later
+dat <- dat[nrow(dat):1,] # reverse order
+```
+
+We can then create a bar chart based on these data:
+
+```{r, figure01_1, forestplot, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 1.1
+
+par(mar=c(4,4,2,2))
+barplot(dat$hits, names.arg=dat$year, las=2, space=0.4, col="#6c9ece", border=NA)
+abline(h=seq(0, 30000, by=5000), col="gray")
+barplot(dat$hits, space=0.4, col="#6c9ece", border=NA, add=TRUE, axes=FALSE)
+```
+
+## 10) Evaluating Coding Decisions
+
+Part of the code from this chapter is adapted from the chapter itself (see section 10.5). Below, we will make use of several additional packages that need to be installed (if they are not already installed). So let's do this first.
+
+```{r}
+### install the 'irr' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(irr, quietly=TRUE))) {
+   install.packages("irr", quiet=TRUE)
+   library(irr)
+}
+```
+
+```{r}
+### install the 'psych' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(psych, quietly=TRUE))) {
+   install.packages("psych", quiet=TRUE)
+   library(psych)
+}
+
+```{r}
+### install the 'vcd' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(vcd, quietly=TRUE))) {
+   install.packages("vcd", quiet=TRUE)
+   library(vcd)
+}
+
+```{r}
+### install the 'lme4' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(lme4, quietly=TRUE))) {
+   install.packages("lme4", quiet=TRUE)
+   library(lme4)
+}
+```
+
+```{r}
+### Table 10.1
+
+dat <- read.table(header=TRUE, text = "
+study c1 c2 c3
+1  3 2 3
+2  3 1 1
+3  2 2 2
+4  3 2 3
+5  1 1 1
+6  3 1 3
+7  2 2 1
+8  1 1 1
+9  2 2 1
+10 2 1 3
+11 2 2 2
+12 3 3 3
+13 3 1 2
+14 2 1 1
+15 1 1 1
+16 1 1 2
+17 3 3 1
+18 2 2 2
+19 2 2 2
+20 3 1 1
+21 2 1 2
+22 1 1 3
+23 3 2 2
+24 3 3 3
+25 2 2 3")
+```
+
+```{r}
+### put ratings for coders 1, 2, and 3 into separate vectors
+
+c1 <- dat$c1
+c2 <- dat$c2
+c3 <- dat$c3
+
+### combine ratings for coders 1 and 2 into a matrix
+
+c1c2 <- cbind(c1, c2)
+
+### combine ratings from all three coders into a matrix
+
+all3 <- cbind(c1, c2, c3)
+```
+
+```{r}
+### cell counts and marginal totals for coders 1 and 2
+
+addmargins(table(c2, c1))
+
+# note: first variable is for rows, second is for columns, so to reproduce
+# panel A of Table 10.2, we have to use table(c2, c1)
+```
+
+```{r}
+### agreement rate for coders 1 and 2
+
+mean(c1 == c2)
+```
+
+```{r}
+### agreement rate for all three coders
+
+mean(c1 == c2 & c1 == c3)
+```
+
+```{r}
+### agreement rate (in %) between coders 1 and 2
+
+irr::agree(c1c2)
+
+# note: agree(c1c2) would have been sufficient, but due to the large number of
+# additional packages being used, I will make it clear by using the :: operator
+# which package a function belongs to (unless this is clear from the contexts)
+```
+
+```{r}
+### agreement rate (in %) between all three coders
+
+irr::agree(all3)
+```
+
+```{r}
+### unweighted Cohen's kappa for coders 1 and 2
+
+irr::kappa2(c1c2)
+```
+
+```{r}
+### unweighted Cohen's kappa for all three coders
+
+irr::kappam.fleiss(all3)
+```
+
+```{r}
+### weighted Cohen's kappa for coders 1 and 2
+
+irr::kappa2(c1c2, weight=0:2)
+```
+
+We can also use the `psych` package to compute Cohen's kappa, which also provides corresponding confidence intervals.
+
+```{r}
+### unweighted and weighted Cohen's kappa for coders 1 and 2
+
+W <- outer(1:3, 1:3, FUN = function(x,y) abs(x-y)) # create weight matrix
+W
+res <- psych::cohen.kappa(c1c2, w=W)
+print(res, digits=3)
+```
+
+Note that the CI for weighted kappa is not correct! Using the `vcd` package, we can also compute Cohen's kappa and obtain the correct CI for weighted kappa.
+
+```{r}
+print(vcd::Kappa(table(c1,c2)), digits=3, CI=TRUE)
+
+# note: the (default) weighting scheme used for computing weighted kappa by the
+# function is the one described in the chapter
+```
+
+```{r}
+### Krippendorff's alpha for coders 1 and 2 when treating the data
+### as ratings on a nominal, on an ordinal, or on a ratio scale
+
+irr::kripp.alpha(t(c1c2))
+irr::kripp.alpha(t(c1c2), method="ordinal")
+irr::kripp.alpha(t(c1c2), method="ratio")
+```
+
+```{r}
+### correlation between coders 1 and 2
+
+cor(c1, c2)
+
+# note: the cor() function is part of the 'stats' package, which comes with R
+```
+
+```{r}
+### mean correlation between all pairs of coders
+
+irr::meancor(all3)
+```
+
+```{r}
+### intraclass correlation coefficient for coders 1 and 2
+
+psych::ICC(c1c2)
+
+# note: this function computes 6 different types of ICCs; the first three are
+# discussed in the chapter and are based on three different designs described
+# on page 187)
+```
+
+Using the `lmer()` function from the `lme4` package, we can also do these calculations manually.
+
+```{r}
+### restructure data into 'long' format
+
+dat <- data.frame(study = 1:25,
+                  rater = rep(1:2, each=25),
+                  rating = c(c1,c2))
+
+### absolute agreement based on one-way random-effects model
+
+res <- lmer(rating ~ (1 | study), data = dat)
+vcs <- data.frame(VarCorr(res))
+vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
+
+### absolute agreement based on two-way random-effects model
+
+res <- lmer(rating ~ (1 | study) + (1 | rater), data = dat)
+vcs <- data.frame(VarCorr(res))
+vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2] + vcs$vcov[3])
+
+### absolute agreement based on two-way mixed-effects model
+
+res <- lmer(rating ~ rater + (1 | study), data = dat)
+vcs <- data.frame(VarCorr(res))
+vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
+```
+
+```{r}
+### example data from page 199
+
+dat <- data.frame(
+   study = 1:25,
+   rater = rep(1:3, each=25),
+   rating = c(3,3,2,3,NA,3,2,1,2,2,NA,3,3,2,1,1,3,2,2,3,2,1,3,NA,2,
+              2,1,NA,2,1,1,2,1,2,1,2,3,1,1,NA,1,3,2,2,1,1,1,2,3,2,
+              3,1,2,3,1,3,1,1,NA,3,2,3,2,1,1,2,1,2,2,1,2,3,2,3,3))
+dat[c(1:4, 71:75),]
+```
+
+```{r}
+### absolute agreement for all three raters (based on one-way random-effects model)
+
+res <- lmer(rating ~ (1 | study), data = dat)
+vcs <- data.frame(VarCorr(res))
+vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
+```
+
+## 11) Effect Sizes for Meta-Analysis
+
+```{r}
+### data for Figure 11.1
+
+dat <- read.table(header=TRUE, text = "
+study md n var se pval
+A  0.400  60 0.067 0.258 0.121
+B  0.200 600 0.007 0.082 0.014
+C  0.300 100 0.040 0.201 0.134
+D  0.400 200 0.020 0.141 0.005
+E  0.300 400 0.010 0.100 0.003
+F -0.200 200 0.020 0.141 0.157")
+dat
+```
+
+```{r, figure11_1, forestplot, fig.width=8.5, fig.height=5.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+### Figure 11.1
+
+res <- rma(md, var, data=dat, method="FE", slab=study)
+
+tmp <- dat[-1]
+tmp$se  <- fc(tmp$se,  3)
+tmp$var <- fc(tmp$var, 3)
+
+size <- sqrt(weights(res))
+size <- 2.5 * size / max(size)
+
+par(mar=c(4,4,2,2))
+
+forest(res, xlim=c(-6.5,1), psize=size, header=TRUE, mlab="Combined",
+       efac=c(0,1,2), annotate=FALSE, xlab="Standardized Mean Difference",
+       ilab=tmp, ilab.xpos=c(-5.0, -4.1, -3.2, -2.3, -1.4))
+text(-5.0, 8, "Mean\nDifference", font=2)
+text(-4.1, 8, "Sample\nSize", font=2)
+text(-3.2, 8, "Variance", font=2)
+text(-2.3, 8, "Standard\nError", font=2)
+text(-1.4, 8, "p-Value", font=2)
+```
+
+### Effect Sizes for a Comparison of Means
+
+```{r}
+### mean difference assuming sigma^2_1 = sigma^2_1
+
+dat <- escalc("MD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50, vtype="HO")
+summary(dat) # note: summary() so we can also see the standard error (sei)
+
+### mean difference not assuming sigma^2_1 = sigma^2_1
+
+dat <- escalc("MD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
+summary(dat)
+
+# note: since n1i=n2i in this example, the results are exactly the same
+```
+
+```{r}
+### mean change
+
+dat <- escalc("MC", m1i=105, m2i=100, sd1i=10, sd2i=10, ni=50, ri=0.5)
+summary(dat)
+```
+
+```{r}
+### standardized mean difference (Hedges' g)
+
+dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
+summary(dat)
+
+# note: the sampling variance of Hedges' g is computed in a slightly different
+# way in the book compared to the metafor package; the difference is negligible
+```
+
+```{r}
+### standardized mean difference based on ANCOVA results
+
+# note: this is not implemented in metafor, so we have to do the computations manually
+
+Sw <- 5.5 / sqrt(1 - 0.7^2)
+d  <- (103 - 100) / Sw
+Vd <- (50 + 50) * (1 - 0.7^2) / (50 * 50) + d^2 / (2*(50 + 50 - 2 - 1))
+J  <- metafor:::.cmicalc(50 + 50 - 2 - 1)
+g  <- J * d
+Vg <- J^2 * Vd
+round(g,  digits=4)
+round(Vg, digits=4)
+
+# note: the results given in the book are not quite correct
+```
+
+### Correlations
+
+```{r}
+### r-to-z transformed correlation coefficient
+
+dat <- escalc("ZCOR", ri=0.50, ni=100)
+summary(dat)
+
+### back-transformation
+
+c(transf.ztor(dat$yi))
+```
+
+### Effect Sizes for Comparing Risks
+
+```{r}
+### risk difference
+
+dat <- escalc("RD", ai=5, n1i=100, ci=10, n2i=100)
+summary(dat)
+```
+
+```{r}
+### risk ratio (log transformed)
+
+dat <- escalc("RR", ai=5, n1i=100, ci=10, n2i=100)
+summary(dat)
+```
+
+```{r}
+### odds ratio (log transformed)
+
+dat <- escalc("OR", ai=5, n1i=100, ci=10, n2i=100)
+summary(dat)
+```
+
+```{r}
+### odds ratio (log transformed) for a case-control study
+
+dat <- escalc("OR", ai=25, bi=20, ci=75, di=80)
+summary(dat)
+```
+
+## 12) Statistically Analyzing Effect Sizes: Fixed- and Random-Effects Models
+
+```{r}
+### Table 12.1: Data for the Gender Differences in Conformity Example
+
+dat <- read.table(header=TRUE, text = "
+study group stdingrp nitems pmaleauth n d v
+1  1 1  2 141 25  -0.330 0.029
+2  1 2  2 119 25   0.070 0.034
+3  2 1  2 191 50  -0.300 0.022
+4  3 1 38 254 100  0.350 0.016
+5  3 2 30  64 100  0.700 0.066
+6  3 3 45  20 100  0.850 0.218
+7  3 4 45  90 100  0.400 0.045
+8  3 5 45  60 100  0.480 0.069
+9  3 6  5  80 100  0.370 0.051
+10 3 7  5 125 100 -0.060 0.032")
+
+# note: including the 'percent male authors' variable from Table 12.3
+
+dat
+```
+
+```{r}
+### fixed-effects model analysis
+
+res <- rma(d, v, data=dat, method="FE")
+print(res, digits=3)
+```
+
+```{r}
+### random-effects model analysis
+
+res <- rma(d, v, data=dat, method="DL")
+print(res, digits=3)
+
+# note: unfortunately, the estimate of tau^2 was not computed correctly in the
+# book (c = 242.1138, not 269.798) and hence all results given (in the left
+# column on page 251) are incorrect
+```
+
+```{r}
+### fixed-effects ANOVA-type analysis
+
+res <- rma(d, v, mods = ~ factor(group) - 1, data=dat, method="FE")
+print(res, digits=3)
+
+# note: by removing the intercept, the three coefficients directly provide the
+# estimated average effect for the three groups
+
+### weighted grand mean effect size
+
+rma(coef(res), diag(vcov(res)), method="FE", digits=3)
+```
+
+```{r}
+### partitioning of the Q-statistics
+
+res <- rma(d, v, mods = ~ factor(group), data=dat, method="FE")
+
+# not removing the intercept, so the QM-statistic is equal to Q-between
+
+round(res$QM, digits=3) # Q-between
+round(res$QE, digits=3) # Q-within
+
+### Q-within for each group
+
+res1 <- rma(d, v, data=dat, method="FE", subset=group==1)
+res2 <- rma(d, v, data=dat, method="FE", subset=group==2)
+res3 <- rma(d, v, data=dat, method="FE", subset=group==3)
+
+round(res1$QE, digits=3)
+round(res2$QE, digits=3) # given as 0.0004 in the book, but must be exactly 0, since k = 1
+round(res3$QE, digits=3)
+
+### these add up to Q-within above
+
+round(res1$QE + res2$QE + res3$QE, digits=3)
+```
+
+```{r}
+### contrast between group 1 and 3
+
+res <- rma(d, v, mods = ~ factor(group) - 1, data=dat, method="FE")
+anova(res, L=c(-1,0,1), digits=3)
+predict(res, newmods=c(-1,0,1), digits=3)
+
+# note: the results given in the book are slightly off
+```
+
+```{r}
+### mixed-effects model analysis
+
+### distribution-free (method of moments) estimate of tau^2
+
+res <- rma(d, v, mods = ~ factor(group), data=dat, method="DL")
+round(res$tau2, digits=3)
+
+### maximum likelihood estimate of tau^2
+
+res <- rma(d, v, mods = ~ factor(group), data=dat, method="ML")
+round(res$tau2, digits=3)
+
+### restricted maximum likelihood estimate of tau^2
+
+res <- rma(d, v, mods = ~ factor(group), data=dat, method="REML")
+round(res$tau2, digits=3)
+
+# note: the REML estimate is incorrectly claimed to be 0 in the book
+
+```{r}
+res <- rma(d, v, mods = ~ factor(group) - 1, data=dat, method="DL")
+print(res, digits=3)
+
+# note: by removing the intercept, the three coefficients directly provide the
+# estimated average effect for the three groups
+
+### weighted grand mean effect size
+
+rma(coef(res), diag(vcov(res)), method="FE", digits=3)
+
+### contrast between group 1 and 3
+
+anova(res, L=c(-1,0,1), digits=3)
+predict(res, newmods=c(-1,0,1), digits=3)
+```
+
+```{r}
+### meta-regression model
+
+res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="FE")
+print(res, digits=3)
+
+# note: when doing transformations on predictors (such as taking the log) in
+# the model formula, then we need to wrap this inside the I() function
+```
+
+```{r}
+### mixed-effects meta-regression model
+
+### distribution-free (method of moments) estimate of tau^2
+
+res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="DL")
+round(res$tau2, digits=3)
+
+### maximum likelihood estimate of tau^2
+
+res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="ML")
+round(res$tau2, digits=3)
+
+### restricted maximum likelihood estimate of tau^2
+
+res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="REML")
+round(res$tau2, digits=3)
+
+# note: the REML estimate is incorrectly claimed to be 0 in the book
+
+### continuing with the distribution-free (method of moments) estimate of tau^2
+
+res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="DL")
+print(res, digits=3)
+```
+
+```{r}
+### robust variance estimation
+
+robust(res, cluster=dat$study, digits=3)
+
+# note: the test statistic for log(nitems) is somewhat off in the book
+```

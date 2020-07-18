@@ -1231,7 +1231,7 @@ dat
 ```
 
 ```{r}
-### load/install the poolr package if it is not already installed
+### install the 'poolr' package (if it is not already installed) and load it
 
 if (suppressWarnings(!require(poolr, quietly=TRUE))) {
    install.packages("poolr", quiet=TRUE)
