@@ -8,7 +8,7 @@ The code is provided as [R Markdown](https://rmarkdown.rstudio.com/) documents, 
 
 * [Introduction to Meta-Analysis](http://www.metafor-project.org/misc/borenstein2009.html) by Borenstein et al. (2009)
 
-* [The Handbook of Research Synthesis and Meta-Analysis](http://www.metafor-project.org/misc/cooper2019) by Cooper et al. (2019) (note: this one isn't complete yet)
+* [The Handbook of Research Synthesis and Meta-Analysis](http://www.metafor-project.org/misc/cooper2019.html) by Cooper et al. (2019) (note: this one isn't complete yet)
 
 Feel free to suggest books via the [Issues](https://github.com/wviechtb/meta_analysis_books/issues).
 
