@@ -890,7 +890,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(fe.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(fe.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.fe <- coda.samples(model, variable.names=c("theta"), n.iter=100000)
 dic.fe <- dic.samples(model, n.iter=100000, type="pD")
@@ -928,9 +928,10 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
-bma.re <- coda.samples(model, variable.names=c("mu","tau2","theta.new","theta.2","theta.3"), n.iter=100000)
+bma.re <- coda.samples(model, variable.names=c("mu","tau2","theta.2","theta.3","theta.new"),
+                       n.iter=100000)
 dic.re <- dic.samples(model, n.iter=100000, type="pD")
 bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
 bma.re <- rbind(mu=bma.re[1,], exp.mu=exp(bma.re[1,]), tau2=bma.re[2,],
@@ -967,7 +968,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.hn <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
 bma.hn <- summary(bma.hn)$quantiles[,c(3,1,5)]
@@ -993,7 +994,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.ig <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
 bma.ig <- summary(bma.ig)$quantiles[,c(3,1,5)]
@@ -1037,7 +1038,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"), n.iter=100000)
 dic.me <- dic.samples(model, n.iter=100000, type="pD")
@@ -1061,7 +1062,9 @@ tab <- rbind(c(sum(dic.fe$deviance), sum(dic.fe[[2]]), sum(dic.fe$deviance) + su
              c(sum(dic.re$deviance), sum(dic.re[[2]]), sum(dic.re$deviance) + sum(dic.re[[2]])),
              c(sum(dic.me$deviance), sum(dic.me[[2]]), sum(dic.me$deviance) + sum(dic.me[[2]])))
 colnames(tab) <- c("mean(D)", "p_D", "DIC")
-rownames(tab) <- c("Fixed-effect meta-analysis", "Random-effects meta-analysis", "Random-effects meta-regression")
+rownames(tab) <- c("Fixed-effect meta-analysis",
+                   "Random-effects meta-analysis",
+                   "Random-effects meta-regression")
 round(tab, digits=1)
 ```
 
@@ -1102,7 +1105,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.re <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
 bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
@@ -1130,7 +1133,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.ip <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
 bma.ip <- summary(bma.ip)$quantiles[,c(3,1,5)]
@@ -1160,7 +1163,7 @@ inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
-model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3)
+model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
 bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"), n.iter=100000)
 bma.me <- summary(bma.me)$quantiles[,c(3,1,5)]
@@ -1172,11 +1175,11 @@ round(bma.me, digits=2)
 # Table 14.4: Recurrence of Violence Data
 
 dat <- read.table(header=TRUE, text = "
-study year xt nt xc nc
-'Bronx' 2005 20 202 11 218
-'Brooklyn' 2000 13 129 100 386
-'Broward' 2000 52 216 45 188
-'San Diego Navy' 2000 63 218 75 214")
+study            year  xt   nt   xc   nc
+'Bronx'          2005  20  202   11  218
+'Brooklyn'       2000  13  129  100  386
+'Broward'        2000  52  216   45  188
+'San Diego Navy' 2000  63  218   75  214")
 dat <- escalc(measure="OR", ai=xt, n1i=nt, ci=xc, n2i=nc, data=dat, digits=2)
 dat
 ```

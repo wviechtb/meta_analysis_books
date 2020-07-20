@@ -1483,17 +1483,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(fe.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 1
-##    Total graph size: 53
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(fe.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.fe &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;theta&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 dic.fe &lt;-<span class="st"> </span><span class="kw">dic.samples</span>(model, <span class="dt">n.iter=</span><span class="dv">100000</span>, <span class="dt">type=</span><span class="st">&quot;pD&quot;</span>)
 bma.fe &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.fe)$quantiles[<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
@@ -1529,18 +1520,10 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 19
-##    Total graph size: 74
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
-bma.re &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>,<span class="st">&quot;tau2&quot;</span>,<span class="st">&quot;theta.new&quot;</span>,<span class="st">&quot;theta.2&quot;</span>,<span class="st">&quot;theta.3&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+bma.re &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>,<span class="st">&quot;tau2&quot;</span>,<span class="st">&quot;theta.2&quot;</span>,<span class="st">&quot;theta.3&quot;</span>,<span class="st">&quot;theta.new&quot;</span>),
+                       <span class="dt">n.iter=</span><span class="dv">100000</span>)
 dic.re &lt;-<span class="st"> </span><span class="kw">dic.samples</span>(model, <span class="dt">n.iter=</span><span class="dv">100000</span>, <span class="dt">type=</span><span class="st">&quot;pD&quot;</span>)
 bma.re &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.re)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
 bma.re &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="dt">mu=</span>bma.re[<span class="dv">1</span>,], <span class="dt">exp.mu=</span><span class="kw">exp</span>(bma.re[<span class="dv">1</span>,]), <span class="dt">tau2=</span>bma.re[<span class="dv">2</span>,],
@@ -1579,17 +1562,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 18
-##    Total graph size: 76
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.hn &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>,<span class="st">&quot;tau2&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 bma.hn &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.hn)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
 bma.hn &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="dt">mu=</span>bma.hn[<span class="dv">1</span>,], <span class="dt">exp.mu=</span><span class="kw">exp</span>(bma.hn[<span class="dv">1</span>,]), <span class="dt">tau2=</span>bma.hn[<span class="dv">2</span>,])</code></pre></div>
@@ -1611,17 +1585,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 18
-##    Total graph size: 72
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.ig &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>,<span class="st">&quot;tau2&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 bma.ig &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.ig)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
 bma.ig &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="dt">mu=</span>bma.ig[<span class="dv">1</span>,], <span class="dt">exp.mu=</span><span class="kw">exp</span>(bma.ig[<span class="dv">1</span>,]), <span class="dt">tau2=</span>bma.ig[<span class="dv">2</span>,])</code></pre></div>
@@ -1663,17 +1628,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(me.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 19
-##    Total graph size: 95
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(me.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.me &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;beta0&quot;</span>,<span class="st">&quot;beta1&quot;</span>,<span class="st">&quot;tau2&quot;</span>,<span class="st">&quot;betasum&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 dic.me &lt;-<span class="st"> </span><span class="kw">dic.samples</span>(model, <span class="dt">n.iter=</span><span class="dv">100000</span>, <span class="dt">type=</span><span class="st">&quot;pD&quot;</span>)
 bma.me &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.me)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
@@ -1701,7 +1657,9 @@ tab &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="kw"
              <span class="kw">c</span>(<span class="kw">sum</span>(dic.re$deviance), <span class="kw">sum</span>(dic.re[[<span class="dv">2</span>]]), <span class="kw">sum</span>(dic.re$deviance) +<span class="st"> </span><span class="kw">sum</span>(dic.re[[<span class="dv">2</span>]])),
              <span class="kw">c</span>(<span class="kw">sum</span>(dic.me$deviance), <span class="kw">sum</span>(dic.me[[<span class="dv">2</span>]]), <span class="kw">sum</span>(dic.me$deviance) +<span class="st"> </span><span class="kw">sum</span>(dic.me[[<span class="dv">2</span>]])))
 <span class="kw">colnames</span>(tab) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;mean(D)&quot;</span>, <span class="st">&quot;p_D&quot;</span>, <span class="st">&quot;DIC&quot;</span>)
-<span class="kw">rownames</span>(tab) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Fixed-effect meta-analysis&quot;</span>, <span class="st">&quot;Random-effects meta-analysis&quot;</span>, <span class="st">&quot;Random-effects meta-regression&quot;</span>)
+<span class="kw">rownames</span>(tab) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Fixed-effect meta-analysis&quot;</span>,
+                   <span class="st">&quot;Random-effects meta-analysis&quot;</span>,
+                   <span class="st">&quot;Random-effects meta-regression&quot;</span>)
 <span class="kw">round</span>(tab, <span class="dt">digits=</span><span class="dv">1</span>)</code></pre></div>
 <pre><code>##                                mean(D) p_D  DIC
 ## Fixed-effect meta-analysis        40.3 1.0 41.3
@@ -1743,17 +1701,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 32
-##    Unobserved stochastic nodes: 34
-##    Total graph size: 185
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.re &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>,<span class="st">&quot;tau2&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 bma.re &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.re)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
 bma.re &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="dt">mu=</span>bma.re[<span class="dv">1</span>,], <span class="dt">exp.mu=</span><span class="kw">exp</span>(bma.re[<span class="dv">1</span>,]), <span class="dt">tau2=</span>bma.re[<span class="dv">2</span>,])
@@ -1781,17 +1730,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 18
-##    Total graph size: 77
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(re.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.ip &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;mu&quot;</span>,<span class="st">&quot;tau2&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 bma.ip &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.ip)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
 bma.ip &lt;-<span class="st"> </span><span class="kw">rbind</span>(<span class="dt">mu=</span>bma.ip[<span class="dv">1</span>,], <span class="dt">exp.mu=</span><span class="kw">exp</span>(bma.ip[<span class="dv">1</span>,]), <span class="dt">tau2=</span>bma.ip[<span class="dv">2</span>,])
@@ -1821,17 +1761,8 @@ inits[[<span class="dv">1</span>]]$.RNG.seed &lt;-<span class="st"> </span><span
 inits[[<span class="dv">2</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12342</span>
 inits[[<span class="dv">3</span>]]$.RNG.seed &lt;-<span class="st"> </span><span class="dv">12343</span>
 
-model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(me.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>)</code></pre></div>
-<pre><code>## Compiling model graph
-##    Resolving undeclared variables
-##    Allocating nodes
-## Graph information:
-##    Observed stochastic nodes: 16
-##    Unobserved stochastic nodes: 19
-##    Total graph size: 99
-## 
-## Initializing model</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
+model &lt;-<span class="st"> </span><span class="kw">jags.model</span>(<span class="kw">textConnection</span>(me.model), <span class="dt">inits=</span>inits, <span class="dt">data=</span>jags.data, <span class="dt">n.chains=</span><span class="dv">3</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
+<span class="kw">update</span>(model, <span class="dt">n.iter=</span><span class="dv">10000</span>)
 bma.me &lt;-<span class="st"> </span><span class="kw">coda.samples</span>(model, <span class="dt">variable.names=</span><span class="kw">c</span>(<span class="st">&quot;beta0&quot;</span>,<span class="st">&quot;beta1&quot;</span>,<span class="st">&quot;tau2&quot;</span>,<span class="st">&quot;betasum&quot;</span>), <span class="dt">n.iter=</span><span class="dv">100000</span>)
 bma.me &lt;-<span class="st"> </span><span class="kw">summary</span>(bma.me)$quantiles[,<span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">5</span>)]
 bma.me &lt;-<span class="st"> </span><span class="kw">rbind</span>(bma.me[<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>),], <span class="dt">exp.beta0=</span><span class="kw">exp</span>(bma.me[<span class="dv">1</span>,]), <span class="dt">exp.betasum=</span><span class="kw">exp</span>(bma.me[<span class="dv">3</span>,]))
@@ -1845,11 +1776,11 @@ bma.me &lt;-<span class="st"> </span><span class="kw">rbind</span>(bma.me[<span 
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Table 14.4: Recurrence of Violence Data</span>
 
 dat &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="dt">header=</span><span class="ot">TRUE</span>, <span class="dt">text =</span> <span class="st">&quot;</span>
-<span class="st">study year xt nt xc nc</span>
-<span class="st">'Bronx' 2005 20 202 11 218</span>
-<span class="st">'Brooklyn' 2000 13 129 100 386</span>
-<span class="st">'Broward' 2000 52 216 45 188</span>
-<span class="st">'San Diego Navy' 2000 63 218 75 214&quot;</span>)
+<span class="st">study            year  xt   nt   xc   nc</span>
+<span class="st">'Bronx'          2005  20  202   11  218</span>
+<span class="st">'Brooklyn'       2000  13  129  100  386</span>
+<span class="st">'Broward'        2000  52  216   45  188</span>
+<span class="st">'San Diego Navy' 2000  63  218   75  214&quot;</span>)
 dat &lt;-<span class="st"> </span><span class="kw">escalc</span>(<span class="dt">measure=</span><span class="st">&quot;OR&quot;</span>, <span class="dt">ai=</span>xt, <span class="dt">n1i=</span>nt, <span class="dt">ci=</span>xc, <span class="dt">n2i=</span>nc, <span class="dt">data=</span>dat, <span class="dt">digits=</span><span class="dv">2</span>)
 dat</code></pre></div>
 <pre><code>##            study year xt  nt  xc  nc    yi   vi 
