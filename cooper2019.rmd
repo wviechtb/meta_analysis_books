@@ -14,6 +14,7 @@ output:
       collapsed: true
     theme: default
     # lots of nice themes can be used: https://bootswatch.com/
+    highlight: haddock
   # rmarkdown::github_document
   # pdf_document:
   #   toc: true
@@ -24,17 +25,19 @@ fig_caption: no
 # bibliography: references.bib
 ---
 
-<!-- ####################################################################### -->
-
 ## General Notes / Setup
 
 *The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
-The package can be installed with:
+Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+
 
 ```{r, eval=FALSE}
-install.packages("metafor")
+install.packages("remotes")
+remotes::install_github("wviechtb/metafor")
 ```
+
+This step will become obsolete once a new release of the `metafor` package is published on CRAN.
 
 Once the package is installed, we can load it with:
 
@@ -97,15 +100,15 @@ year hits
 1989 127
 1988 104
 ")
-dat <- dat[-1,] # remove current year (not complete)
+dat <- dat[-1,]               # remove current year (not complete)
 dat <- dat[dat$year >= 1995,] # keep only 1995 or later
-dat <- dat[nrow(dat):1,] # reverse order
+dat <- dat[nrow(dat):1,]      # reverse order
 ```
 
 We can then create a bar chart based on these data:
 
 ```{r, figure01_1, forestplot, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
-### Figure 1.1
+# Figure 1.1
 
 par(mar=c(4,4,2,2))
 barplot(dat$hits, names.arg=dat$year, las=2, space=0.4, col="#6c9ece", border=NA)
@@ -118,7 +121,7 @@ barplot(dat$hits, space=0.4, col="#6c9ece", border=NA, add=TRUE, axes=FALSE)
 Part of the code from this chapter is adapted from the chapter itself (see section 10.5). Below, we will make use of several additional packages that need to be installed (if they are not already installed). So let's do this first.
 
 ```{r}
-### install the 'irr' package (if it is not already installed) and load it
+# install the 'irr' package (if it is not already installed) and load it
 
 if (suppressWarnings(!require(irr, quietly=TRUE))) {
    install.packages("irr", quiet=TRUE)
@@ -127,7 +130,7 @@ if (suppressWarnings(!require(irr, quietly=TRUE))) {
 ```
 
 ```{r}
-### install the 'psych' package (if it is not already installed) and load it
+# install the 'psych' package (if it is not already installed) and load it
 
 if (suppressWarnings(!require(psych, quietly=TRUE))) {
    install.packages("psych", quiet=TRUE)
@@ -135,7 +138,7 @@ if (suppressWarnings(!require(psych, quietly=TRUE))) {
 }
 
 ```{r}
-### install the 'vcd' package (if it is not already installed) and load it
+# install the 'vcd' package (if it is not already installed) and load it
 
 if (suppressWarnings(!require(vcd, quietly=TRUE))) {
    install.packages("vcd", quiet=TRUE)
@@ -143,7 +146,7 @@ if (suppressWarnings(!require(vcd, quietly=TRUE))) {
 }
 
 ```{r}
-### install the 'lme4' package (if it is not already installed) and load it
+# install the 'lme4' package (if it is not already installed) and load it
 
 if (suppressWarnings(!require(lme4, quietly=TRUE))) {
    install.packages("lme4", quiet=TRUE)
@@ -152,7 +155,7 @@ if (suppressWarnings(!require(lme4, quietly=TRUE))) {
 ```
 
 ```{r}
-### Table 10.1
+# Table 10.1
 
 dat <- read.table(header=TRUE, text = "
 study c1 c2 c3
@@ -184,23 +187,23 @@ study c1 c2 c3
 ```
 
 ```{r}
-### put ratings for coders 1, 2, and 3 into separate vectors
+# put ratings for coders 1, 2, and 3 into separate vectors
 
 c1 <- dat$c1
 c2 <- dat$c2
 c3 <- dat$c3
 
-### combine ratings for coders 1 and 2 into a matrix
+# combine ratings for coders 1 and 2 into a matrix
 
 c1c2 <- cbind(c1, c2)
 
-### combine ratings from all three coders into a matrix
+# combine ratings from all three coders into a matrix
 
 all3 <- cbind(c1, c2, c3)
 ```
 
 ```{r}
-### cell counts and marginal totals for coders 1 and 2
+# cell counts and marginal totals for coders 1 and 2
 
 addmargins(table(c2, c1))
 
@@ -209,19 +212,19 @@ addmargins(table(c2, c1))
 ```
 
 ```{r}
-### agreement rate for coders 1 and 2
+# agreement rate for coders 1 and 2
 
 mean(c1 == c2)
 ```
 
 ```{r}
-### agreement rate for all three coders
+# agreement rate for all three coders
 
 mean(c1 == c2 & c1 == c3)
 ```
 
 ```{r}
-### agreement rate (in %) between coders 1 and 2
+# agreement rate (in %) between coders 1 and 2
 
 irr::agree(c1c2)
 
@@ -231,25 +234,25 @@ irr::agree(c1c2)
 ```
 
 ```{r}
-### agreement rate (in %) between all three coders
+# agreement rate (in %) between all three coders
 
 irr::agree(all3)
 ```
 
 ```{r}
-### unweighted Cohen's kappa for coders 1 and 2
+# unweighted Cohen's kappa for coders 1 and 2
 
 irr::kappa2(c1c2)
 ```
 
 ```{r}
-### unweighted Cohen's kappa for all three coders
+# unweighted Cohen's kappa for all three coders
 
 irr::kappam.fleiss(all3)
 ```
 
 ```{r}
-### weighted Cohen's kappa for coders 1 and 2
+# weighted Cohen's kappa for coders 1 and 2
 
 irr::kappa2(c1c2, weight=0:2)
 ```
@@ -257,7 +260,7 @@ irr::kappa2(c1c2, weight=0:2)
 We can also use the `psych` package to compute Cohen's kappa, which also provides corresponding confidence intervals.
 
 ```{r}
-### unweighted and weighted Cohen's kappa for coders 1 and 2
+# unweighted and weighted Cohen's kappa for coders 1 and 2
 
 W <- outer(1:3, 1:3, FUN = function(x,y) abs(x-y)) # create weight matrix
 W
@@ -270,13 +273,13 @@ Note that the CI for weighted kappa is not correct! Using the `vcd` package, we 
 ```{r}
 print(vcd::Kappa(table(c1,c2)), digits=3, CI=TRUE)
 
-# note: the (default) weighting scheme used for computing weighted kappa by the
-# function is the one described in the chapter
+# note: the (default) weighting scheme used for computing weighted kappa by
+# the function is the one described in the chapter
 ```
 
 ```{r}
-### Krippendorff's alpha for coders 1 and 2 when treating the data
-### as ratings on a nominal, on an ordinal, or on a ratio scale
+# Krippendorff's alpha for coders 1 and 2 when treating the data as ratings on
+# a nominal, on an ordinal, or on a ratio scale
 
 irr::kripp.alpha(t(c1c2))
 irr::kripp.alpha(t(c1c2), method="ordinal")
@@ -284,7 +287,7 @@ irr::kripp.alpha(t(c1c2), method="ratio")
 ```
 
 ```{r}
-### correlation between coders 1 and 2
+# correlation between coders 1 and 2
 
 cor(c1, c2)
 
@@ -292,43 +295,43 @@ cor(c1, c2)
 ```
 
 ```{r}
-### mean correlation between all pairs of coders
+# mean correlation between all pairs of coders
 
 irr::meancor(all3)
 ```
 
 ```{r}
-### intraclass correlation coefficient for coders 1 and 2
+# intraclass correlation coefficient for coders 1 and 2
 
 psych::ICC(c1c2)
 
 # note: this function computes 6 different types of ICCs; the first three are
-# discussed in the chapter and are based on three different designs described
-# on page 187)
+# discussed in the chapter and correspond to the three different designs
+# described on page 187
 ```
 
 Using the `lmer()` function from the `lme4` package, we can also do these calculations manually.
 
 ```{r}
-### restructure data into 'long' format
+# restructure data into 'long' format
 
 dat <- data.frame(study = 1:25,
                   rater = rep(1:2, each=25),
                   rating = c(c1,c2))
 
-### absolute agreement based on one-way random-effects model
+# absolute agreement based on one-way random-effects model
 
 res <- lmer(rating ~ (1 | study), data = dat)
 vcs <- data.frame(VarCorr(res))
 vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
 
-### absolute agreement based on two-way random-effects model
+# absolute agreement based on two-way random-effects model
 
 res <- lmer(rating ~ (1 | study) + (1 | rater), data = dat)
 vcs <- data.frame(VarCorr(res))
 vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2] + vcs$vcov[3])
 
-### absolute agreement based on two-way mixed-effects model
+# absolute agreement based on two-way mixed-effects model
 
 res <- lmer(rating ~ rater + (1 | study), data = dat)
 vcs <- data.frame(VarCorr(res))
@@ -336,7 +339,7 @@ vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
 ```
 
 ```{r}
-### example data from page 199
+# example data from page 199
 
 dat <- data.frame(
    study = 1:25,
@@ -348,7 +351,7 @@ dat[c(1:4, 71:75),]
 ```
 
 ```{r}
-### absolute agreement for all three raters (based on one-way random-effects model)
+# absolute agreement for all three raters (based on one-way random-effects model)
 
 res <- lmer(rating ~ (1 | study), data = dat)
 vcs <- data.frame(VarCorr(res))
@@ -358,7 +361,7 @@ vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
 ## 11) Effect Sizes for Meta-Analysis
 
 ```{r}
-### data for Figure 11.1
+# data for Figure 11.1
 
 dat <- read.table(header=TRUE, text = "
 study md n var se pval
@@ -372,7 +375,7 @@ dat
 ```
 
 ```{r, figure11_1, forestplot, fig.width=8.5, fig.height=5.5, dev.args=list(pointsize=pointsize), fig.align='center'}
-### Figure 11.1
+# Figure 11.1
 
 res <- rma(md, var, data=dat, method="FE", slab=study)
 
@@ -398,12 +401,12 @@ text(-1.4, 8, "p-Value", font=2)
 ### Effect Sizes for a Comparison of Means
 
 ```{r}
-### mean difference assuming sigma^2_1 = sigma^2_1
+# mean difference assuming sigma^2_1 = sigma^2_1
 
 dat <- escalc("MD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50, vtype="HO")
 summary(dat) # note: summary() so we can also see the standard error (sei)
 
-### mean difference not assuming sigma^2_1 = sigma^2_1
+# mean difference not assuming sigma^2_1 = sigma^2_1
 
 dat <- escalc("MD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
 summary(dat)
@@ -412,14 +415,14 @@ summary(dat)
 ```
 
 ```{r}
-### mean change
+# mean change
 
 dat <- escalc("MC", m1i=105, m2i=100, sd1i=10, sd2i=10, ni=50, ri=0.5)
 summary(dat)
 ```
 
 ```{r}
-### standardized mean difference (Hedges' g)
+# standardized mean difference (Hedges' g)
 
 dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
 summary(dat)
@@ -429,9 +432,9 @@ summary(dat)
 ```
 
 ```{r}
-### standardized mean difference based on ANCOVA results
+# standardized mean difference based on ANCOVA results
 
-# note: this is not implemented in metafor, so we have to do the computations manually
+# note: not implemented in metafor, so we have to do the computations manually
 
 Sw <- 5.5 / sqrt(1 - 0.7^2)
 d  <- (103 - 100) / Sw
@@ -448,12 +451,12 @@ round(Vg, digits=4)
 ### Correlations
 
 ```{r}
-### r-to-z transformed correlation coefficient
+# r-to-z transformed correlation coefficient
 
 dat <- escalc("ZCOR", ri=0.50, ni=100)
 summary(dat)
 
-### back-transformation
+# back-transformation
 
 c(transf.ztor(dat$yi))
 ```
@@ -461,28 +464,28 @@ c(transf.ztor(dat$yi))
 ### Effect Sizes for Comparing Risks
 
 ```{r}
-### risk difference
+# risk difference
 
 dat <- escalc("RD", ai=5, n1i=100, ci=10, n2i=100)
 summary(dat)
 ```
 
 ```{r}
-### risk ratio (log transformed)
+# risk ratio (log transformed)
 
 dat <- escalc("RR", ai=5, n1i=100, ci=10, n2i=100)
 summary(dat)
 ```
 
 ```{r}
-### odds ratio (log transformed)
+# odds ratio (log transformed)
 
 dat <- escalc("OR", ai=5, n1i=100, ci=10, n2i=100)
 summary(dat)
 ```
 
 ```{r}
-### odds ratio (log transformed) for a case-control study
+# odds ratio (log transformed) for a case-control study
 
 dat <- escalc("OR", ai=25, bi=20, ci=75, di=80)
 summary(dat)
@@ -491,7 +494,7 @@ summary(dat)
 ## 12) Statistically Analyzing Effect Sizes: Fixed- and Random-Effects Models
 
 ```{r}
-### Table 12.1: Data for the Gender Differences in Conformity Example
+# Table 12.1: Data for the Gender Differences in Conformity Example
 
 dat <- read.table(header=TRUE, text = "
 study group stdingrp nitems pmaleauth n d v
@@ -512,25 +515,25 @@ dat
 ```
 
 ```{r}
-### fixed-effects model analysis
+# fixed-effects model analysis
 
 res <- rma(d, v, data=dat, method="FE")
 print(res, digits=3)
 ```
 
 ```{r}
-### random-effects model analysis
+# random-effects model analysis
 
 res <- rma(d, v, data=dat, method="DL")
 print(res, digits=3)
 
 # note: unfortunately, the estimate of tau^2 was not computed correctly in the
-# book (c = 242.1138, not 269.798) and hence all results given (in the left
-# column on page 251) are incorrect
+# book (c=242.1138, not 269.798) and hence all of the results given in the left
+# column on page 251 are incorrect
 ```
 
 ```{r}
-### fixed-effects ANOVA-type analysis
+# fixed-effects ANOVA-type analysis
 
 res <- rma(d, v, mods = ~ factor(group) - 1, data=dat, method="FE")
 print(res, digits=3)
@@ -538,38 +541,39 @@ print(res, digits=3)
 # note: by removing the intercept, the three coefficients directly provide the
 # estimated average effect for the three groups
 
-### weighted grand mean effect size
+# weighted grand mean effect size
 
 rma(coef(res), diag(vcov(res)), method="FE", digits=3)
 ```
 
 ```{r}
-### partitioning of the Q-statistics
+# partitioning of the Q-statistics
 
 res <- rma(d, v, mods = ~ factor(group), data=dat, method="FE")
+res
 
 # not removing the intercept, so the QM-statistic is equal to Q-between
 
 round(res$QM, digits=3) # Q-between
 round(res$QE, digits=3) # Q-within
 
-### Q-within for each group
+# Q-within for each group
 
 res1 <- rma(d, v, data=dat, method="FE", subset=group==1)
 res2 <- rma(d, v, data=dat, method="FE", subset=group==2)
 res3 <- rma(d, v, data=dat, method="FE", subset=group==3)
 
 round(res1$QE, digits=3)
-round(res2$QE, digits=3) # given as 0.0004 in the book, but must be exactly 0, since k = 1
+round(res2$QE, digits=3) # 0.0004 in the book, but must be exactly 0 since k=1
 round(res3$QE, digits=3)
 
-### these add up to Q-within above
+# these add up to Q-within above
 
 round(res1$QE + res2$QE + res3$QE, digits=3)
 ```
 
 ```{r}
-### contrast between group 1 and 3
+# contrast between group 1 and 3
 
 res <- rma(d, v, mods = ~ factor(group) - 1, data=dat, method="FE")
 anova(res, L=c(-1,0,1), digits=3)
@@ -579,24 +583,25 @@ predict(res, newmods=c(-1,0,1), digits=3)
 ```
 
 ```{r}
-### mixed-effects model analysis
+# mixed-effects model analysis
 
-### distribution-free (method of moments) estimate of tau^2
+# distribution-free (method of moments) estimate of tau^2
 
 res <- rma(d, v, mods = ~ factor(group), data=dat, method="DL")
 round(res$tau2, digits=3)
 
-### maximum likelihood estimate of tau^2
+# maximum likelihood estimate of tau^2
 
 res <- rma(d, v, mods = ~ factor(group), data=dat, method="ML")
 round(res$tau2, digits=3)
 
-### restricted maximum likelihood estimate of tau^2
+# restricted maximum likelihood estimate of tau^2
 
 res <- rma(d, v, mods = ~ factor(group), data=dat, method="REML")
 round(res$tau2, digits=3)
 
 # note: the REML estimate is incorrectly claimed to be 0 in the book
+```
 
 ```{r}
 res <- rma(d, v, mods = ~ factor(group) - 1, data=dat, method="DL")
@@ -605,18 +610,18 @@ print(res, digits=3)
 # note: by removing the intercept, the three coefficients directly provide the
 # estimated average effect for the three groups
 
-### weighted grand mean effect size
+# weighted grand mean effect size
 
 rma(coef(res), diag(vcov(res)), method="FE", digits=3)
 
-### contrast between group 1 and 3
+# contrast between group 1 and 3
 
 anova(res, L=c(-1,0,1), digits=3)
 predict(res, newmods=c(-1,0,1), digits=3)
 ```
 
 ```{r}
-### meta-regression model
+# meta-regression model
 
 res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="FE")
 print(res, digits=3)
@@ -626,35 +631,669 @@ print(res, digits=3)
 ```
 
 ```{r}
-### mixed-effects meta-regression model
+# mixed-effects meta-regression model
 
-### distribution-free (method of moments) estimate of tau^2
+# distribution-free (method of moments) estimate of tau^2
 
 res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="DL")
 round(res$tau2, digits=3)
 
-### maximum likelihood estimate of tau^2
+# maximum likelihood estimate of tau^2
 
 res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="ML")
 round(res$tau2, digits=3)
 
-### restricted maximum likelihood estimate of tau^2
+# restricted maximum likelihood estimate of tau^2
 
 res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="REML")
 round(res$tau2, digits=3)
 
 # note: the REML estimate is incorrectly claimed to be 0 in the book
 
-### continuing with the distribution-free (method of moments) estimate of tau^2
+# continuing with the distribution-free (method of moments) estimate of tau^2
 
 res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="DL")
 print(res, digits=3)
 ```
 
 ```{r}
-### robust variance estimation
+# robust variance estimation
 
 robust(res, cluster=dat$study, digits=3)
 
 # note: the test statistic for log(nitems) is somewhat off in the book
+```
+
+***
+
+## 13) Stochastically Dependent Effect Sizes
+
+```{r}
+# Table 13.1
+
+dat <- dat.kalaian1996[c(1:8,17:29,9:16,30:31),c(2,4:5,7,6,8)]
+dat$study <- rep(1:26, times=rle(dat$study)$lengths)
+names(dat) <- c("study", "nt", "nc", "d", "outcome", "v")
+dat
+
+# note: this is a subset of the studies in dat.kalaian1996; instead of using
+# dummy variable 'x' (where x=0 for the verbal and x=1 for the math subtest),
+# we use the 'outcome' variable that has more descriptive labels
+```
+
+```{r}
+# construct variance-covariance matrices assuming rho = 0.7
+
+vcalc <- function(v, rho) {
+   S <- diag(sqrt(v), nrow=length(v), ncol=length(v))
+   R <- matrix(rho, nrow=length(v), ncol=length(v))
+   diag(R) <- 1
+   S %*% R %*% S
+}
+
+V <- lapply(split(dat$v, dat$study), vcalc, rho=0.7)
+
+# var-cov matrix for studies 22 to 26
+
+lapply(V[22:26], round, digits=4)
+```
+
+```{r}
+# multivariate model with (correlated) random effects for both outcomes
+
+res <- rma.mv(d, V, mods = ~ outcome - 1,
+              random = ~ outcome | study, struct="UN", data=dat)
+print(res, digits=3)
+
+# note: by removing the intercept, the two coefficients directly provide the
+# estimated average effect for the two outcomes
+
+# note: both variance components are very close to 0; as in the book, we
+# proceed with a model where both variances are constrained to be equal to 0
+```
+
+```{r}
+# multivariate fixed-effects model
+
+res <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
+print(res, digits=3)
+```
+
+```{r}
+# fit model with varying values of rho
+
+rhos <- c(0, 0.5, 0.6, 0.7, 0.8)
+res <- list()
+for (i in 1:length(rhos)) {
+   V <- lapply(split(dat$v, dat$study), vcalc, rho=rhos[i])
+   res[[i]] <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
+}
+
+# Table 13.2
+
+tab <- data.frame(rho  = rhos,
+                  b1   = sapply(res, function(x) coef(x)[1]),
+                  s1   = sapply(res, function(x) x$se[1]),
+                  lcl1 = sapply(res, function(x) x$ci.lb[1]),
+                  ucl1 = sapply(res, function(x) x$ci.ub[1]),
+                  z1   = sapply(res, function(x) x$zval[1]),
+                  b2   = sapply(res, function(x) coef(x)[2]),
+                  s2   = sapply(res, function(x) x$se[2]),
+                  lcl2 = sapply(res, function(x) x$ci.lb[2]),
+                  ucl2 = sapply(res, function(x) x$ci.ub[2]),
+                  z2   = sapply(res, function(x) x$zval[2]))
+round(tab, digits=2)
+
+# note: there are some printing errors in the table in the book; also,
+# the values given in the Z_2 column in the book are quite off
+```
+
+```{r}
+# robust variance estimation
+
+V <- lapply(split(dat$v, dat$study), vcalc, rho=0.7)
+res <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
+robust(res, cluster=dat$study)
+
+# note: this is not the exact same approach that is described in the book; it
+# uses a different weighting scheme and uses k-p for the degrees of freedom
+# for the t-statistics; we can use of the 'effective degrees of freedom'
+# method described in the book with the 'clubSandwich' package
+```
+
+```{r}
+# install the 'clubSandwich' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(clubSandwich, quietly=TRUE))) {
+   install.packages("clubSandwich", quiet=TRUE)
+   library(clubSandwich)
+}
+
+coef_test(res, vcov="CR2", cluster=dat$study)
+
+# note: but these are still not the same results as given in the book because
+# of the different weighting scheme; we can get the same results as given in
+# the book with the 'robumeta' package
+```
+
+```{r}
+# install the 'robumeta' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(robumeta, quietly=TRUE))) {
+   install.packages("robumeta", quiet=TRUE)
+   library(robumeta)
+}
+```
+
+```{r}
+robu(d ~ outcome - 1, data=dat, studynum=study, var.eff.size=v, rho=0.7, small=TRUE)
+
+# note: the value of rho actually has no influence on these results
+```
+
+```{r}
+# reproduce robumeta results using metafor and clubSandwich
+
+vcalc <- function(v, tau2)
+   diag((tau2 + mean(v)) * length(v), nrow=length(v), ncol=length(v))
+
+V <- lapply(split(dat$v, dat$study), vcalc, tau2=0)
+res <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
+coef_test(res, vcov="CR2", cluster=dat$study)
+conf_int(res,  vcov="CR2", cluster=dat$study)
+```
+
+```{r, include=FALSE}
+# an example where tau^2 != 0
+
+tmp <- dat
+tmp$v <- tmp$v / 10
+res <- robu(d ~ outcome - 1, data=tmp, studynum=study, var.eff.size=v, rho=0.7, small=TRUE)
+res
+V <- lapply(split(tmp$v, tmp$study), vcalc, tau2=c(res$mod_info$tau.sq))
+res <- rma.mv(d, V, mods = ~ outcome - 1, data=tmp)
+coef_test(res, vcov="CR2", cluster=tmp$study)
+conf_int(res,  vcov="CR2", cluster=tmp$study)
+```
+
+```{r}
+# construct dataset with synthetic effects
+
+agg <- aggregate(dat, by=list(dat$study), function(x) {
+   if (is.character(x))
+      paste(unique(x), collapse="/")
+   else
+      mean(x)
+   })
+agg$Group.1 <- agg$x <- NULL
+agg
+```
+
+```{r}
+# fit standard random-effects model to the dataset with synthetic effects
+
+res <- rma(d, v, data=agg, method="DL")
+print(res, digits=3)
+```
+
+```{r, include=FALSE}
+dat$v <- dat$v / 10
+res <- robu(d ~ outcome - 1, data=dat, studynum=study, var.eff.size=v, rho=0.7, small=TRUE)
+res
+
+# note: value of rho has no influence on tau^2; is this a bug?
+```
+
+## 14) Bayesian Meta-Analysis
+
+For these analyses, we could do most of what is described in the chapter using the excellent [brms](https://cran.r-project.org/package=brms) package. However, to fully reproduce all of the analyses conducted, we either need to use [WinBUGS](https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/) (as was done by the chapter authors) or we can use [JAGS](http://mcmc-jags.sourceforge.net/) (which has the advantage that it runs not just under Windows, but also macOS / Mac OS X and Linux). Here, we will make use of the latter, which we can interact with directly from R via the [rjags](https://cran.r-project.org/package=rjags) package. Note that JAGS needs to be installed separately (follow the link above for installation instructions).
+
+```{r}
+# install the 'rjags' package (if it is not already installed) and load it
+
+if (suppressWarnings(!require(rjags, quietly=TRUE))) {
+   install.packages("rjags", quiet=TRUE)
+   library(rjags)
+}
+```
+
+```{r}
+# Table 14.1: Respiratory Tract Infections Data
+
+dat <- dat.damico2009[c(1:8,16,9:15),-8]
+dat$conceal <- 1 - dat$conceal
+rownames(dat) <- 1:nrow(dat)
+dat <- escalc(measure="OR", ai=xt, n1i=nt, ci=xc, n2i=nc, data=dat, digits=2)
+dat
+
+# note: including 'conceal' variable (coded 0 = allocation concealment
+# adequate, 1 = allocation concealment inadequate)
+```
+
+```{r}
+# Bayesian fixed-effects model
+
+k <- length(dat$yi)
+
+jags.data <- list(yi=dat$yi, vi=dat$vi, k=k)
+
+fe.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta, 1/vi[i])
+   }
+   theta ~ dnorm(0, .0001)
+}"
+
+inits <- list(theta=0, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(fe.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.fe <- coda.samples(model, variable.names=c("theta"), n.iter=100000)
+dic.fe <- dic.samples(model, n.iter=100000, type="pD")
+bma.fe <- summary(bma.fe)$quantiles[c(3,1,5)]
+bma.fe <- rbind(theta=bma.fe, exp.theta = exp(bma.fe))
+round(bma.fe, digits=2)
+```
+
+```{r}
+# compare with results from a non-Bayesian analysis
+
+res.fe <- rma(yi, vi, data=dat, method="FE", digits=2)
+predict(res.fe, transf=exp)
+```
+
+```{r}
+# Bayesian random-effects model with uniform(0,2) prior for tau
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, 1/tau2)
+   }
+   mu ~ dnorm(0, .0001)
+   tau ~ dunif(0, 2)
+   tau2 <- tau^2
+   theta.2 <- theta[2]
+   theta.3 <- theta[3]
+   theta.new ~ dnorm(mu, 1/tau2)
+}"
+
+inits <- list(theta=rep(0,k), theta.new=0, mu=0, tau=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.re <- coda.samples(model, variable.names=c("mu","tau2","theta.new","theta.2","theta.3"), n.iter=100000)
+dic.re <- dic.samples(model, n.iter=100000, type="pD")
+bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
+bma.re <- rbind(mu=bma.re[1,], exp.mu=exp(bma.re[1,]), tau2=bma.re[2,],
+                bma.re[3:5,], exp.theta.new=exp(bma.re[5,]))
+round(bma.re[1:3,], digits=2)
+```
+
+```{r}
+# compare with results from a non-Bayesian analysis
+
+res.re <- rma(yi, vi, data=dat, method="DL", digits=2)
+pred.re <- predict(res.re, transf=exp)
+pred.re
+conf.re <- confint(res.re)
+round(conf.re$random[1,], digits=2)
+```
+
+```{r}
+# Bayesian random-effects model with half-normal(0,0.5^2) prior for tau
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, 1/tau2)
+   }
+   mu ~ dnorm(0, .0001)
+   tau ~ dnorm(0, 1/0.5^2) T(0,)
+   tau2 <- tau^2
+}"
+
+inits <- list(theta=rep(0,k), mu=0, tau=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.hn <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+bma.hn <- summary(bma.hn)$quantiles[,c(3,1,5)]
+bma.hn <- rbind(mu=bma.hn[1,], exp.mu=exp(bma.hn[1,]), tau2=bma.hn[2,])
+```
+
+```{r}
+# Bayesian random-effects model with gamma(.001,.001) prior for 1/tau^2
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, prec)
+   }
+   mu ~ dnorm(0, .0001)
+   prec ~ dgamma(.001, .001)
+   tau2 <- 1/prec
+}"
+
+inits <- list(theta=rep(0,k), mu=0, prec=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.ig <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+bma.ig <- summary(bma.ig)$quantiles[,c(3,1,5)]
+bma.ig <- rbind(mu=bma.ig[1,], exp.mu=exp(bma.ig[1,]), tau2=bma.ig[2,])
+```
+
+```{r}
+# Table 14.2
+
+tab <- rbind(
+   c(or = pred.re$pred, ci.lb = pred.re$ci.lb, ci.ub = pred.re$ci.ub,
+     tau2 = conf.re$random[1,1], ci.lb = conf.re$random[1,2], ci.ub = conf.re$random[1,3]),
+   c(bma.re[2,], bma.re[3,]), c(bma.hn[2,], bma.hn[3,]), c(bma.ig[2,], bma.ig[3,]))
+rownames(tab) <- c("Frequentist RE model",
+                   "Bayesian RE model, uniform(0,2) prior for tau",
+                   "Bayesian RE model, half-normal(0,0.5^2) prior for tau",
+                   "Bayesian RE model, gamma(0.001,0.001) prior for 1/tau^2")
+round(tab, digits=2)
+```
+
+```{r}
+# Bayesian random-effects meta-regression model with uniform(0,2) prior for tau
+
+jags.data <- list(yi=dat$yi, vi=dat$vi, xi=dat$conceal, k=k)
+
+me.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(beta0 + beta1 * xi[i], 1/tau2)
+   }
+   beta0 ~ dnorm(0, .0001)
+   beta1 ~ dnorm(0, .0001)
+   tau ~ dunif(0, 2)
+   tau2 <- tau^2
+   betasum <- beta0 + beta1
+}"
+
+inits <- list(theta=rep(0,k), beta0=0, beta1=1, tau=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"), n.iter=100000)
+dic.me <- dic.samples(model, n.iter=100000, type="pD")
+bma.me <- summary(bma.me)$quantiles[,c(3,1,5)]
+bma.me <- rbind(bma.me[c(1,2,4),], exp.beta0=exp(bma.me[1,]), exp.betasum=exp(bma.me[3,]))
+round(bma.me, digits=2)
+```
+
+```{r}
+# compare with results from a non-Bayesian analysis
+
+res.me <- rma(yi, vi, mods = ~ conceal, data=dat, method="DL", digits=2)
+predict(res.me, newmods=c(0,1), transf=exp)
+round(confint(res.me)$random[1,], digits=2)
+```
+
+```{r}
+# Table 14.3
+
+tab <- rbind(c(sum(dic.fe$deviance), sum(dic.fe[[2]]), sum(dic.fe$deviance) + sum(dic.fe[[2]])),
+             c(sum(dic.re$deviance), sum(dic.re[[2]]), sum(dic.re$deviance) + sum(dic.re[[2]])),
+             c(sum(dic.me$deviance), sum(dic.me[[2]]), sum(dic.me$deviance) + sum(dic.me[[2]])))
+colnames(tab) <- c("mean(D)", "p_D", "DIC")
+rownames(tab) <- c("Fixed-effect meta-analysis", "Random-effects meta-analysis", "Random-effects meta-regression")
+round(tab, digits=1)
+```
+
+```{r}
+# shrunken estimates for Aerdts (1991) and Blair (1991)
+
+round(bma.re[4:5,], digits=2)
+```
+
+```{r}
+# expected results for a new study
+
+round(bma.re[6:7,], digits=2)
+```
+
+```{r}
+# Bayesian random-effects model for binary data
+
+jags.data <- list(xt=dat$xt, nt=dat$nt, xc=dat$xc, nc=dat$nc, k=k)
+
+re.model <- "model {
+   for (i in 1:k) {
+      xc[i] ~ dbin(pc[i], nc[i])
+      xt[i] ~ dbin(pt[i], nt[i])
+      logit(pc[i]) <- alpha[i] - theta[i]/2
+      logit(pt[i]) <- alpha[i] + theta[i]/2
+      theta[i] ~ dnorm(mu, 1/tau2)
+      alpha[i] ~ dnorm(0, .0001)
+   }
+   mu ~ dnorm(0, .0001)
+   tau ~ dunif(0, 2)
+   tau2 <- tau^2
+}"
+
+inits <- list(theta=rep(0,k), alpha=rep(0,k), mu=0, tau=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.re <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
+bma.re <- rbind(mu=bma.re[1,], exp.mu=exp(bma.re[1,]), tau2=bma.re[2,])
+round(bma.re, digits=2)
+```
+
+```{r}
+# Bayesian random-effects model with log-normal(-2.49,1.52^2) prior for tau^2
+
+jags.data <- list(yi=dat$yi, vi=dat$vi, k=k)
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, 1/tau2)
+   }
+   mu ~ dnorm(0, 1.0E-4)
+   tau2 ~ dlnorm(-2.49, 1/1.52^2)
+}"
+
+inits <- list(theta=rep(0,k), mu=0, tau2=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.ip <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+bma.ip <- summary(bma.ip)$quantiles[,c(3,1,5)]
+bma.ip <- rbind(mu=bma.ip[1,], exp.mu=exp(bma.ip[1,]), tau2=bma.ip[2,])
+round(bma.ip, digits=2)
+```
+
+```{r}
+# Bayesian random-effects meta-regression model log-normal(-2.49,1.52^2) prior for tau^2
+
+jags.data <- list(yi=dat$yi, vi=dat$vi, xi=dat$conceal, k=k)
+
+me.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(beta0 + beta1 * xi[i], 1/tau2)
+   }
+   beta0 ~ dnorm(0, .0001)
+   beta1 ~ dnorm(0, .0001)
+   tau2 ~ dlnorm(-2.49, 1/1.52^2)
+   betasum <- beta0 + beta1
+}"
+
+inits <- list(theta=rep(0,k), beta0=0, beta1=1, tau2=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3)
+update(model, n.iter=10000)
+bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"), n.iter=100000)
+bma.me <- summary(bma.me)$quantiles[,c(3,1,5)]
+bma.me <- rbind(bma.me[c(1,2,4),], exp.beta0=exp(bma.me[1,]), exp.betasum=exp(bma.me[3,]))
+round(bma.me, digits=2)
+```
+
+```{r}
+# Table 14.4: Recurrence of Violence Data
+
+dat <- read.table(header=TRUE, text = "
+study year xt nt xc nc
+'Bronx' 2005 20 202 11 218
+'Brooklyn' 2000 13 129 100 386
+'Broward' 2000 52 216 45 188
+'San Diego Navy' 2000 63 218 75 214")
+dat <- escalc(measure="OR", ai=xt, n1i=nt, ci=xc, n2i=nc, data=dat, digits=2)
+dat
+```
+
+Using the same code as above, one can repeat all analyses with this dataset. Doing so yields the following results (code now shown):
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+res.re <- rma(yi, vi, data=dat, method="DL", digits=2)
+pred.re <- predict(res.re, transf=exp)
+conf.re <- confint(res.re)
+
+k <- length(dat$yi)
+jags.data <- list(yi=dat$yi, vi=dat$vi, k=k)
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, 1/tau2)
+   }
+   mu ~ dnorm(0, .0001)
+   tau ~ dunif(0, 2)
+   tau2 <- tau^2
+}"
+
+inits <- list(theta=rep(0,k), mu=0, tau=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
+update(model, n.iter=10000, progress.bar="none")
+bma.re <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
+bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
+bma.re <- rbind(mu=bma.re[1,], exp.mu=exp(bma.re[1,]), tau2=bma.re[2,])
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, 1/tau2)
+   }
+   mu ~ dnorm(0, .0001)
+   tau ~ dnorm(0, 1/0.5^2) T(0,)
+   tau2 <- tau^2
+}"
+
+inits <- list(theta=rep(0,k), mu=0, tau=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
+update(model, n.iter=10000, progress.bar="none")
+bma.hn <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
+bma.hn <- summary(bma.hn)$quantiles[,c(3,1,5)]
+bma.hn <- rbind(mu=bma.hn[1,], exp.mu=exp(bma.hn[1,]), tau2=bma.hn[2,])
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, prec)
+   }
+   mu ~ dnorm(0, .0001)
+   prec ~ dgamma(.001, .001)
+   tau2 <- 1/prec
+}"
+
+inits <- list(theta=rep(0,k), mu=0, prec=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
+update(model, n.iter=10000, progress.bar="none")
+bma.ig <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
+bma.ig <- summary(bma.ig)$quantiles[,c(3,1,5)]
+bma.ig <- rbind(mu=bma.ig[1,], exp.mu=exp(bma.ig[1,]), tau2=bma.ig[2,])
+
+re.model <- "model {
+   for (i in 1:k) {
+      yi[i] ~ dnorm(theta[i], 1/vi[i])
+      theta[i] ~ dnorm(mu, 1/tau2)
+   }
+   mu ~ dnorm(0, 1.0E-4)
+   tau2 ~ dlnorm(-2.01, 1/1.64^2)
+}"
+
+inits <- list(theta=rep(0,k), mu=0, tau2=1, .RNG.name="base::Mersenne-Twister")
+inits <- list(inits, inits, inits)
+inits[[1]]$.RNG.seed <- 12341
+inits[[2]]$.RNG.seed <- 12342
+inits[[3]]$.RNG.seed <- 12343
+
+model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
+update(model, n.iter=10000, progress.bar="none")
+bma.ip <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
+bma.ip <- summary(bma.ip)$quantiles[,c(3,1,5)]
+bma.ip <- rbind(mu=bma.ip[1,], exp.mu=exp(bma.ip[1,]), tau2=bma.ip[2,])
+
+tab <- rbind(
+   c(or = pred.re$pred, ci.lb = pred.re$ci.lb, ci.ub = pred.re$ci.ub,
+     tau2 = conf.re$random[1,1], ci.lb = conf.re$random[1,2], ci.ub = conf.re$random[1,3]),
+   c(bma.re[2,], bma.re[3,]), c(bma.hn[2,], bma.hn[3,]), c(bma.ig[2,], bma.ig[3,]), c(bma.ip[2,], bma.ip[3,]))
+rownames(tab) <- c("Frequentist RE model",
+                   "Bayesian RE model, uniform(0,2) prior for tau",
+                   "Bayesian RE model, half-normal(0,0.5^2) prior for tau",
+                   "Bayesian RE model, gamma(0.001,0.001) prior for 1/tau^2",
+                   "Bayesian RE model, log-normal(-2.01,1.64^2) prior for tau^2")
+```
+
+```{r}
+# Table 14.5
+
+round(tab, digits=2)
+
+# note: the prior for the last model was log-normal(-2.01,1.64^2) (see page
+# 311) and not log-normal(-3.95,1.79^2) as stated in the table
 ```
