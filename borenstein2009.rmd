@@ -62,6 +62,8 @@ runperm <- TRUE
 options(width=94)
 ```
 
+***
+
 ## 1) How a Meta-Analysis Works
 
 ```{r}
@@ -94,6 +96,8 @@ text(0.8,  6, "Weight",  pos=2, font=2)
 text(1.2,  6, "P-Value", pos=2, font=2)
 ```
 
+***
+
 ## 2) Why Perform a Meta-Analysis
 
 ```{r}
@@ -122,6 +126,8 @@ forest(res, xlim=c(-10,9), atransf=exp, at=log(c(.01, 0.1, 1, 10, 100)),
 # fully aligned; if the "Inconsolata" font is not available, can also use "mono"
 text(-6, 35, "Year", font=2, cex=0.8)
 ```
+
+***
 
 ## 4) Effect Sizes Based on Means
 
@@ -183,6 +189,8 @@ dat <- escalc("ROM", m1i=61.515, m2i=51.015, sd1i=19.475, sd2i=19.475, n1i=10, n
 summary(dat)
 ```
 
+***
+
 ## 5) Effect Sizes Based on Binary Data
 
 ```{r}
@@ -206,6 +214,8 @@ dat <- escalc("RD", ai=5, n1i=100, ci=10, n2i=100)
 summary(dat)
 ```
 
+***
+
 ## 6) Effect Sizes Based on Correlations
 
 ```{r}
@@ -214,6 +224,8 @@ summary(dat)
 dat <- escalc("ZCOR", ri=0.50, ni=100)
 summary(dat)
 ```
+
+***
 
 ## 14) Worked Examples (Part 1)
 
@@ -402,6 +414,8 @@ text(2.2, -1, "100%", pos=2)
 text(2.2,  8, "Weight", pos=2, font=2)
 ```
 
+***
+
 ## 18) Worked Examples (Part 2)
 
 ### Notes
@@ -537,6 +551,8 @@ forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
 text(2.2, -1, "100%", pos=2)
 text(2.2,  8, "Weight", pos=2, font=2)
 ```
+
+***
 
 ## 19) Subgroup Analyses
 
@@ -778,6 +794,8 @@ dif
 # for zval and pval are the test of the difference between A and B
 ```
 
+***
+
 ## 20) Meta-Regression
 
 ```{r}
@@ -873,6 +891,8 @@ pred <- predict(reg, newmods=c(13,55))
 lines(c(13,55), pred$pred, lwd=2)
 ```
 
+***
+
 ## 21) Subgrouping / Meta-Regression
 
 The following results are not actually shown in the chapter. They are provided here to show how these types of analyses can be conducted using the `metafor` package.
@@ -914,6 +934,8 @@ res <- rma(yi, vi, mods = ~ ablat, data=dat, method="DL")
 set.seed(1234)
 permutest(res)
 ```
+
+***
 
 ## 23) Subgroups within Studies
 
@@ -958,6 +980,8 @@ agg
 res <- rma(es, var, data=agg, method="FE")
 res
 ```
+
+***
 
 ## 24) Multiple Outcomes / Time-Points
 
@@ -1012,6 +1036,8 @@ dif
 
 rma(es, var, data=dif, method="FE")
 ```
+
+***
 
 ## 30) Publication Bias
 
@@ -1104,6 +1130,8 @@ forest(rcm, xlim=c(-1.5,1.5), atransf=exp, at=log(c(.5, 1, 2)),
        header=TRUE, top=2, efac=c(0,1,1.5), cex=0.7)
 ```
 
+***
+
 ## 33) Simpson's Paradox
 
 ```{r}
@@ -1179,6 +1207,8 @@ res <- rma(est, var, method="DL")
 addpoly(res, row=-1, atransf=exp, digits=3, efac=3, mlab="Summary")
 ```
 
+***
+
 ## 36) Methods Based on p-Values
 
 ```{r}
@@ -1217,6 +1247,8 @@ fisher(c(dat$pval))
 stouffer(c(dat$pval))
 ```
 
+***
+
 ## 37) Methods for Dichotomous Data
 
 ```{r}
@@ -1244,6 +1276,8 @@ rma.mh(measure="OR", ai=events1, n1i=n1, ci=events2, n2i=n2, data=dat)
 
 rma.peto(ai=events1, n1i=n1, ci=events2, n2i=n2, data=dat)
 ```
+
+***
 
 ## 38) Psychometric Meta-Analysis
 
@@ -1285,6 +1319,8 @@ round((S2 - res.u$tau2) / S2, digits=4)
 
 # note: minor difference probably due to rounding in book
 ```
+
+***
 
 ## 42) Cumulative Meta-Analysis
 

@@ -59,6 +59,8 @@ fc <- function(x, digits=4)
    formatC(x, format="f", digits=digits)
 ```
 
+***
+
 ## 1) Research Synthesis as a Scientific Process
 
 To recreate Figure 1.1 (showing the number of citations to articles including the terms 'research synthesis', 'systematic review', or 'meta-analysis' in their titles), I redid the search in the Web of Science Core Collection, which yielded the following data:
@@ -115,6 +117,8 @@ barplot(dat$hits, names.arg=dat$year, las=2, space=0.4, col="#6c9ece", border=NA
 abline(h=seq(0, 30000, by=5000), col="gray")
 barplot(dat$hits, space=0.4, col="#6c9ece", border=NA, add=TRUE, axes=FALSE)
 ```
+
+***
 
 ## 10) Evaluating Coding Decisions
 
@@ -358,6 +362,8 @@ vcs <- data.frame(VarCorr(res))
 vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
 ```
 
+***
+
 ## 11) Effect Sizes for Meta-Analysis
 
 ```{r}
@@ -490,6 +496,8 @@ summary(dat)
 dat <- escalc("OR", ai=25, bi=20, ci=75, di=80)
 summary(dat)
 ```
+
+***
 
 ## 12) Statistically Analyzing Effect Sizes: Fixed- and Random-Effects Models
 
@@ -843,6 +851,8 @@ res
 
 # note: value of rho has no influence on tau^2; is this a bug?
 ```
+
+***
 
 ## 14) Bayesian Meta-Analysis
 
@@ -1300,3 +1310,7 @@ round(tab, digits=2)
 # note: the prior for the last model was log-normal(-2.01,1.64^2) (see page
 # 311) and not log-normal(-3.95,1.79^2) as stated in the table
 ```
+
+***
+
+## 15) Correcting for the Distorting Effects of Study Artifacts in Meta-Analysis and Second Order Meta-Analysis

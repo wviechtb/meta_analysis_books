@@ -8,11 +8,11 @@ The code is provided as [R Markdown](https://rmarkdown.rstudio.com/) documents, 
 
 * [Introduction to Meta-Analysis](https://wviechtb.github.io/meta_analysis_books/borenstein2009.html) by Borenstein et al. (2009)
 
-* [The Handbook of Research Synthesis and Meta-Analysis](https://wviechtb.github.io/meta_analysis_books/cooper2019.html) by Cooper et al. (2019) (note: this one isn't complete yet)
+* [The Handbook of Research Synthesis and Meta-Analysis](https://wviechtb.github.io/meta_analysis_books/cooper2019.html) by Cooper et al. (2019) (note: not complete yet)
 
 Feel free to adapt and incorporate the files into your own teaching materials.
 
-Suggestions for improvements to the existing documents are more than welcome. Also, if you would like to suggest other books to be covered, you can do so via [Issues](https://github.com/wviechtb/meta_analysis_books/issues).
+Suggestions for improvements to the existing documents are more than welcome. Also, if you would like to suggest other books to be covered, you can do so [here](https://github.com/wviechtb/meta_analysis_books/issues).
 
 ## Meta
 
