@@ -774,7 +774,7 @@ robust(res, cluster=dat$study)
 
 if (suppressWarnings(!require(clubSandwich, quietly=TRUE))) {
    install.packages("clubSandwich", quiet=TRUE)
-   library(clubSandwich)
+   suppressPackageStartupMessages(library(clubSandwich))
 }
 
 coef_test(res, vcov="CR2", cluster=dat$study)
@@ -863,7 +863,7 @@ For these analyses, we could do most of what is described in the chapter using t
 
 if (suppressWarnings(!require(rjags, quietly=TRUE))) {
    install.packages("rjags", quiet=TRUE)
-   library(rjags)
+   suppressPackageStartupMessages(library(rjags))
 }
 ```
 
@@ -1314,3 +1314,9 @@ round(tab, digits=2)
 ***
 
 ## 15) Correcting for the Distorting Effects of Study Artifacts in Meta-Analysis and Second Order Meta-Analysis
+
+***
+
+## License
+
+This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).

@@ -195,3 +195,9 @@ anova(res.re, res.me)
 ```
 
 The value under `R^2` is the amount of variance (heterogeneity) accounted for. In this particular example, we estimate that `r fc(res.me$R2, 1)`% of the total amount of heterogeneity is accounted for by the two moderators. Note that Lipsey and Wilson calculate $R^2$ in a different way than is usually done in meta-analyses, so the value for $R^2$ shown in Exhibit 7.7 (page 141) is different from the value computed above.
+
+***
+
+## License
+
+This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).

@@ -1320,7 +1320,7 @@ res &lt;-<span class="st"> </span><span class="kw">rma.mv</span>(d, V, <span cla
 
 if (<span class="kw">suppressWarnings</span>(!<span class="kw">require</span>(clubSandwich, <span class="dt">quietly=</span><span class="ot">TRUE</span>))) {
    <span class="kw">install.packages</span>(<span class="st">&quot;clubSandwich&quot;</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
-   <span class="kw">library</span>(clubSandwich)
+   <span class="kw">suppressPackageStartupMessages</span>(<span class="kw">library</span>(clubSandwich))
 }</code></pre></div>
 <pre><code>## Registered S3 method overwritten by 'clubSandwich':
 ##   method    from    
@@ -1439,7 +1439,7 @@ res &lt;-<span class="st"> </span><span class="kw">rma</span>(d, v, <span class=
 
 if (<span class="kw">suppressWarnings</span>(!<span class="kw">require</span>(rjags, <span class="dt">quietly=</span><span class="ot">TRUE</span>))) {
    <span class="kw">install.packages</span>(<span class="st">&quot;rjags&quot;</span>, <span class="dt">quiet=</span><span class="ot">TRUE</span>)
-   <span class="kw">library</span>(rjags)
+   <span class="kw">suppressPackageStartupMessages</span>(<span class="kw">library</span>(rjags))
 }</code></pre></div>
 <pre><code>## Linked to JAGS 4.3.0</code></pre>
 <pre><code>## Loaded modules: basemod,bugs</code></pre>
@@ -1809,6 +1809,11 @@ dat</code></pre></div>
 </div>
 <div id="correcting-for-the-distorting-effects-of-study-artifacts-in-meta-analysis-and-second-order-meta-analysis" class="section level2">
 <h2>15) Correcting for the Distorting Effects of Study Artifacts in Meta-Analysis and Second Order Meta-Analysis</h2>
+<hr />
+</div>
+<div id="license" class="section level2">
+<h2>License</h2>
+<p>This documented is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC Attribution-Noncommercial-Share Alike 4.0 International</a>.</p>
 </div>
 
 
