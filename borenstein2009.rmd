@@ -1223,6 +1223,8 @@ dat$pval <- pnorm(dat$yi / sqrt(dat$vi))
 dat
 ```
 
+Although the computations underlying Fisher's and Stouffer's methods are not difficult, we can make use of the [poolr](https://ozancinar.github.io/poolr/) package to automate things.
+
 ```{r, message=FALSE, warning=FALSE}
 # install the 'poolr' package (if it is not already installed) and load it
 

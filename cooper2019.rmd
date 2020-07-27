@@ -1645,6 +1645,8 @@ round(coef(res) + c(-1,1)*qnorm(.975)*sqrt(res$tau2), digits=2)
 # the estimated mean partial correlation
 ```
 
+A final note about this chapter: If you are planning on conducting analyses of the types described in this chapter, I would recommend also looking into the excellent [metaSEM](https://cran.r-project.org/package=metaSEM) package, which provides additional functionality for 'meta-analytic structural equation modeling'.
+
 ***
 
 ## License
