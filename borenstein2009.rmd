@@ -45,7 +45,7 @@ library(metafor)
 A few additional notes:
 
 1. Results are only reproduced for chapters containing worked examples.
-2. Ocasionally, there are some minor discrepancies between the results shown in the book and those obtained below. Where such discrepancies arise, they are noted (and the reasons for them).
+2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. Where such discrepancies arise, they are noted (and the reasons for them).
 3. I did not attempt to reproduce the figures exactly as they appear in the book. There are some fundamental differences in the aesthetics of the figures shown in the book and the functions in the `metafor` package for producing the corresponding figures. I made some adjustments to the defaults here and there to make the figures below look similar to the ones shown in the book and made sure to include all relevant elements.
 4. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 

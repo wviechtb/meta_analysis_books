@@ -47,7 +47,7 @@ library(metafor)
 A few additional notes:
 
 1. Results are only reproduced for chapters containing worked examples.
-2. Ocasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process (e.g., when using MCMC sampling in the chapter on Bayesian methods). Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them).
+2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process (e.g., when using MCMC sampling in the chapter on Bayesian methods). Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them).
 3. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -57,7 +57,7 @@ pointsize <- 14
 options(width=94)
 ```
 
-Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but does not drop trailing zeros).
+Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but this one does not drop trailing zeros).
 
 ```{r}
 fc <- function(x, digits=4)
@@ -1646,6 +1646,172 @@ round(coef(res) + c(-1,1)*qnorm(.975)*sqrt(res$tau2), digits=2)
 ```
 
 A final note about this chapter: If you are planning on conducting analyses of the types described in this chapter, I would recommend also looking into the excellent [metaSEM](https://cran.r-project.org/package=metaSEM) package, which provides additional functionality for 'meta-analytic structural equation modeling'.
+
+***
+
+## 17) Missing Data in Meta-Analysis
+
+```{r}
+# Table 17.1: Oral Anticoagulant Therapy Data
+
+dat <- dat.anand1999
+
+# reorder rows
+dat <- dat[c(1:21,29,22:28,30:34),]
+rownames(dat) <- 1:nrow(dat)
+
+# add 'age' variable
+dat$age <- 1999 - dat$year
+
+# compute log odds ratios and corresponding sampling variances
+dat <- escalc(measure="OR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat, to="all", digits=2)
+dat$yi <- round(dat$yi, 2)
+dat$vi <- round(dat$vi, 2)
+
+# flip signs of some of the log odds ratios (see note below)
+sel <- c(4:6,11:14,16,19,20,22,24:27,29,30,32,33)
+dat$yi[sel] <- -1 * dat$yi[sel]
+
+# code intensity for study 22 as 'moderate' (see note below)
+dat$intensity[22] <- "moderate"
+
+# turn intensity into a factor with the desired order of levels
+dat$intensity <- factor(dat$intensity, levels=c("low", "high", "moderate"))
+
+# add mcar and mar dummy variables
+dat$mcar <- c(0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,0,1,1)
+dat$mar  <- c(0,0,1,0,0,1,0,1,0,0,0,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+
+# select (order of) columns
+dat <- dat[c(11,12,3,2,10,13,14)]
+dat
+
+# note: compared to the original dataset, some of the log odds ratios have
+# flipped signs; also, intensity is coded as 'moderate' for study 22, but
+# this was actually 'high' in the original dataset; all of these differences
+# are introduced above
+```
+
+```{r, warning=FALSE}
+# fit model to full data
+
+res.full <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# fit model to MCAR data
+
+dat$age[dat$mcar == 0] <- NA
+res.mcar <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# fit model to MAR data
+
+dat$age <- 1999 - dat$year
+dat$age[dat$mar == 0] <- NA
+res.mar  <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# Table 17.2
+
+tab <- cbind(full = coef(summary(res.full))[1:2],
+             mcar = coef(summary(res.mcar))[1:2],
+             mar  = coef(summary(res.mar))[1:2])
+round(tab, digits=3)
+```
+
+```{r}
+# fit model to MCAR data with mean imputation
+
+dat$age <- 1999 - dat$year
+dat$age[dat$mcar == 0] <- NA
+dat$age <- replmiss(dat$age, mean(dat$age, na.rm=TRUE))
+res.mcar <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# fit model to MAR data with mean imputation
+
+dat$age <- 1999 - dat$year
+dat$age[dat$mar == 0] <- NA
+dat$age <- replmiss(dat$age, mean(dat$age, na.rm=TRUE))
+res.mar <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# Table 17.3
+
+tab <- cbind(mcar = coef(summary(res.mcar))[1:2],
+             mar  = coef(summary(res.mar))[1:2])
+round(tab, digits=3)
+```
+
+```{r}
+# fit model to MCAR data with regression imputation
+
+dat$age <- 1999 - dat$year
+dat$age[dat$mcar == 0] <- NA
+fit <- lm(age ~ intensity + yi, data=dat)
+dat$age <- replmiss(dat$age, predict(fit, newdata=dat))
+res.mcar <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# fit model to MAR data with regression imputation
+
+dat$age <- 1999 - dat$year
+dat$age[dat$mar == 0] <- NA
+fit <- lm(age ~ intensity + yi, data=dat)
+dat$age <- replmiss(dat$age, predict(fit, newdata=dat))
+res.mar <- rma(yi, vi, mods = ~ intensity + age, data=dat)
+
+# Table 17.4
+
+tab <- cbind(mcar = coef(summary(res.mcar))[1:2],
+             mar  = coef(summary(res.mar))[1:2])
+round(tab, digits=3)
+
+# note: results in the table are different; not sure why
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'mice' package (if it is not already installed) and load it
+
+if (!require(mice)) {
+   install.packages("mice")
+   library(mice)
+}
+```
+
+```{r}
+# multiple imputation using the MAR data
+
+dat$age <- 1999 - dat$year
+dat$age[dat$mar == 0] <- NA
+
+predMatrix <- make.predictorMatrix(dat)
+predMatrix[,] <- 0
+predMatrix["age", c("yi", "intensity")] <- 1
+predMatrix
+
+impMethod <- make.method(dat)
+impMethod["age"] <- "norm"
+impMethod
+
+imp <- mice(dat, print=FALSE, m=100, predictorMatrix=predMatrix, method=impMethod, seed=1234)
+fit <- with(imp, rma(yi, vi, mods = ~ intensity + age))
+pool <- summary(pool(fit))
+
+# Table 17.5
+
+pool[-1] <- round(pool[-1], digits=3)
+pool[1:3]
+
+# note: results in the table are different; this could be due to several reasons:
+#
+# 1) multiple imputation involves an element of randomness (above the seed of the
+#    random number generator is set to some arbitrary value for reproducibility,
+#    but a different seed would generate (slightly) different results)
+# 2) the chapter author used the Amelia package instead of the mice package for
+#    the analyses and there could be differences in how these packages implement
+#    the multiple imputation algorithms
+#
+# the coefficients are actually not all that different, but the SEs shown in the
+# chapter are much larger than the ones obtained above
+#
+# note: above m=100 imputations were used (instead of 10 as was done in the
+# chapter) to obtain more stable results
+```
 
 ***
 
