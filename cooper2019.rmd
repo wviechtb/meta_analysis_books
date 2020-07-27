@@ -31,7 +31,6 @@ fig_caption: no
 
 Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
 
-
 ```{r, eval=FALSE}
 install.packages("remotes")
 remotes::install_github("wviechtb/metafor")
@@ -41,20 +40,26 @@ This step will become obsolete once a new release of the `metafor` package is pu
 
 Once the package is installed, we can load it with:
 
-```{r, eval=FALSE}
+```{r, message=FALSE}
 library(metafor)
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(metafor)
-```
+A few additional notes:
+
+1. Results are only reproduced for chapters containing worked examples.
+2. Ocasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process (e.g., when using MCMC sampling in the chapter on Bayesian methods). Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them).
+3. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 .rmspace <- TRUE
 pointsize <- 14
 
 options(width=94)
+```
 
+Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but does not drop trailing zeros).
+
+```{r}
 fc <- function(x, digits=4)
    formatC(x, format="f", digits=digits)
 ```
@@ -122,38 +127,38 @@ barplot(dat$hits, space=0.4, col="#6c9ece", border=NA, add=TRUE, axes=FALSE)
 
 ## 10) Evaluating Coding Decisions
 
-Part of the code from this chapter is adapted from the chapter itself (see section 10.5). Below, we will make use of several additional packages that need to be installed (if they are not already installed). So let's do this first.
+Part of the code for this chapter is adapted from the chapter itself (see section 10.5). Below, we will make use of several additional packages that need to be installed (if they are not already installed). So let's do this first.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'irr' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(irr, quietly=TRUE))) {
-   install.packages("irr", quiet=TRUE)
+if (!require(irr)) {
+   install.packages("irr")
    library(irr)
 }
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'psych' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(psych, quietly=TRUE))) {
-   install.packages("psych", quiet=TRUE)
+if (!require(psych)) {
+   install.packages("psych")
    library(psych)
 }
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'vcd' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(vcd, quietly=TRUE))) {
-   install.packages("vcd", quiet=TRUE)
+if (!require(vcd)) {
+   install.packages("vcd")
    library(vcd)
 }
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'lme4' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(lme4, quietly=TRUE))) {
-   install.packages("lme4", quiet=TRUE)
+if (!require(lme4)) {
+   install.packages("lme4")
    library(lme4)
 }
 ```
@@ -370,13 +375,13 @@ vcs$vcov[1] / (vcs$vcov[1] + vcs$vcov[2])
 # data for Figure 11.1
 
 dat <- read.table(header=TRUE, text = "
-study md n var se pval
-A  0.400  60 0.067 0.258 0.121
-B  0.200 600 0.007 0.082 0.014
-C  0.300 100 0.040 0.201 0.134
-D  0.400 200 0.020 0.141 0.005
-E  0.300 400 0.010 0.100 0.003
-F -0.200 200 0.020 0.141 0.157")
+study    md   n   var    se  pval
+A     0.400  60 0.067 0.258 0.121
+B     0.200 600 0.007 0.082 0.014
+C     0.300 100 0.040 0.201 0.134
+D     0.400 200 0.020 0.141 0.005
+E     0.300 400 0.010 0.100 0.003
+F    -0.200 200 0.020 0.141 0.157")
 dat
 ```
 
@@ -394,7 +399,7 @@ size <- 2.5 * size / max(size)
 
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-6.5,1), psize=size, header=TRUE, mlab="Combined",
+forest(res, xlim=c(-6.5,1.4), psize=size, header=TRUE, mlab="Combined",
        efac=c(0,1,2), annotate=FALSE, xlab="Standardized Mean Difference",
        ilab=tmp, ilab.xpos=c(-5.0, -4.1, -3.2, -2.3, -1.4))
 text(-5.0, 8, "Mean\nDifference", font=2)
@@ -548,7 +553,9 @@ print(res, digits=3)
 
 # note: by removing the intercept, the three coefficients directly provide the
 # estimated average effect for the three groups
+```
 
+```{r}
 # weighted grand mean effect size
 
 rma(coef(res), diag(vcov(res)), method="FE", digits=3)
@@ -657,7 +664,9 @@ res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="REML")
 round(res$tau2, digits=3)
 
 # note: the REML estimate is incorrectly claimed to be 0 in the book
+```
 
+```{r}
 # continuing with the distribution-free (method of moments) estimate of tau^2
 
 res <- rma(d, v, mods = ~ I(log(nitems)), data=dat, method="DL")
@@ -750,7 +759,7 @@ tab <- data.frame(rho  = rhos,
                   lcl2 = sapply(res, function(x) x$ci.lb[2]),
                   ucl2 = sapply(res, function(x) x$ci.ub[2]),
                   z2   = sapply(res, function(x) x$zval[2]))
-round(tab, digits=2)
+dfround(tab, digits=c(1,2,3,2,2,2,2,3,2,2,2))
 
 # note: there are some printing errors in the table in the book; also,
 # the values given in the Z_2 column in the book are quite off
@@ -769,14 +778,16 @@ robust(res, cluster=dat$study)
 # method described in the book with the 'clubSandwich' package
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'clubSandwich' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(clubSandwich, quietly=TRUE))) {
-   install.packages("clubSandwich", quiet=TRUE)
-   suppressPackageStartupMessages(library(clubSandwich))
+if (!require(clubSandwich)) {
+   install.packages("clubSandwich")
+   library(clubSandwich)
 }
+```
 
+```{r}
 coef_test(res, vcov="CR2", cluster=dat$study)
 
 # note: but these are still not the same results as given in the book because
@@ -784,11 +795,11 @@ coef_test(res, vcov="CR2", cluster=dat$study)
 # the book with the 'robumeta' package
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'robumeta' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(robumeta, quietly=TRUE))) {
-   install.packages("robumeta", quiet=TRUE)
+if (!require(robumeta)) {
+   install.packages("robumeta")
    library(robumeta)
 }
 ```
@@ -858,12 +869,12 @@ res
 
 For these analyses, we could do most of what is described in the chapter using the excellent [brms](https://cran.r-project.org/package=brms) package. However, to fully reproduce all of the analyses conducted, we either need to use [WinBUGS](https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/) (as was done by the chapter authors) or we can use [JAGS](http://mcmc-jags.sourceforge.net/) (which has the advantage that it runs not just under Windows, but also macOS / Mac OS X and Linux). Here, we will make use of the latter, which we can interact with directly from R via the [rjags](https://cran.r-project.org/package=rjags) package. Note that JAGS needs to be installed separately (follow the link above for installation instructions).
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'rjags' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(rjags, quietly=TRUE))) {
-   install.packages("rjags", quiet=TRUE)
-   suppressPackageStartupMessages(library(rjags))
+if (!require(rjags)) {
+   install.packages("rjags")
+   library(rjags)
 }
 ```
 
@@ -899,6 +910,10 @@ inits <- list(inits, inits, inits)
 inits[[1]]$.RNG.seed <- 12341
 inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
+
+# note: usually 'inits <- list(theta=0)' would have been sufficient; however,
+# for full reproducibility, I am setting the random number generator and
+# the seed for each chain (the same will be done below for other models)
 
 model <- jags.model(textConnection(fe.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000)
@@ -956,7 +971,7 @@ res.re <- rma(yi, vi, data=dat, method="DL", digits=2)
 pred.re <- predict(res.re, transf=exp)
 pred.re
 conf.re <- confint(res.re)
-round(conf.re$random[1,], digits=2)
+round(conf.re$random["tau^2",], digits=2)
 ```
 
 ```{r}
@@ -1062,7 +1077,7 @@ round(bma.me, digits=2)
 
 res.me <- rma(yi, vi, mods = ~ conceal, data=dat, method="DL", digits=2)
 predict(res.me, newmods=c(0,1), transf=exp)
-round(confint(res.me)$random[1,], digits=2)
+round(confint(res.me)$random["tau^2",], digits=2)
 ```
 
 ```{r}
@@ -1194,7 +1209,7 @@ dat <- escalc(measure="OR", ai=xt, n1i=nt, ci=xc, n2i=nc, data=dat, digits=2)
 dat
 ```
 
-Using the same code as above, one can repeat all analyses with this dataset. Doing so yields the following results (code now shown):
+Using the same code as above, one can repeat all analyses with this dataset. Doing so yields the following results (code now shown; see `cooper2019.rmd` file for the code):
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 res.re <- rma(yi, vi, data=dat, method="DL", digits=2)
@@ -1313,7 +1328,322 @@ round(tab, digits=2)
 
 ***
 
-## 15) Correcting for the Distorting Effects of Study Artifacts in Meta-Analysis and Second Order Meta-Analysis
+## 16) Model-Based Meta-Analysis and Related Approaches
+
+```{r}
+# Table 16.1: Relationships Between CSAI Subscales and Sport Performance
+
+dat <- dat.craft2003
+
+# examine data for study 3
+
+dat[dat$study == 3,]
+
+# note: the data are in long format; we can recreate Table 16.1 as follows
+
+tab <- do.call(rbind, lapply(split(dat, dat$study), function(x)
+   data.frame(x$study[1], x$ni[1], x$sport[1], data.frame(rbind(x$ri)))))
+names(tab) <- c("ID", "ni", "type", paste0(dat$var1[1:6], "/", dat$var2[1:6]))
+tab
+```
+
+The `rcalc()` function from the `metafor` package can be used to compute the variance-covariance (var-cov) matrix of the correlation coefficients. The typical usage would be as follows.
+
+```{r}
+tmp <- rcalc(ri ~ var1 + var2 | study, ni=ni, data=dat)
+V <- tmp$V
+tmp <- tmp$dat
+
+# examine data for study 3
+
+tmp[tmp$study == 3,]
+
+# var-cov matrix for study 3
+
+round(V[tmp$study == 3, tmp$study == 3], digits=3)
+```
+
+However, as described in the chapter, it may be advantageous to compute the var-cov matrix based on the (sample-size weighted) mean correlations instead. We can obtain these mean correlations by running a fixed-effects meta-regression model on the data with a moderator that indicates the 6 possible pairs of correlations and setting the weights equal to the sample sizes.
+
+```{r, warning=FALSE}
+dat$v. <- paste0(dat$var1, ".", dat$var2)
+dat$v. <- factor(dat$v.,
+   levels=c("acog.perf", "asom.perf", "conf.perf", "acog.asom", "acog.conf", "asom.conf"))
+
+res <- rma(ri, 0, weights=ni, mods = ~ v. - 1, data=dat, method="FE")
+round(coef(summary(res)), digits=3)
+
+# note: the 'estimate' values are the sample-size weighted mean correlations;
+# all other results are irrelevant / meaningless (by having set the sampling
+# variances to 0 for all outcomes)
+```
+
+Next, we need to add these mean correlations back to the dataset. This is easily done by computing the fitted values. However, care must be taken since some rows were excluded from the model fitting (as some of the correlations are missing in studies 6 and 17). To make sure that we get a vector with fitted values that is of the same length as the original data, we need to adjust the `na.action` option.
+
+```{r}
+options(na.action = "na.pass")
+dat$fit <- fitted(res)
+options(na.action = "na.omit")
+
+# examine data for study 3
+
+dat[dat$study == 3,]
+```
+
+Now we can compute the var-cov matrix with these mean correlations as outcome. The equations for the variances and covariances given in the chapter use $n_i$ in the denominator, but the `rcalc()` function uses $n_i - 1$, so we just set the sample size to `ni+1` to obtain the same results as in the chapter.
+
+```{r}
+tmp <- rcalc(fit ~ var1 + var2 | study, ni=ni+1, data=dat)
+V <- tmp$V
+
+# can remove the 'fit' variable from 'dat'
+
+dat$fit <- NULL
+
+# var-cov matrix for study 3
+
+round(V[dat$study == 3, dat$study == 3], digits=3)
+```
+
+```{r, warning=FALSE}
+# fixed-effects multivariate model
+
+res <- rma.mv(ri, V, mods = ~ v. - 1, data=dat)
+res
+```
+
+```{r}
+# restructure estimated mean correlations into a 4x4 lower triangular matrix
+
+R <- vec2mat(coef(res), dimnames=c("perf", "acog", "asom", "conf"))
+round(R, digits=3)
+```
+
+```{r}
+# var-cov matrix of the estimated mean correlations
+
+round(vcov(res), digits=5)
+```
+
+```{r, warning=FALSE}
+# BA1 method to test for heterogeneity
+
+res <- lapply(levels(dat$v.), function(l) rma.mv(ri, V, data=dat, subset=v.==l))
+ba1 <- data.frame(Q    = sapply(res, function(x) x$QE),
+                  df   = sapply(res, function(x) x$k-1),
+                  pval = sapply(res, function(x) x$QEp))
+ba1$sig <- ifelse(ba1$pval <= .05/6, "*", "")
+rownames(ba1) <- levels(dat$var1.var2)
+dfround(ba1, digits=c(1,0,4,NA))
+```
+
+```{r, warning=FALSE}
+# random-effects multivariate model
+
+res <- rma.mv(ri, V, mods = ~ v. - 1, random = ~ v. | study, struct="UN", data=dat)
+res
+```
+
+```{r}
+# var-cov matrix of the random effects (values below diagonal are correlations)
+# note: the T-hat matrix given in the chapter (p. 354) is in a different order
+
+G <- res$G
+G[lower.tri(G)] <- cov2cor(G)[lower.tri(G)]
+round(G, digits=2)
+```
+
+```{r}
+# restructure estimated mean correlations into a 4x4 matrix
+
+R <- vec2mat(coef(res), dimnames=c("perf", "acog", "asom", "conf"))
+round(R, digits=3)
+```
+
+```{r}
+# var-cov matrix of the estimated mean correlations
+
+round(vcov(res), digits=4)
+```
+
+```{r}
+# fit regression model with 'conf' as outcome and 'acog' and 'asom' as predictors
+
+fit1 <- matreg(4, 2:3, R=R, V=vcov(res))
+dfround(fit1$tab[1:4], digits=c(2,3,2,3))
+
+# fit regression model with 'perf' as outcome and 'acog', 'asom', and 'conf' as predictors
+
+fit2 <- matreg(1, 2:4, R=R, V=vcov(res))
+dfround(fit2$tab[1:4], digits=c(2,3,2,3))
+```
+
+```{r}
+# variance explained in sport performance by the three subscales
+
+round(fit2$R2 * 100, digits=2)
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'igraph' package (if it is not already installed) and load it
+
+if (!require(igraph)) {
+   install.packages("igraph")
+   library(igraph)
+}
+```
+
+```{r}
+# Figure 16.4: Random-Effects Path Coefficients for Prediction of Sport Performance
+
+B <- R
+B[,] <- 0
+B[2:3,4] <- fit1$tab$estimate
+B[2:4,1] <- fit2$tab$estimate
+P <- B
+P[,] <- 1
+P[2:3,4] <- fit1$tab$pval
+P[2:4,1] <- fit2$tab$pval
+
+g <- graph_from_adjacency_matrix(B, mode="directed", weighted=TRUE)
+vertex_attr(g, "name") <- c("Sport\nperformance", "Cognitive",
+                            "Somatic", "Self\nconfidence")
+L <- matrix(c(0,0, -1,2, 1,2, 0,1.2), nrow=4, ncol=2, byrow=TRUE)
+par(mar=c(0,0,0,0))
+plot(g, layout=L,
+     edge.color = "black", edge.label.color = "black",
+     vertex.color = "black", vertex.label.color = "black",
+     vertex.shape = "none", vertex.size = 20,
+     edge.label = paste0("               ", fc(t(B)[t(B) != 0], 2),
+                         ifelse(t(P)[t(B) != 0] <= .05, "*", "")),
+     edge.lty   = ifelse(t(P)[t(B) != 0] <= .05, "solid", "dashed"))
+```
+
+```{r, warning=FALSE}
+# moderator analysis (subgroup by sport type)
+
+dat.T <- dat[dat$sport == "T",]
+
+res <- rma(ri, 0, weights=ni, mods = ~ v. - 1, data=dat.T, method="FE")
+options(na.action = "na.pass")
+dat.T$fit <- fitted(res)
+options(na.action = "na.omit")
+
+tmp <- rcalc(fit ~ var1 + var2 | study, ni=ni+1, data=dat.T)
+V.T <- tmp$V
+
+res.T <- rma.mv(ri, V.T, mods = ~ v. - 1, random = ~ v. | study, struct="UN", data=dat.T)
+
+R.T <- R
+R.T[lower.tri(R.T)] <- coef(res.T)
+
+fit.T <- matreg(1, 2:4, R=R.T, V=vcov(res.T))
+
+dat.I <- dat[dat$sport == "I",]
+
+res <- rma(ri, 0, weights=ni, mods = ~ v. - 1, data=dat.I, method="FE")
+options(na.action = "na.pass")
+dat.I$fit <- fitted(res)
+options(na.action = "na.omit")
+
+tmp <- rcalc(fit ~ var1 + var2 | study, ni=ni+1, data=dat.I)
+V.I <- tmp$V
+
+res.I <- rma.mv(ri, V.I, mods = ~ v. - 1, random = ~ v. | study, struct="UN", data=dat.I)
+
+R.I <- R
+R.I[lower.tri(R.I)] <- coef(res.I)
+
+fit.I <- matreg(1, 2:4, R=R.I, V=vcov(res.I))
+```
+
+```{r}
+# show results for team sports
+
+dfround(fit.T$tab[1:4], digits=c(2,3,2,3))
+```
+
+```{r}
+# show results for individual sports
+
+dfround(fit.I$tab[1:4], digits=c(2,3,2,3))
+```
+
+```{r}
+# var-cov matrix of coefficients for team sports
+
+round(fit.T$vb, digits=4)
+```
+
+```{r}
+# var-cov matrix of coefficients for individual sports
+
+round(fit.I$vb, digits=4)
+```
+
+```{r}
+# Wald-type test of the difference in slopes of conf -> perf
+
+rma(yi = c(fit.I$tab["conf", "estimate"], fit.T$tab["conf", "estimate"]),
+    vi = c(fit.I$tab["conf", "se"],       fit.T$tab["conf", "se"])^2,
+    mods = c(0,1), method = "FE", digits = 3)
+
+# note: z=-0.094 differs from value in chapter (-0.079) due to rounding
+```
+
+```{r, warning=FALSE}
+# compute matrix with partial correlations based on R
+
+invR <- solve(R)
+Rp <- -diag(diag(1/sqrt(invR))) %*% invR %*% diag(diag(1/sqrt(invR)))
+round(Rp, digits=3)
+```
+
+```{r, include=FALSE}
+# TODO: compute var-cov matrix of the partial correlations based on vcov(res)
+```
+
+```{r}
+# compute partial correlations for each study individually
+
+Ri <- lapply(split(dat, dat$study), function(x) {
+   if (anyNA(x$ri)) {
+      NULL
+   } else {
+      R <- vec2mat(x$ri)
+      attr(R, "ni") <- x$ni[1]
+      R
+   }
+})
+Ri <- Ri[!sapply(Ri, is.null)]
+
+dat.rp <- lapply(Ri, function(x) {
+   invRi <- solve(x)
+   rp <- -invRi[1,4] / sqrt(invRi[1,1] * invRi[4,4])
+   vrp <- (1-rp^2)^2 / (attributes(x)$ni-3-1)
+   data.frame(n=attributes(x)$ni, rp=rp, vrp=vrp)
+})
+dat.rp <- do.call(rbind, dat.rp)
+
+dfround(dat.rp, digits=c(0,3,4))
+```
+
+```{r}
+# meta-analysis of the partial correlations
+
+res <- rma(rp, vrp, data=dat.rp, digits=3)
+res
+```
+
+```{r}
+# 95% prediction interval
+
+round(coef(res) + c(-1,1)*qnorm(.975)*sqrt(res$tau2), digits=2)
+
+# note: can also use predict(res, digits=2), but this will give a slightly
+# wider prediction interval because this also considers the uncertainty in
+# the estimated mean partial correlation
+```
 
 ***
 

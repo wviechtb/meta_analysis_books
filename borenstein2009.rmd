@@ -38,11 +38,7 @@ This step will become obsolete once a new release of the `metafor` package is pu
 
 Once the package is installed, we can load it with:
 
-```{r, eval=FALSE}
-library(metafor)
-```
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, message=FALSE}
 library(metafor)
 ```
 
@@ -1227,15 +1223,14 @@ dat$pval <- pnorm(dat$yi / sqrt(dat$vi))
 dat
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # install the 'poolr' package (if it is not already installed) and load it
 
-if (suppressWarnings(!require(poolr, quietly=TRUE))) {
-   install.packages("poolr", quiet=TRUE)
+if (!require(poolr)) {
+   install.packages("poolr")
    library(poolr)
 }
 ```
-
 
 ```{r}
 # apply Fisher's method for pooling the p-values
