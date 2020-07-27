@@ -774,7 +774,7 @@ robust(res, cluster=dat$study)
 
 # note: this is not the exact same approach that is described in the book; it
 # uses a different weighting scheme and uses k-p for the degrees of freedom
-# for the t-statistics; we can use of the 'effective degrees of freedom'
+# for the t-statistics; we can make use of the 'effective degrees of freedom'
 # method described in the book with the 'clubSandwich' package
 ```
 
@@ -819,7 +819,7 @@ vcalc <- function(v, tau2)
 V <- lapply(split(dat$v, dat$study), vcalc, tau2=0)
 res <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
 coef_test(res, vcov="CR2", cluster=dat$study)
-conf_int(res,  vcov="CR2", cluster=dat$study)
+conf_int(res, vcov="CR2", cluster=dat$study)
 ```
 
 ```{r, include=FALSE}
@@ -1167,7 +1167,7 @@ round(bma.ip, digits=2)
 ```
 
 ```{r}
-# Bayesian random-effects meta-regression model log-normal(-2.49,1.52^2) prior for tau^2
+# Bayesian random-effects meta-regression model with log-normal(-2.49,1.52^2) prior for tau^2
 
 jags.data <- list(yi=dat$yi, vi=dat$vi, xi=dat$conceal, k=k)
 
@@ -1322,8 +1322,8 @@ rownames(tab) <- c("Frequentist RE model",
 
 round(tab, digits=2)
 
-# note: the prior for the last model was log-normal(-2.01,1.64^2) (see page
-# 311) and not log-normal(-3.95,1.79^2) as stated in the table
+# note: the prior for the last model was log-normal(-2.01,1.64^2) (see page 311)
+# and not log-normal(-3.95,1.79^2) as stated in the table
 ```
 
 ***
@@ -1514,7 +1514,7 @@ plot(g, layout=L,
      edge.color = "black", edge.label.color = "black",
      vertex.color = "black", vertex.label.color = "black",
      vertex.shape = "none", vertex.size = 20,
-     edge.label = paste0("               ", fc(t(B)[t(B) != 0], 2),
+     edge.label = paste0("              ", fc(t(B)[t(B) != 0], 2),
                          ifelse(t(P)[t(B) != 0] <= .05, "*", "")),
      edge.lty   = ifelse(t(P)[t(B) != 0] <= .05, "solid", "dashed"))
 ```
