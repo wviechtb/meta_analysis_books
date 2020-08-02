@@ -1098,9 +1098,9 @@ fsn(dat$yi, dat$vi, type="Orwin", target=log(1.05))
 ```{r}
 # trim and fill analysis
 
-rtf <- trimfill(res, digits=3)
+rtf <- trimfill(res)
 rtf
-predict(rtf, transf=exp)
+predict(rtf, transf=exp, digits=3)
 ```
 
 ```{r, figure_30_3, fig.width=8, fig.height=7.0, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -1365,3 +1365,9 @@ text(-3, 35, "Year", font=2, cex=0.8)
 ## License
 
 This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+```{r}
+knitr::knit_exit()
+```
+
+***

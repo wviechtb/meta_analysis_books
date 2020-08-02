@@ -114,7 +114,7 @@ dat <- dat[nrow(dat):1,]      # reverse order
 
 We can then create a bar chart based on these data:
 
-```{r, figure01_1, forestplot, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
+```{r, figure01_1, fig.width=8, fig.height=6, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 1.1
 
 par(mar=c(4,4,2,2))
@@ -127,7 +127,7 @@ barplot(dat$hits, space=0.4, col="#6c9ece", border=NA, add=TRUE, axes=FALSE)
 
 ## 10) Evaluating Coding Decisions
 
-Part of the code for this chapter is adapted from the chapter itself (see section 10.5). Below, we will make use of several additional packages that need to be installed (if they are not already installed). So let's do this first.
+Part of the code for this chapter (by Jack Vevea, Nicole Zelinksy, and Robert Orwin) is adapted from the chapter itself (see section 10.5). Below, we will make use of several additional packages that need to be installed (if they are not already installed). So let's do this first.
 
 ```{r, message=FALSE, warning=FALSE}
 # install the 'irr' package (if it is not already installed) and load it
@@ -385,7 +385,7 @@ F    -0.200 200 0.020 0.141 0.157")
 dat
 ```
 
-```{r, figure11_1, forestplot, fig.width=8.5, fig.height=5.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+```{r, figure11_1, fig.width=8.5, fig.height=5.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 11.1
 
 res <- rma(md, var, data=dat, method="FE", slab=study)
@@ -853,14 +853,6 @@ agg
 
 res <- rma(d, v, data=agg, method="DL")
 print(res, digits=3)
-```
-
-```{r, include=FALSE}
-dat$v <- dat$v / 10
-res <- robu(d ~ outcome - 1, data=dat, studynum=study, var.eff.size=v, rho=0.7, small=TRUE)
-res
-
-# note: value of rho has no influence on tau^2; is this a bug?
 ```
 
 ***
@@ -1493,7 +1485,7 @@ if (!require(igraph)) {
 }
 ```
 
-```{r}
+```{r, figure16_4, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 16.4: Random-Effects Path Coefficients for Prediction of Sport Performance
 
 B <- R
@@ -1848,6 +1840,237 @@ round(pool2, digits=3)
 
 ***
 
+## 18) Publication Bias
+
+Part of the code for this chapter (by Jack Vevea, Kathleen Coburn, and Alexander Sutton) is adapted from the chapter itself (see section 18.6).
+
+Below is the code for the analysis of the irritable bowl syndrome (IBS) data.
+
+```{r}
+# compute log risk ratios and corresponding sampling variances
+
+dat <- escalc(measure="RR", ai=x.a, n1i=n.a, ci=x.p, n2i=n.p,
+              data=dat.dorn2007, slab=paste(study, ", ", year))
+
+# fit random-effects model using ML estimation
+
+res <- rma(yi, vi, data=dat, digits=2, method="ML")
+res
+```
+
+```{r, figure18_12, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# funnel plot
+
+funnel(res, atransf=exp, at=log(c(.25, .5, 1, 2, 4, 8)),
+       ylim=c(0,0.6), steps=7, las=1)
+```
+
+```{r, figure18_13, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# cumulative meta-analysis (in order of precision) and corresponding forest plot
+
+sav <- cumul(res, order=order(dat$vi))
+forest(sav, header=TRUE)
+```
+
+An alternative way of plotting the results from such a cumulative meta-analysis is to plot the pooled estimates (in this case, the estimated average log risk ratios) against the estimates of the amount of heterogeneity as studies are added. The color gradient of the points/lines indicates the order of the cumulative results (light gray at the beginning, dark gray at the end).
+
+```{r, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# plot cumulative meta-analysis results
+
+plot(sav, xlim=c(0.1,0.5), ylim=c(0,.16), las=1)
+```
+
+```{r}
+# trim and fill analysis
+
+tf.l.l0 <- trimfill(res, side="left",  estimator="L0")
+tf.l.r0 <- trimfill(res, side="left",  estimator="R0")
+tf.r.l0 <- trimfill(res, side="right", estimator="L0")
+tf.r.r0 <- trimfill(res, side="right", estimator="R0")
+
+# show results for side="left" and estimator="R0"
+
+tf.l.r0
+```
+
+```{r}
+# Egger regression using a weighted regression model with the standard error as predictor
+
+regtest(res, model="lm")
+```
+
+```{r}
+# Egger regression using a meta-regression model with the standard error as predictor
+
+regtest(res)
+```
+
+```{r}
+# The PET-PEESE procedure is this: Start with Egger regression using a weighted regression
+# model with the standard error as predictor. If the limit estimate (i.e., intercept) is not
+# significant, the adjusted estimate is the limit estimate. On the other hand, if the limit
+# estimate is significant, repeat the Egger regression but using the sampling variances as
+# predictor. The adjusted estimate is then the limit estimate from that model.
+
+regtest(res, model="lm", ret.fit=TRUE)
+
+# note: since the intercept is not significant (p = .39), the adjusted estimate is the limit
+# estimate; but just for illustration purposes, if the intercept had been significant, then
+# the adjusted estimate would be the limit estimate from the following model
+
+regtest(res, model="lm", predictor="vi")
+```
+
+```{r}
+# rank correlation test
+
+ranktest(res)
+```
+
+For a p-curve analysis, one needs to use the online app at http://p-curve.com/.
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'puniform' package (if it is not already installed) and load it
+
+if (!require(puniform)) {
+   install.packages("puniform")
+   library(puniform)
+}
+```
+
+```{r, figure18_15, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# p-uniform
+
+puniform(yi=dat$yi, vi=dat$vi, side="right", plot=TRUE)
+```
+
+```{r}
+# excess significance test
+
+tes(dat$yi, dat$vi)
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'selectMeta' package (if it is not already installed) and load it
+
+if (!require(selectMeta)) {
+   install.packages("selectMeta")
+   library(selectMeta)
+}
+```
+
+```{r, figure18_16, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Dear and Begg weight-function model
+
+sav <- DearBegg(dat$yi, sqrt(dat$vi), trace=FALSE)
+
+plot(0, 0, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="p-Values", ylab="Estimated Weight Function")
+ps <- seq(0, 1, by = 0.01)
+pval <- summary(dat)$pval
+rug(pval, lwd=3)
+weightLine(pval, w=sav$w, col0="black", lwd0=1, lty0="solid")
+```
+
+```{r, figure18_17, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Rufibach weight-function model
+
+sav <- DearBeggMonotone(dat$yi, sqrt(dat$vi), trace=FALSE)
+
+plot(0, 0, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="p-Values", ylab="Estimated Weight Function")
+ps <- seq(0, 1, by = 0.01)
+pval <- summary(dat)$pval
+rug(pval, lwd=3)
+weightLine(pval, w=sav$w, col0="black", lwd0=1, lty0="solid")
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'weightr' package (if it is not already installed) and load it
+
+if (!require(weightr)) {
+   install.packages("weightr")
+   library(weightr)
+}
+```
+
+```{r}
+# Vevea and Hedges (1995) model (with a single cutpoint at p=0.025)
+
+weightfunct(dat$yi, dat$vi)
+```
+
+```{r, include=FALSE}
+weightfunct(dat$yi, dat$vi, steps=c(0.01, 0.025, 0.05, 0.30, 0.50, 1.00))
+```
+
+```{r}
+# Table 18.1: Sample Selection Patterns for the Vevea and Woods Method
+
+ssp <- data.frame(
+ steps = c(0.005, 0.01, 0.05, 0.10, 0.25, 0.35, 0.50, 0.65, 0.75, 0.90, 0.95, 0.99, 0.995, 1),
+ weights.mod.1 = c(1, 0.99, 0.95, 0.80, 0.75, 0.65, 0.60, 0.55, 0.50, 0.50, 0.50, 0.50, 0.50, .50),
+ weights.sev.1 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.40, 0.35, 0.30, 0.25, 0.10, 0.10, 0.10, .10),
+ weights.mod.2 = c(1, 0.99, 0.95, 0.90, 0.80, 0.75, 0.60, 0.60, 0.75, 0.80, 0.90, 0.95, 0.99, 1),
+ weights.sev.2 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.25, 0.25, 0.50, 0.60, 0.75, 0.90, 0.99, 1))
+ssp
+```
+
+```{r, warning=FALSE}
+# Vevea and Wood (2005) model using moderate one-tailed selection
+
+weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.mod.1)
+```
+
+```{r, warning=FALSE}
+# Vevea and Wood (2005) model using severe one-tailed selection
+
+weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.sev.1)
+```
+
+```{r, warning=FALSE}
+# Vevea and Wood (2005) model using moderate two-tailed selection
+
+weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.mod.2)
+```
+
+```{r, warning=FALSE}
+# Vevea and Wood (2005) model using severe two-tailed selection
+
+weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.sev.2)
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'metasens' package (if it is not already installed) and load it
+
+if (!require(metasens)) {
+   install.packages("metasens")
+   library(metasens)
+}
+```
+
+```{r, figure18_18, fig.width=9, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Copas and Shi (2001) model
+
+res <- metagen(dat$yi, sqrt(dat$vi), method.tau="ML")
+sav <- copas(res)
+plot(sav)
+summary(sav)
+```
+
+```{r}
+# Rücker limit meta-analysis
+
+sav <- limitmeta(res)
+sav
+```
+
+***
+
 ## License
 
 This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+```{r}
+knitr::knit_exit()
+```
+
+***
