@@ -2068,9 +2068,3 @@ sav
 ## License
 
 This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).
-
-```{r}
-knitr::knit_exit()
-```
-
-***
