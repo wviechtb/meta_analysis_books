@@ -3073,6 +3073,117 @@ sav</code></pre></div>
 ## - expectation (beta0)</code></pre>
 <hr />
 </div>
+<div id="interpreting-effect-sizes" class="section level2">
+<h2>19) Interpreting Effect Sizes</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting d-values to U1, U2, and U3</span>
+
+<span class="kw">transf.dtou1</span>(<span class="fl">1.0</span>)</code></pre></div>
+<pre><code>## [1] 0.5537899</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">transf.dtou2</span>(<span class="fl">1.0</span>)</code></pre></div>
+<pre><code>## [1] 0.6914625</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">transf.dtou3</span>(<span class="fl">1.0</span>)</code></pre></div>
+<pre><code>## [1] 0.8413447</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting d-values to common language effect size values</span>
+
+<span class="kw">transf.dtocles</span>(<span class="fl">0.3</span>)</code></pre></div>
+<pre><code>## [1] 0.583998</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting d-values to binomial effect-size display values</span>
+
+<span class="kw">transf.dtobesd</span>(<span class="fl">0.3</span>)</code></pre></div>
+<pre><code>## [1] 0.5741702</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: this is the proportion in the first group scoring above the median; the proportion</span>
+<span class="co"># in the second group scoring above the median is simply 1 minus the computed value:</span>
+
+<span class="dv">1</span> -<span class="st"> </span><span class="kw">transf.dtobesd</span>(<span class="fl">0.3</span>)</code></pre></div>
+<pre><code>## [1] 0.4258298</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting a 2x2 table to a correlation (phi coefficient)</span>
+
+<span class="kw">escalc</span>(<span class="dt">measure=</span><span class="st">&quot;PHI&quot;</span>, <span class="dt">ai=</span><span class="dv">100</span>, <span class="dt">bi=</span><span class="dv">50</span>, <span class="dt">ci=</span><span class="dv">60</span>, <span class="dt">di=</span><span class="dv">90</span>)</code></pre></div>
+<pre><code>##       yi     vi 
+## 1 0.2673 0.0031</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting a 2x2 table to an odds ratio</span>
+
+<span class="kw">summary</span>(<span class="kw">escalc</span>(<span class="dt">measure=</span><span class="st">&quot;OR&quot;</span>, <span class="dt">ai=</span><span class="dv">100</span>, <span class="dt">bi=</span><span class="dv">50</span>, <span class="dt">ci=</span><span class="dv">60</span>, <span class="dt">di=</span><span class="dv">90</span>), <span class="dt">transf=</span>exp)</code></pre></div>
+<pre><code>##       yi  ci.lb  ci.ub 
+## 1 3.0000 1.8729 4.8053</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: escalc(measure=&quot;OR&quot;, ...) computes log odds ratios, so need to exponentiate</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting a 2x2 table to a risk ratio</span>
+
+<span class="kw">summary</span>(<span class="kw">escalc</span>(<span class="dt">measure=</span><span class="st">&quot;RR&quot;</span>, <span class="dt">ai=</span><span class="dv">100</span>, <span class="dt">bi=</span><span class="dv">50</span>, <span class="dt">ci=</span><span class="dv">60</span>, <span class="dt">di=</span><span class="dv">90</span>), <span class="dt">transf=</span>exp)</code></pre></div>
+<pre><code>##       yi  ci.lb  ci.ub 
+## 1 1.6667 1.3291 2.0900</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: escalc(measure=&quot;RR&quot;, ...) computes log risk ratios, so need to exponentiate</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting a 2x2 table to a risk difference</span>
+
+<span class="kw">escalc</span>(<span class="dt">measure=</span><span class="st">&quot;RD&quot;</span>, <span class="dt">ai=</span><span class="dv">100</span>, <span class="dt">bi=</span><span class="dv">50</span>, <span class="dt">ci=</span><span class="dv">60</span>, <span class="dt">di=</span><span class="dv">90</span>)</code></pre></div>
+<pre><code>##       yi     vi 
+## 1 0.2667 0.0031</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># converting a 2x2 table to a number needed to treat</span>
+
+<span class="kw">summary</span>(<span class="kw">escalc</span>(<span class="dt">measure=</span><span class="st">&quot;RD&quot;</span>, <span class="dt">ai=</span><span class="dv">100</span>, <span class="dt">bi=</span><span class="dv">50</span>, <span class="dt">ci=</span><span class="dv">60</span>, <span class="dt">di=</span><span class="dv">90</span>), <span class="dt">transf=</span>function(x) <span class="dv">1</span>/x)</code></pre></div>
+<pre><code>##       yi  ci.lb  ci.ub 
+## 1 3.7500 2.6634 6.3344</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># using effect-size translations with confidence intervals (after a meta-analysis)</span>
+
+<span class="co"># note: using some made-up data that yield the same results as shown om page 443</span>
+
+<span class="co"># example with standardized mean differences</span>
+
+dat &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">di =</span> <span class="kw">c</span>(.<span class="dv">03</span>, .<span class="dv">93</span>, .<span class="dv">66</span>),
+                  <span class="dt">vi =</span> <span class="kw">c</span>(.<span class="dv">072</span>, .<span class="dv">063</span>, .<span class="dv">047</span>))
+res &lt;-<span class="st"> </span><span class="kw">rma</span>(di, vi, <span class="dt">data=</span>dat, <span class="dt">digits=</span><span class="dv">2</span>)
+res</code></pre></div>
+<pre><code>## Random-Effects Model (k = 3; tau^2 estimator: REML)
+## 
+## tau^2 (estimated amount of total heterogeneity): 0.14 (SE = 0.20)
+## tau (square root of estimated tau^2 value):      0.37
+## I^2 (total heterogeneity / total variability):   69.70%
+## H^2 (total variability / sampling variability):  3.30
+## 
+## Test for Heterogeneity:
+## Q(df = 2) = 6.28, p-val = 0.04
+## 
+## Model Results:
+## 
+## estimate    se  zval  pval  ci.lb  ci.ub 
+##     0.55  0.26  2.15  0.03   0.05   1.05  * 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">predict</span>(res, <span class="dt">transf=</span>transf.dtou3)</code></pre></div>
+<pre><code>##  pred ci.lb ci.ub pi.lb pi.ub 
+##  0.71  0.52  0.85  0.37  0.92</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># example with (log) odds ratios</span>
+
+dat &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">logori =</span> <span class="kw">c</span>(.<span class="dv">40</span>, .<span class="dv">74</span>, .<span class="dv">99</span>, .<span class="dv">84</span>, .<span class="dv">75</span>),
+                  <span class="dt">vi =</span> <span class="kw">c</span>(.<span class="dv">111</span>, .<span class="dv">093</span>, .<span class="dv">165</span>, .<span class="dv">128</span>, .<span class="dv">114</span>))
+res &lt;-<span class="st"> </span><span class="kw">rma</span>(logori, vi, <span class="dt">data=</span>dat, <span class="dt">digits=</span><span class="dv">3</span>)
+res</code></pre></div>
+<pre><code>## Random-Effects Model (k = 5; tau^2 estimator: REML)
+## 
+## tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.083)
+## tau (square root of estimated tau^2 value):      0
+## I^2 (total heterogeneity / total variability):   0.00%
+## H^2 (total variability / sampling variability):  1.00
+## 
+## Test for Heterogeneity:
+## Q(df = 4) = 1.488, p-val = 0.829
+## 
+## Model Results:
+## 
+## estimate     se   zval   pval  ci.lb  ci.ub 
+##    0.724  0.154  4.715  &lt;.001  0.423  1.025  *** 
+## 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">predict</span>(res, <span class="dt">transf=</span>exp, <span class="dt">digits=</span><span class="dv">2</span>)</code></pre></div>
+<pre><code>##  pred ci.lb ci.ub pi.lb pi.ub 
+##  2.06  1.53  2.79  1.53  2.79</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">predict</span>(res, <span class="dt">transf=</span>function(x) <span class="kw">transf.logortord</span>(x, <span class="dt">pc=</span>.<span class="dv">12</span>), <span class="dt">digits=</span><span class="dv">2</span>)</code></pre></div>
+<pre><code>##  pred ci.lb ci.ub pi.lb pi.ub 
+##  0.10  0.05  0.16  0.05  0.16</code></pre>
+<p>See also the R functions provided by the chapter authors (Jeffrey Valentine, Ariel Aloe, and Sandra Wilson) at the end of the chapter. The code is also available on the publisher's website for the book (<a href="https://www.russellsage.org/publications/handbook-research-synthesis-and-meta-analysis">see here</a>).</p>
+</div>
 <div id="license" class="section level2">
 <h2>License</h2>
 <p>This documented is licensed under the following license: <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC Attribution-Noncommercial-Share Alike 4.0 International</a>.</p>

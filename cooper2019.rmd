@@ -2065,6 +2065,92 @@ sav
 
 ***
 
+## 19) Interpreting Effect Sizes
+
+```{r}
+# converting d-values to U1, U2, and U3
+
+transf.dtou1(1.0)
+transf.dtou2(1.0)
+transf.dtou3(1.0)
+```
+
+```{r}
+# converting d-values to common language effect size values
+
+transf.dtocles(0.3)
+```
+
+```{r}
+# converting d-values to binomial effect-size display values
+
+transf.dtobesd(0.3)
+
+# note: this is the proportion in the first group scoring above the median; the proportion
+# in the second group scoring above the median is simply 1 minus the computed value:
+
+1 - transf.dtobesd(0.3)
+```
+
+```{r}
+# converting a 2x2 table to a correlation (phi coefficient)
+
+escalc(measure="PHI", ai=100, bi=50, ci=60, di=90)
+```
+
+```{r}
+# converting a 2x2 table to an odds ratio
+
+summary(escalc(measure="OR", ai=100, bi=50, ci=60, di=90), transf=exp)
+
+# note: escalc(measure="OR", ...) computes log odds ratios, so need to exponentiate
+```
+
+```{r}
+# converting a 2x2 table to a risk ratio
+
+summary(escalc(measure="RR", ai=100, bi=50, ci=60, di=90), transf=exp)
+
+# note: escalc(measure="RR", ...) computes log risk ratios, so need to exponentiate
+```
+
+```{r}
+# converting a 2x2 table to a risk difference
+
+escalc(measure="RD", ai=100, bi=50, ci=60, di=90)
+```
+
+```{r}
+# converting a 2x2 table to a number needed to treat
+
+summary(escalc(measure="RD", ai=100, bi=50, ci=60, di=90), transf=function(x) 1/x)
+```
+
+```{r}
+# using effect-size translations with confidence intervals (after a meta-analysis)
+
+# note: using some made-up data that yield the same results as shown om page 443
+
+# example with standardized mean differences
+
+dat <- data.frame(di = c(.03, .93, .66),
+                  vi = c(.072, .063, .047))
+res <- rma(di, vi, data=dat, digits=2)
+res
+predict(res, transf=transf.dtou3)
+
+# example with (log) odds ratios
+
+dat <- data.frame(logori = c(.40, .74, .99, .84, .75),
+                  vi = c(.111, .093, .165, .128, .114))
+res <- rma(logori, vi, data=dat, digits=3)
+res
+predict(res, transf=exp, digits=2)
+predict(res, transf=function(x) transf.logortord(x, pc=.12), digits=2)
+```
+
+See also the R functions provided by the chapter authors (Jeffrey Valentine, Ariel Aloe, and Sandra Wilson) at the end of the chapter. The code is also available on the publisher's website for the book ([see here](https://www.russellsage.org/publications/handbook-research-synthesis-and-meta-analysis)).
+
 ## License
 
 This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).
