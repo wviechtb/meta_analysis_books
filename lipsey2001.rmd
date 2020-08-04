@@ -47,8 +47,8 @@ pointsize <- 14
 
 options(width=94)
 
-fc <- function(x, digits=4)
-   formatC(x, format="f", digits=digits)
+fc <- function(x, digits=4, ...)
+   formatC(x, format="f", digits=digits, ...)
 ```
 
 ***

@@ -60,8 +60,8 @@ options(width=94)
 Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but this one does not drop trailing zeros).
 
 ```{r}
-fc <- function(x, digits=4)
-   formatC(x, format="f", digits=digits)
+fc <- function(x, digits=4, ...)
+   formatC(x, format="f", digits=digits, ...)
 ```
 
 ***
@@ -437,9 +437,38 @@ summary(dat)
 
 dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
 summary(dat)
+```
 
-# note: the sampling variance of Hedges' g is computed in a slightly different
-# way in the book compared to the metafor package; the difference is negligible
+```{r}
+# note: by default, the sampling variance is computed in a slightly different way in the
+# book compared to the metafor package; by using vtype="LS2", the exact same equation as
+# given in the book is used; but the difference is usually negligible (the results below
+# differ slightly from those given in the book due to intermittent rounding in the book)
+
+dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50, vtype="LS2")
+summary(dat)
+```
+
+```{r}
+# standardized mean change (using raw score standardization)
+
+dat <- escalc("SMCR", m1i=103, m2i=100, sd1i=5.5/sqrt(2*(1-0.7)), ni=50, ri=0.7)
+summary(dat)
+
+# note: 5.5 is the SD of the change scores, which we can convert to the SD of
+# the raw scores by dividing it by sqrt(2*(1-r)) (this assumes that the SD was
+# the same at the pre- and post-test)
+```
+
+```{r}
+# note: by default, the sampling variance is computed in a slightly different way in the
+# book compared to the metafor package; by using vtype="LS2", the exact same equation as
+# given in the book is used; but the difference is usually negligible (the results below
+# differ slightly from those given in the book due to intermittent rounding in the book
+# and also because the equation given in the book contains a mistake)
+
+dat <- escalc("SMCR", m1i=103, m2i=100, sd1i=5.5/sqrt(2*(1-0.7)), ni=50, ri=0.7, vtype="LS2")
+summary(dat)
 ```
 
 ```{r}
@@ -455,6 +484,7 @@ g  <- J * d
 Vg <- J^2 * Vd
 round(g,  digits=4)
 round(Vg, digits=4)
+round(sqrt(Vg), digits=4)
 
 # note: the results given in the book are not quite correct
 ```
@@ -1630,7 +1660,7 @@ res
 ```{r}
 # 95% prediction interval
 
-round(coef(res) + c(-1,1)*qnorm(.975)*sqrt(res$tau2), digits=2)
+predict(res, pi.type="simple", digits=2)
 
 # note: can also use predict(res, digits=2), but this will give a slightly
 # wider prediction interval because this also considers the uncertainty in
@@ -2150,6 +2180,83 @@ predict(res, transf=function(x) transf.logortord(x, pc=.12), digits=2)
 ```
 
 See also the R functions provided by the chapter authors (Jeffrey Valentine, Ariel Aloe, and Sandra Wilson) at the end of the chapter. The code is also available on the publisher's website for the book ([see here](https://www.russellsage.org/publications/handbook-research-synthesis-and-meta-analysis)).
+
+***
+
+## 20) Heterogeneity in Meta-Analysis
+
+```{r}
+# data for the illustrative example
+
+dat <- data.frame(yi = seq(10, 90, by=10), vi = 562.5)
+dat
+```
+
+```{r}
+# fit random-effects model
+
+res <- rma(yi, vi, data=dat, method="DL")
+res
+```
+
+```{r, figure20_2, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# forest plot
+
+forest(res, header=TRUE)
+```
+
+```{r}
+# approximate 95% prediction interval (based on equation 20.6)
+
+predict(res, pi.type="simple", digits=0)
+```
+
+```{r}
+# approximate 95% prediction interval (based on equation 20.7)
+
+predict(res, pi.type="riley", digits=0)
+```
+
+Note: The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](http://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, equation 20.7 is used.
+
+```{r}
+# data for Figure 20.3
+
+dat <- read.table(header=TRUE, text = "
+study   mean1 sd1  n1 mean2 sd2  n2
+Carroll    94  22  60    92  20  60
+Grant      98  21  65    92  22  65
+Peck       98  28  40    88  26  40
+Donat      94  19 200    82  17 200
+Stewart    98  21  50    88  22  45
+Young      96  21  85    92  22  85")
+
+dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2,
+              slab=study, data=dat, vtype="LS2")
+dat
+```
+
+```{r}
+# fit fixed- and random-effects models
+
+res.fe <- rma(yi, vi, data=dat, method="FE")
+res.re <- rma(yi, vi, data=dat, method="DL")
+
+# show random-effects model results
+print(res.re, digits=3)
+```
+
+```{r, figure20_3, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 20.3: Meta-Analysis Showing Relative Weights for Fixed-Effect and Random-Effects Models
+
+wi <- fc(cbind(weights(res.fe), weights(res.re)), digits=2, width=5)
+
+forest(res.fe, header=TRUE, xlim=c(-1.5,4), ylim=c(-2.5,9), psize=1, efac=c(0,1),
+       ilab=wi, ilab.xpos=c(1.7,2.4), ilab.pos=2, digits=c(3,2))
+addpoly(res.re, width=c(5,6,5), digits=3)
+text(1.45, 8, "Weight\n(Fixed)",  font=2)
+text(2.15, 8, "Weight\n(Random)", font=2)
+```
 
 ## License
 

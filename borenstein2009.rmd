@@ -157,25 +157,31 @@ summary(dat)
 ```{r}
 # standardized mean difference (Hedges' g)
 
-dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50)
+dat <- escalc("SMD", m1i=103, m2i=100, sd1i=5.5, sd2i=4.5, n1i=50, n2i=50, vtype="LS2")
 summary(dat)
 
-# note: the sampling variance of Hedges' g is computed in a slightly different
-# way in the book compared to the metafor package; the difference is negligible
+# note: by default, the sampling variance is computed in a slightly different
+# way in the book compared to the metafor package; by using vtype="LS2", the
+# same equation as given in the book is used; but the difference is usually
+# negligible (the results above differ slightly from those given in the book
+# due to intermittent rounding in the book)
 ```
 
 ```{r}
 # standardized mean change (using raw score standardization)
 
-dat <- escalc("SMCR", m1i=103, m2i=100, sd1i=5.5/sqrt(2*(1-0.7)), ni=50, ri=0.7)
+dat <- escalc("SMCR", m1i=103, m2i=100, sd1i=5.5/sqrt(2*(1-0.7)), ni=50, ri=0.7, vtype="LS2")
 summary(dat)
 
 # note: 5.5 is the SD of the change scores, which we can convert to the SD of
 # the raw scores by dividing it by sqrt(2*(1-r)) (this assumes that the SD was
 # the same at the pre- and post-test)
 
-# note: the sampling variance is again computed in a slightly different way
-# in the book compared to the metafor package; the difference is negligible
+# note: by default, the sampling variance is computed in a slightly different
+# way in the book compared to the metafor package; by using vtype="LS2", the
+# same equation as given in the book is used; but the difference is usually
+# negligible (the results above differ slightly from those given in the book
+# because the equation given in the book actually contains a mistake)
 ```
 
 ```{r}
@@ -239,12 +245,9 @@ Donat      94  19 200    82  17 200
 Stewart    98  21  50    88  22  45
 Young      96  21  85    92  22  85")
 
-dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2, slab=study, data=dat)
+dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2,
+              slab=study, data=dat, vtype="LS2")
 dat
-
-# note: the sampling variance of Hedges' g is computed in a slightly different
-# way in the book compared to the metafor package; this leads to negligible
-# differences between the results in the book and the results obtained here
 ```
 
 ```{r}
@@ -416,7 +419,7 @@ text(2.2,  8, "Weight", pos=2, font=2)
 
 ### Notes
 
-1. The prediction interval is computed in a slightly different way in the book compared to what is shown below. For more details on how the prediction interval is computed by the `metafor` package, see [here](http://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt).
+1. The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](http://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, we can obtain the same results as those provided in the book.
 2. The confidence intervals for $\tau^2$ and $I^2$ are also computed in a different way. The `metafor` package uses the Q-profile method, which is an exact method (under the assumptions of the model), while the methods described in the book are based on large-sample approximations.
 
 ### Example for Continuous Data
@@ -433,12 +436,8 @@ Donat      94  19 200    82  17 200
 Stewart    98  21  50    88  22  45
 Young      96  21  85    92  22  85")
 
-dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2, slab=study, data=dat)
+dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2, slab=study, data=dat, vtype="LS2")
 dat
-
-# note: the sampling variance of Hedges' g is computed in a slightly different
-# way in the book compared to the metafor package; this leads to negligible
-# differences between the results in the book and the results obtained here
 ```
 
 ```{r}
@@ -446,7 +445,7 @@ dat
 
 res <- rma(yi, vi, data=dat, method="DL")
 res
-predict(res)
+predict(res, pi.type="riley")
 confint(res)
 ```
 
@@ -459,7 +458,7 @@ dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-2,3), header=TRUE, top=2, mlab="Summary",
        ilab=dat$weights, ilab.xpos=1.6, ilab.pos=2, efac=c(0,1,1.5),
-       addpred=TRUE)
+       addpred=TRUE, pi.type="riley")
 text(1.6, -1, "100%", pos=2)
 text(1.6,  8, "Weight", pos=2, font=2)
 ```
@@ -487,7 +486,7 @@ dat
 
 res <- rma(yi, vi, data=dat, method="DL")
 res
-predict(res, transf=exp)
+predict(res, transf=exp, pi.type="riley")
 confint(res)
 ```
 
@@ -501,7 +500,7 @@ dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
        atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
        ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5),
-       addpred=TRUE)
+       addpred=TRUE, pi.type="riley")
 text(2.5, -1, "100%", pos=2)
 text(2.5,  8, "Weight", pos=2, font=2)
 ```
@@ -529,7 +528,7 @@ dat
 
 res <- rma(yi, vi, data=dat, method="DL")
 res
-predict(res, transf=transf.ztor)
+predict(res, transf=transf.ztor, pi.type="riley")
 confint(res)
 ```
 
@@ -541,9 +540,9 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
-       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .85)),
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .9)),
        ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5),
-       addpred=TRUE)
+       addpred=TRUE, pi.type="riley")
 text(2.2, -1, "100%", pos=2)
 text(2.2,  8, "Weight", pos=2, font=2)
 ```
