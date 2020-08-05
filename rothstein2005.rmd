@@ -1,0 +1,423 @@
+---
+title: "R Code Corresponding to the Book *Publication Bias in Meta-Analysis* by Rothstein et al. (2005)"
+author: |
+  | Wolfgang Viechtbauer
+  | Maastricht University
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    df_print: default
+    toc: true
+    number_sections: false
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+    theme: default
+    # lots of nice themes can be used: https://bootswatch.com/
+    highlight: haddock
+  # rmarkdown::github_document
+  # pdf_document:
+  #   toc: true
+  #   number_sections: false
+  #   toc_depth: 3
+  # word_document
+fig_caption: no
+# bibliography: references.bib
+---
+
+## General Notes / Setup
+
+The book *Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments* by Rothstein et al. (2005) provides a very comprehensive treatment of the topic of publication bias. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+
+Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+
+```{r, eval=FALSE}
+install.packages("remotes")
+remotes::install_github("wviechtb/metafor")
+```
+
+This step will become obsolete once a new release of the `metafor` package is published on CRAN.
+
+Once the package is installed, we can load it with:
+
+```{r, message=FALSE}
+library(metafor)
+```
+
+A few additional notes:
+
+1. Results are only reproduced for chapters containing worked examples.
+2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process. Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them).
+3. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+.rmspace <- TRUE
+pointsize <- 14
+
+options(width=94)
+```
+
+Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but this one does not drop trailing zeros).
+
+```{r}
+fc <- function(x, digits=4, ...)
+   formatC(x, format="f", digits=digits, ...)
+```
+
+## Appendix A: Data Sets
+
+We will actually start with Appendix A, which provides the three datasets used throughout the book for illustrative purposes.
+
+### Dataset 1
+
+```{r}
+# data for the meta-analysis on teacher expectancy effects
+
+dat1 <- dat.raudenbush1985
+dat1$vi <- c(0.126, 0.147, 0.167, 0.397, 0.371, 0.103, 0.103, 0.221, 0.165, 0.260,
+             0.307, 0.223, 0.289, 0.291, 0.159, 0.167, 0.139, 0.094, 0.174)^2
+dat1
+
+# note: 'yi' are the standardized mean differences and 'vi' the corresponding sampling variances;
+# the sampling variances in 'dat.raudenbush1985' were computed in a slightly different way than in
+# the dataset included in the book, so to make sure we can obtain the same results as provided in
+# the book, we just overwrite 'vi' with the squared standard errors given in Table A.1
+```
+
+```{r}
+# fixed-effects model for studies where teachers had more than one week of contact with the students
+
+res.h <- rma(yi, vi, data=dat1, subset=weeks > 1, method="FE", digits=2)
+res.h
+```
+
+```{r}
+# fixed-effects model for studies where teachers had a week or less of contact with the students
+
+res.l <- rma(yi, vi, data=dat1, subset=weeks <= 1, method="FE", digits=2)
+res.l
+```
+
+```{r, figureA_1, fig.width=8.5, fig.height=10, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure A.1
+
+tmp <- rbind(dat1[dat1$weeks > 1,], dat1[dat1$weeks <= 1,])
+tmp$weeks <- ifelse(tmp$weeks > 1, "High", "Low")
+
+forest(tmp$yi, tmp$vi, slab=paste0(tmp$author, ", ", tmp$year), psize=1,
+       xlim=c(-5, 3.5), ylim=c(-1,25), header=TRUE, at=seq(-1,1.5,by=0.5),
+       rows=c(22:12, 9:2), ilab=tmp$weeks, ilab.xpos=-1.2, ilab.pos=2)
+
+text(-1.6, 24, "Prior Contact", font=2)
+
+addpoly(res.h, row=11, mlab="High", cex=1, width=c(4,5,3), col="white", font=c(sans=2))
+addpoly(res.l, row= 1, mlab="Low",  cex=1, width=c(4,5,3), col="white", font=c(sans=2))
+
+res <- rma(yi, vi, data=tmp, method="FE")
+addpoly(res, row=-1, mlab="Overall", cex=1, width=c(4,5,3), font=c(sans=2))
+abline(h=0)
+```
+
+### Dataset 2
+
+```{r}
+# data for the meta-analysis on the effect of environmental tobacco smoke on lung cancer risk
+
+dat2 <- dat.hackshaw1998
+head(dat2, 10) # show the first 10 rows
+
+# note: 'yi' are the log odds ratios and 'vi' the corresponding sampling variances; the studies in
+# 'dat.hackshaw1998' are order by their publication year and hence are not in the same order as in
+# Figure A.2, but this is (with some minor rounding discrepancies) the same dataset
+```
+
+```{r}
+# random-effects model
+
+res <- rma(yi, vi, data=dat2, method="DL", digits=2, slab=paste0(author, ", ", year))
+predict(res, transf=exp)
+```
+
+```{r, figureA_2, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure A.2
+
+wi <- fc(weights(res), digits=2)
+
+forest(res, atransf=exp, psize=1, header=TRUE, xlim=c(-4.5,7), ylim=c(-0.6,40),
+       at=log(c(0.2, 0.5, 1, 2, 5, 10)), efac=c(0,1),
+       ilab=wi, ilab.xpos=3.8, ilab.pos=2)
+text(3.3, 39, "Weight", font=2)
+```
+
+### Dataset 3
+
+```{r}
+# data for the meta-analysis on employment interview scores and job performance
+
+dat3 <- dat.mcdaniel1994
+dat3r <- escalc(measure="COR", ri=ri, ni=ni, data=dat3)
+dat3z <- escalc(measure="ZCOR", ri=ri, ni=ni, data=dat3)
+head(dat3r, 10) # show the first 10 rows
+
+# note: in 'dat3r', 'yi' are the raw correlation coefficients and 'vi' the corresponding sampling
+# variances; in 'dat3z', 'yi' are the r-to-z transformed coefficients and 'vi' the corresponding
+# sampling variances
+```
+
+```{r}
+# random-effects model
+
+res <- rma(yi, vi, data=dat3z, digits=2, method="DL")
+predict(res, transf=transf.ztor)
+```
+
+```{r}
+# fit random-effects models for the various subgroups
+
+res.s <- rma(yi, vi, method="DL", data=subset(dat3z, struct=="s"))
+res.u <- rma(yi, vi, method="DL", data=subset(dat3z, struct=="u"))
+res.j <- rma(yi, vi, method="DL", data=subset(dat3z, type=="j" | type=="s"))
+res.p <- rma(yi, vi, method="DL", data=subset(dat3z, type=="p"))
+```
+
+```{r, figureA_3, fig.width=8.5, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure A.3
+
+yi <- c(coef(res), coef(res.s), coef(res.u), coef(res.j), coef(res.p))
+vi <- c(vcov(res), vcov(res.s), vcov(res.u), vcov(res.j), vcov(res.p))
+slab <- c("Overall", "Structured", "Unstructured", "Job-Related", "Psychological")
+forest(yi, vi, slab=slab, xlim=c(-0.2,0.65), ylim=c(0,10),
+       atransf=transf.ztor, at=transf.rtoz(c(0,.1,.2,.3,.4)),
+       xlab="Correlation Coefficient", header=c("Subgroup", "Correlation [95% CI]"),
+       refline=NA, efac=0, psize=1, rows=c(7, 5:4, 2:1))
+```
+
+***
+
+## 5) The Funnel Plot
+
+```{r}
+# data for the meta-analysis on magnesium treatment in the prevention of death following MI
+
+dat <- dat.egger2001
+
+# calculate log odds ratios and corresponding sampling variances
+
+dat <- escalc(measure="OR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat)
+dat
+```
+
+```{r}
+# fit fixed-effects model
+
+res <- rma(yi, vi, data=dat, method="FE", digits=3)
+res
+```
+
+```{r, figure5_6, fig.width=8.5, fig.height=10, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.6: Funnel plots for the magnesium trials with different vertical axes
+
+par(mfrow=c(3,2), mar=c(5,6,2,2), mgp=c(4,1,0), las=1)
+
+funnel(res, yaxis="sei",   xlim=c(-4,4), ylim=c(0,2),        steps=3, back=NA, lty=1, xlab="")
+funnel(res, yaxis="seinv", xlim=c(-4,4), ylim=c(1e-06,32),            back=NA, lty=1, xlab="")
+funnel(res, yaxis="vi",    xlim=c(-4,4), ylim=c(0,3),        steps=4, back=NA, lty=1, xlab="")
+funnel(res, yaxis="vinv",  xlim=c(-4,4), ylim=c(1e-06,1000), steps=3, back=NA, lty=1, xlab="")
+funnel(res, yaxis="ni",    xlim=c(-4,4), ylim=c(0,60000),    steps=4, back=NA, lty=1)
+funnel(res, yaxis="lni",   xlim=c(-4,4), ylim=c(2,12),       steps=6, back=NA, lty=1,
+       yaxt="n", ylab="Sample Size (log scale)")
+axis(side=2, at=log(c(10, 100, 1000, 10000, 100000)),
+     labels=c("10", "100", "1000", "10000", "100000"))
+```
+
+```{r}
+# fit fixed-effects model to illustrative dataset 2
+
+res <- rma(yi, vi, data=dat2, method="FE")
+res
+```
+
+```{r, figure5_7, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.7
+
+funnel(res, atransf=exp, at=log(c(0.25,0.50,1,2,4,8)), ylim=c(0,.8), las=1, digits=c(2,1),
+       back=NA, shade=NA, hlines="lightgray")
+```
+
+```{r}
+# fit fixed-effects model to illustrative dataset 1
+
+res <- rma(yi, vi, data=dat1, method="FE")
+res
+```
+
+```{r, figure5_8a, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.8a
+
+funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=1,
+       back=NA, shade=NA, hlines="lightgray")
+```
+
+```{r, figure5_8b, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.8b
+
+funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=c(1,1),
+       back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat1$weeks > 1, 19, 17))
+legend("topleft", inset=0.02, bg="white", pch=c(19,17), legend=c("High contact", "Low contact"))
+```
+
+```{r}
+# fit fixed-effects model to illustrative dataset 3r
+
+res <- rma(yi, vi, data=dat3r, method="FE")
+res
+```
+
+```{r, figure5_9, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.8
+
+funnel(res, at=seq(-1,1,by=.25), ylim=c(0,.3), steps=4, las=1, digits=c(2,1),
+       back=NA, shade=NA, hlines="lightgray")
+```
+
+```{r}
+# fit fixed-effects model to illustrative dataset 3z
+
+res <- rma(yi, vi, data=dat3z, method="FE")
+res
+```
+
+```{r, figure5_10a, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.10a
+
+funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
+       back=NA, shade=NA, hlines="lightgray")
+```
+
+```{r, figure5_10b, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 5.10b
+
+sav <- funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
+       back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat3z$struct == "u", 2, 19))
+with(subset(sav, dat3z$struct == "u"), points(x, y, pch=24, bg="white"))
+legend("topright", inset=0.02, bg="white", pch=c(2,19), legend=c("Unstructured", "Structured"))
+```
+
+***
+
+## 6) Regression Methods to Detect Publication and Other Bias in Meta-Analysis
+
+```{r}
+# data for the meta-analysis on magnesium treatment in the prevention of death following MI
+
+dat <- dat.egger2001
+
+# calculate log odds ratios and corresponding sampling variances
+
+dat <- escalc(measure="OR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat)
+```
+
+```{r}
+# rank correlation test excluding ISIS-4 study (and the study by Bertschat et al., 1989)
+
+ranktest(dat$yi, dat$vi, subset=-c(8,16), digits=3, exact=FALSE)
+
+# rank correlation test (excluding the study by Bertschat et al., 1989)
+
+ranktest(dat$yi, dat$vi, subset=-8, digits=3, exact=FALSE)
+
+# note: by default, ranktest() computes exact p-values (if k < 50 and there are no ties);
+# using exact=FALSE, we can force the use of the normalized test described in the chapter
+```
+
+```{r}
+# regression test excluding ISIS-4 study (and the study by Bertschat et al., 1989)
+
+reg <- regtest(dat$yi, dat$vi, subset=-c(8,16), model="lm", digits=3)
+reg
+
+# bias coefficient (with 95% CI)
+
+round(c(coef(reg$fit)[2], confint(reg$fit)[2,]), digits=2)
+
+# rank correlation test (excluding the study by Bertschat et al., 1989)
+
+reg <- regtest(dat$yi, dat$vi, subset=-8, model="lm", digits=3)
+reg
+
+# bias coefficient (with 95% CI)
+
+round(c(coef(reg$fit)[2], confint(reg$fit)[2,]), digits=2)
+```
+
+```{r, figure6_1a, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 6.1a
+
+res <- rma(yi, vi, data=dat, method="FE", subset=-c(8,16))
+
+funnel(res, atransf=exp, at=log(c(.05, .10, .25, .50, 1, 2, 4, 8, 16)), xlim=log(c(.04,16)),
+       ylim=c(0,1.5), steps=4, las=1, digits=list(2L,1), back=NA, shade=NA, hlines="lightgray",
+       lty=5, lwd=2)
+
+reg <- regtest(res, model="lm")
+
+se <- seq(0.13, 1.6, length=100)
+lines(coef(reg$fit)[1] + coef(reg$fit)[2]*se, se, lwd=2, lty=3)
+```
+
+```{r, figure6_1b, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 6.1b
+
+res <- rma(yi, vi, data=dat, method="FE", subset=-8)
+
+funnel(res, atransf=exp, at=log(c(.05, .10, .25, .50, 1, 2, 4, 8, 16)), xlim=log(c(.04,16)),
+       ylim=c(0,1.5), steps=4, las=1, digits=list(2L,1), back=NA, shade=NA, hlines="lightgray",
+       lty=5, lwd=2)
+
+reg <- regtest(res, model="lm")
+
+se <- seq(0.02, 1.6, length=100)
+lines(coef(reg$fit)[1] + coef(reg$fit)[2]*se, se, lwd=2, lty=3)
+```
+
+Unfortunately, I do not have access to the dataset by Linde et al. (1997) and hence cannot reproduce the results in Table 6.1. To illustrate the same principle (i.e., extending the model by including other study characteristics as predictors and using a random/mixed-effects meta-regression model for the analysis and the regression test), I will continue to use the data from the magnesium treatment meta-analysis and include study year as a predictor.
+
+```{r}
+# fit (mixed-effects) meta-regression model with study year as predictor
+
+res <- rma(yi, vi, mods = ~ year, data=dat, subset=-c(8,16))
+res
+```
+
+```{r}
+# regression test (and show results from the model)
+
+regtest(res, ret.fit=TRUE)
+```
+
+```{r}
+# Table 6.2 (rank correlation and regression tests for the three example meta-analyses)
+
+ran1 <- ranktest(dat1$yi, dat1$vi, exact=FALSE)
+reg1 <- regtest(dat1$yi,  dat1$vi, model="lm")
+
+ran2 <- ranktest(dat2$yi, dat2$vi, exact=FALSE)
+reg2 <- regtest(dat2$yi,  dat2$vi, model="lm")
+
+ran3 <- ranktest(dat3z$yi, dat3z$vi, exact=FALSE)
+reg3 <- regtest(dat3z$yi,  dat3z$vi, model="lm")
+
+tab <- data.frame(
+   rank_pval   = c(ran2$pval, ran1$pval, ran3$pval),
+   rank_cor    = c(ran2$tau,  ran1$tau , ran3$tau),
+   reg_pval    = c(reg2$pval, reg1$pval, reg3$pval),
+   reg_coef    = c(coef(reg2$fit)[2], coef(reg1$fit)[2], coef(reg3$fit)[2]),
+   reg_coef_lb = c(confint(reg2$fit)[2,1], confint(reg1$fit)[2,1], confint(reg3$fit)[2,1]),
+   reg_coef_ub = c(confint(reg2$fit)[2,2], confint(reg1$fit)[2,2], confint(reg3$fit)[2,2]))
+
+dfround(tab, c(3,2,3,2,2,2))
+```
+
+## License
+
+This documented is licensed under the following license: [CC Attribution-Noncommercial-Share Alike 4.0 International](http://creativecommons.org/licenses/by-nc-sa/4.0/).
