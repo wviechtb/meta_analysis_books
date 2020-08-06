@@ -690,7 +690,7 @@ dat &lt;-<span class="st"> </span><span class="kw">escalc</span>(<span class="dt
 ## 
 ## Kendall's tau = 0.105, p = 0.586</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: by default, ranktest() computes exact p-values (if k &lt; 50 and there are no ties);</span>
-<span class="co"># using exact=FALSE, we can force the use of the normalized test described in the chapter</span></code></pre></div>
+<span class="co"># using exact=FALSE, we can force the use of the normalized test described in the book</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># regression test excluding ISIS-4 study (and the study by Bertschat et al., 1989)</span>
 
 reg &lt;-<span class="st"> </span><span class="kw">regtest</span>(dat$yi, dat$vi, <span class="dt">subset=</span>-<span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">16</span>), <span class="dt">model=</span><span class="st">&quot;lm&quot;</span>, <span class="dt">digits=</span><span class="dv">3</span>)
@@ -864,98 +864,109 @@ tab &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
 ## Target Significance Level:   0.05
 ## 
 ## Fail-safe N: 50364</code></pre>
-<p>Note: The values obtained above differ slightly from those in the book chapter due to two reasons:</p>
+<p>Note: The values obtained above differ slightly from those in the book due to two reasons:</p>
 <ol style="list-style-type: decimal">
 <li>Some values were rounded intermittently in the book.</li>
-<li>The <code>fsn()</code> function uses (approximate) Wald-type tests for computing the <span class="math inline">\(p\)</span>-values which are used as input for Stouffer's method, while t-tests were conducted (for datasets 1 and 3).</li>
+<li>The <code>fsn()</code> function uses (approximate) Wald-type tests for computing the <span class="math inline">\(p\)</span>-values which are used as input for Stouffer's method, while t-tests were conducted for datasets 1 and 3.</li>
 </ol>
-<p>For the same reason (esp. 2), some of the following results will also differ somewhat from those provided in the book.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># failsafe N for dataset 1 using Orwin's method</span>
 
-<span class="kw">fsn</span>(yi, <span class="dt">data=</span>dat1, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.05</span>)</code></pre></div>
+<span class="kw">fsn</span>(yi, vi, <span class="dt">data=</span>dat1, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.05</span>, <span class="dt">weighted=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Fail-safe N Calculation Using the Orwin Approach
 ## 
-## Average Effect Size: 0.1637
+## Average Effect Size: 0.0578
 ## Target Effect Size:  0.0500
 ## 
-## Fail-safe N: 44</code></pre>
+## Fail-safe N: 3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># failsafe N for dataset 2 using Orwin's method</span>
 
-<span class="kw">fsn</span>(yi, <span class="dt">data=</span>dat, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="kw">log</span>(<span class="fl">1.05</span>))</code></pre></div>
+<span class="kw">fsn</span>(yi, vi, <span class="dt">data=</span>dat2, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="kw">log</span>(<span class="fl">1.05</span>), <span class="dt">weighted=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Fail-safe N Calculation Using the Orwin Approach
 ## 
-## Average Effect Size: -1.0165
+## Average Effect Size: 0.1858
 ## Target Effect Size:  0.0488
 ## 
-## Fail-safe N: Inf</code></pre>
+## Fail-safe N: 104</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># failsafe N for dataset 3 using Orwin's method</span>
 
-<span class="kw">fsn</span>(yi, <span class="dt">data=</span>dat3r, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.15</span>)</code></pre></div>
+<span class="kw">fsn</span>(yi, vi, <span class="dt">data=</span>dat3r, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.15</span>, <span class="dt">weighted=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Fail-safe N Calculation Using the Orwin Approach
 ## 
-## Average Effect Size: 0.2404
+## Average Effect Size: 0.4713
 ## Target Effect Size:  0.1500
 ## 
-## Fail-safe N: 97</code></pre>
-<p>Here, there is yet a further reason why the values obtained above differ somewhat from those in the book chapter: The <code>fsn()</code> function bases the computations on the <em>unweighted</em> average of the observed effects (as described by Orwin, 1983), while the computations in the book make use of the inverse-variance weighted average of the observed effects.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher's test for datasets 1-3</span>
+## Fail-safe N: 343</code></pre>
+<p>Note: As originally described by Orwin (1983), the calculations are based on <em>unweighted</em> averages. To replicate the results in the book, we need to set <code>weighted=TRUE</code>, so that (inverse-variance) weighted averages are used. However, note that for dataset 3, the mean correlation used as input for Orwin's method in the book (i.e., 0.21) is based on a random-effects model and hence the result above differs from what is shown in the book. With a simple trick, we can however reproduce the results in the book exactly. For this, we just create a vector of the same length as the original data with the mean effect size used as input and pass this to the <code>fsn()</code> function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># failsafe N using Orwin's method calculated exactly as described in the book</span>
 
-pval1 &lt;-<span class="st"> </span><span class="kw">pnorm</span>(dat1$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat1$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
-X21   &lt;-<span class="st"> </span><span class="kw">sum</span>(-<span class="dv">2</span>*<span class="kw">log</span>(pval1))
-df1   &lt;-<span class="st"> </span><span class="dv">2</span>*<span class="kw">length</span>(pval1)
-p1    &lt;-<span class="st"> </span><span class="kw">pchisq</span>(X21, <span class="dt">df=</span>df1, <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
+fsn1 &lt;-<span class="st"> </span><span class="kw">fsn</span>(<span class="kw">rep</span>(<span class="fl">0.06</span>,  <span class="kw">nrow</span>(dat1)), <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.05</span>)$fsn
+fsn2 &lt;-<span class="st"> </span><span class="kw">fsn</span>(<span class="kw">rep</span>(<span class="fl">0.185</span>, <span class="kw">nrow</span>(dat2)), <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.049</span>)$fsn
+fsn3 &lt;-<span class="st"> </span><span class="kw">fsn</span>(<span class="kw">rep</span>(<span class="fl">0.21</span>,  <span class="kw">nrow</span>(dat3)), <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="fl">0.15</span>)$fsn
+<span class="kw">c</span>(<span class="dt">fsn1 =</span> fsn1, <span class="dt">fsn2 =</span> fsn2, <span class="dt">fsn3 =</span> fsn3)</code></pre></div>
+<pre><code>## fsn1 fsn2 fsn3 
+##    4  103   64</code></pre>
+<p>Although the computations underlying Fisher's method are not difficult, we can make use of the <a href="https://ozancinar.github.io/poolr/">poolr</a> package to automate things.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install the 'poolr' package (if it is not already installed) and load it</span>
 
-pval2 &lt;-<span class="st"> </span><span class="kw">pnorm</span>(dat2$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat2$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
-X22   &lt;-<span class="st"> </span><span class="kw">sum</span>(-<span class="dv">2</span>*<span class="kw">log</span>(pval2))
-df2   &lt;-<span class="st"> </span><span class="dv">2</span>*<span class="kw">length</span>(pval2)
-p2    &lt;-<span class="st"> </span><span class="kw">pchisq</span>(X22, <span class="dt">df=</span>df2, <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
+if (!<span class="kw">require</span>(poolr)) {
+   <span class="kw">install.packages</span>(<span class="st">&quot;poolr&quot;</span>)
+   <span class="kw">library</span>(poolr)
+}</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher's test for dataset 1</span>
 
-pval3 &lt;-<span class="st"> </span><span class="kw">pnorm</span>(dat3z$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat3z$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
-X23   &lt;-<span class="st"> </span><span class="kw">sum</span>(-<span class="dv">2</span>*<span class="kw">log</span>(pval3))
-df3   &lt;-<span class="st"> </span><span class="dv">2</span>*<span class="kw">length</span>(pval3)
-p3    &lt;-<span class="st"> </span><span class="kw">pchisq</span>(X23, <span class="dt">df=</span>df3, <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
+pval1 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">pnorm</span>(dat1$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat1$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>))
+<span class="kw">fisher</span>(pval1)</code></pre></div>
+<pre><code>## combined p-values with:      Fisher's method
+## number of p-values combined: 19 
+## test statistic:              70.125 ~ chi-square(38) 
+## adjustment:                  none 
+## combined p-value:            0.00116</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher's test for dataset 2</span>
 
-tab &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
-   <span class="dt">X2   =</span> <span class="kw">c</span>(X21, X22, X23),
-   <span class="dt">df   =</span> <span class="kw">c</span>(df1, df2, df3),
-   <span class="dt">pval =</span> <span class="kw">c</span>(p1, p2, p3))
+pval2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">pnorm</span>(dat2$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat2$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>))
+<span class="kw">fisher</span>(pval2)</code></pre></div>
+<pre><code>## combined p-values with:      Fisher's method
+## number of p-values combined: 37 
+## test statistic:              158.246 ~ chi-square(74) 
+## adjustment:                  none 
+## combined p-value:            4.59e-08</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher's test for dataset 3</span>
 
-<span class="kw">dfround</span>(tab, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">4</span>))</code></pre></div>
-<pre><code>##        X2  df   pval
-## 1   70.13  38 0.0012
-## 2  158.25  74 0.0000
-## 3 2418.50 320 0.0000</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher failsafe N for datasets 1-3</span>
+pval3 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">pnorm</span>(dat3z$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat3z$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>))
+<span class="kw">fisher</span>(pval3)</code></pre></div>
+<pre><code>## combined p-values with:      Fisher's method
+## number of p-values combined: 160 
+## test statistic:              2418.5 ~ chi-square(320) 
+## adjustment:                  none 
+## combined p-value:            &lt;2e-16</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher failsafe N for datasets 1</span>
 
-fsn1  &lt;-<span class="st"> </span><span class="dv">18</span> <span class="co"># found by trial-and-error</span>
-pval1 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">pnorm</span>(dat1$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat1$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>), <span class="kw">rep</span>(<span class="fl">0.5</span>, fsn1))
-X21   &lt;-<span class="st"> </span><span class="kw">sum</span>(-<span class="dv">2</span>*<span class="kw">log</span>(pval1))
-df1   &lt;-<span class="st"> </span><span class="dv">2</span>*<span class="kw">length</span>(pval1)
-p1    &lt;-<span class="st"> </span><span class="kw">pchisq</span>(X21, <span class="dt">df=</span>df1, <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
+<span class="kw">fsn</span>(yi, vi, <span class="dt">data=</span>dat1, <span class="dt">test=</span><span class="st">&quot;Fisher&quot;</span>)</code></pre></div>
+<pre><code>## Fail-safe N Calculation Using the Rosenthal Approach
+## 
+## Observed Significance Level: 0.0012
+## Target Significance Level:   0.05
+## 
+## Fail-safe N: 18</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher failsafe N for datasets 2</span>
 
-fsn2  &lt;-<span class="st"> </span><span class="dv">78</span> <span class="co"># found by trial-and-error</span>
-pval2 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">pnorm</span>(dat2$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat2$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>), <span class="kw">rep</span>(<span class="fl">0.5</span>, fsn2))
-X22   &lt;-<span class="st"> </span><span class="kw">sum</span>(-<span class="dv">2</span>*<span class="kw">log</span>(pval2))
-df2   &lt;-<span class="st"> </span><span class="dv">2</span>*<span class="kw">length</span>(pval2)
-p2    &lt;-<span class="st"> </span><span class="kw">pchisq</span>(X22, <span class="dt">df=</span>df2, <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
+<span class="kw">fsn</span>(yi, vi, <span class="dt">data=</span>dat2, <span class="dt">test=</span><span class="st">&quot;Fisher&quot;</span>)</code></pre></div>
+<pre><code>## Fail-safe N Calculation Using the Rosenthal Approach
+## 
+## Observed Significance Level: &lt;.0001
+## Target Significance Level:   0.05
+## 
+## Fail-safe N: 77</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fisher failsafe N for datasets 3</span>
 
-fsn3  &lt;-<span class="st"> </span><span class="dv">3111</span> <span class="co"># found by trial-and-error</span>
-pval3 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">pnorm</span>(dat3z$yi /<span class="st"> </span><span class="kw">sqrt</span>(dat3z$vi), <span class="dt">lower.tail=</span><span class="ot">FALSE</span>), <span class="kw">rep</span>(<span class="fl">0.5</span>, fsn3))
-X23   &lt;-<span class="st"> </span><span class="kw">sum</span>(-<span class="dv">2</span>*<span class="kw">log</span>(pval3))
-df3   &lt;-<span class="st"> </span><span class="dv">2</span>*<span class="kw">length</span>(pval3)
-p3    &lt;-<span class="st"> </span><span class="kw">pchisq</span>(X23, <span class="dt">df=</span>df3, <span class="dt">lower.tail=</span><span class="ot">FALSE</span>)
-
-tab &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
-   <span class="dt">X2   =</span> <span class="kw">c</span>(X21, X22, X23),
-   <span class="dt">df   =</span> <span class="kw">c</span>(df1, df2, df3),
-   <span class="dt">pval =</span> <span class="kw">c</span>(p1, p2, p3),
-   <span class="dt">fsn  =</span> <span class="kw">c</span>(fsn1, fsn2, fsn3))
-
-<span class="kw">dfround</span>(tab, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">4</span>,<span class="dv">0</span>))</code></pre></div>
-<pre><code>##        X2   df pval  fsn
-## 1   95.08   74 0.05   18
-## 2  266.38  230 0.05   78
-## 3 6731.26 6542 0.05 3111</code></pre>
+<span class="kw">fsn</span>(yi, vi, <span class="dt">data=</span>dat3z, <span class="dt">test=</span><span class="st">&quot;Fisher&quot;</span>)</code></pre></div>
+<pre><code>## Fail-safe N Calculation Using the Rosenthal Approach
+## 
+## Observed Significance Level: &lt;.0001
+## Target Significance Level:   0.05
+## 
+## Fail-safe N: 3110</code></pre>
+<p>The results again differ slightly due to the two reasons outlined earlier.</p>
 <hr />
 </div>
 <div id="the-trim-and-fill-method" class="section level2">

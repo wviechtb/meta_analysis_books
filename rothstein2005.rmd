@@ -327,7 +327,7 @@ ranktest(dat$yi, dat$vi, subset=-c(8,16), digits=3, exact=FALSE)
 ranktest(dat$yi, dat$vi, subset=-8, digits=3, exact=FALSE)
 
 # note: by default, ranktest() computes exact p-values (if k < 50 and there are no ties);
-# using exact=FALSE, we can force the use of the normalized test described in the chapter
+# using exact=FALSE, we can force the use of the normalized test described in the book
 ```
 
 ```{r}
@@ -440,88 +440,91 @@ fsn(yi, vi, data=dat2)
 fsn(yi, vi, data=dat3z)
 ```
 
-Note: The values obtained above differ slightly from those in the book chapter due to two reasons:
+Note: The values obtained above differ slightly from those in the book due to two reasons:
 
 1. Some values were rounded intermittently in the book.
-2. The `fsn()` function uses (approximate) Wald-type tests for computing the $p$-values which are used as input for Stouffer's method, while t-tests were conducted (for datasets 1 and 3).
-
-For the same reason (esp. 2), some of the following results will also differ somewhat from those provided in the book.
+2. The `fsn()` function uses (approximate) Wald-type tests for computing the $p$-values which are used as input for Stouffer's method, while t-tests were conducted for datasets 1 and 3.
 
 ```{r}
 # failsafe N for dataset 1 using Orwin's method
 
-fsn(yi, data=dat1, type="Orwin", target=0.05)
+fsn(yi, vi, data=dat1, type="Orwin", target=0.05, weighted=TRUE)
 ```
 
 ```{r}
 # failsafe N for dataset 2 using Orwin's method
 
-fsn(yi, data=dat, type="Orwin", target=log(1.05))
+fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05), weighted=TRUE)
 ```
 
 ```{r}
 # failsafe N for dataset 3 using Orwin's method
 
-fsn(yi, data=dat3r, type="Orwin", target=0.15)
+fsn(yi, vi, data=dat3r, type="Orwin", target=0.15, weighted=TRUE)
 ```
 
-Here, there is yet a further reason why the values obtained above differ somewhat from those in the book chapter: The `fsn()` function bases the computations on the *unweighted* average of the observed effects (as described by Orwin, 1983), while the computations in the book make use of the inverse-variance weighted average of the observed effects.
+Note: As originally described by Orwin (1983), the calculations are based on *unweighted* averages. To replicate the results in the book, we need to set `weighted=TRUE`, so that (inverse-variance) weighted averages are used. However, note that for dataset 3, the mean correlation used as input for Orwin's method in the book (i.e., 0.21) is based on a random-effects model and hence the result above differs from what is shown in the book. With a simple trick, we can however reproduce the results in the book exactly. For this, we just create a vector of the same length as the original data with the mean effect size used as input and pass this to the `fsn()` function.
 
 ```{r}
-# Fisher's test for datasets 1-3
+# failsafe N using Orwin's method calculated exactly as described in the book
 
-pval1 <- pnorm(dat1$yi / sqrt(dat1$vi), lower.tail=FALSE)
-X21   <- sum(-2*log(pval1))
-df1   <- 2*length(pval1)
-p1    <- pchisq(X21, df=df1, lower.tail=FALSE)
+fsn1 <- fsn(rep(0.06,  nrow(dat1)), type="Orwin", target=0.05)$fsn
+fsn2 <- fsn(rep(0.185, nrow(dat2)), type="Orwin", target=0.049)$fsn
+fsn3 <- fsn(rep(0.21,  nrow(dat3)), type="Orwin", target=0.15)$fsn
+c(fsn1 = fsn1, fsn2 = fsn2, fsn3 = fsn3)
+```
 
-pval2 <- pnorm(dat2$yi / sqrt(dat2$vi), lower.tail=FALSE)
-X22   <- sum(-2*log(pval2))
-df2   <- 2*length(pval2)
-p2    <- pchisq(X22, df=df2, lower.tail=FALSE)
+Although the computations underlying Fisher's method are not difficult, we can make use of the [poolr](https://ozancinar.github.io/poolr/) package to automate things.
 
-pval3 <- pnorm(dat3z$yi / sqrt(dat3z$vi), lower.tail=FALSE)
-X23   <- sum(-2*log(pval3))
-df3   <- 2*length(pval3)
-p3    <- pchisq(X23, df=df3, lower.tail=FALSE)
+```{r, message=FALSE, warning=FALSE}
+# install the 'poolr' package (if it is not already installed) and load it
 
-tab <- data.frame(
-   X2   = c(X21, X22, X23),
-   df   = c(df1, df2, df3),
-   pval = c(p1, p2, p3))
-
-dfround(tab, c(2,0,4))
+if (!require(poolr)) {
+   install.packages("poolr")
+   library(poolr)
+}
 ```
 
 ```{r}
-# Fisher failsafe N for datasets 1-3
+# Fisher's test for dataset 1
 
-fsn1  <- 18 # found by trial-and-error
-pval1 <- c(pnorm(dat1$yi / sqrt(dat1$vi), lower.tail=FALSE), rep(0.5, fsn1))
-X21   <- sum(-2*log(pval1))
-df1   <- 2*length(pval1)
-p1    <- pchisq(X21, df=df1, lower.tail=FALSE)
-
-fsn2  <- 78 # found by trial-and-error
-pval2 <- c(pnorm(dat2$yi / sqrt(dat2$vi), lower.tail=FALSE), rep(0.5, fsn2))
-X22   <- sum(-2*log(pval2))
-df2   <- 2*length(pval2)
-p2    <- pchisq(X22, df=df2, lower.tail=FALSE)
-
-fsn3  <- 3111 # found by trial-and-error
-pval3 <- c(pnorm(dat3z$yi / sqrt(dat3z$vi), lower.tail=FALSE), rep(0.5, fsn3))
-X23   <- sum(-2*log(pval3))
-df3   <- 2*length(pval3)
-p3    <- pchisq(X23, df=df3, lower.tail=FALSE)
-
-tab <- data.frame(
-   X2   = c(X21, X22, X23),
-   df   = c(df1, df2, df3),
-   pval = c(p1, p2, p3),
-   fsn  = c(fsn1, fsn2, fsn3))
-
-dfround(tab, c(2,0,4,0))
+pval1 <- c(pnorm(dat1$yi / sqrt(dat1$vi), lower.tail=FALSE))
+fisher(pval1)
 ```
+
+```{r}
+# Fisher's test for dataset 2
+
+pval2 <- c(pnorm(dat2$yi / sqrt(dat2$vi), lower.tail=FALSE))
+fisher(pval2)
+```
+
+```{r}
+# Fisher's test for dataset 3
+
+pval3 <- c(pnorm(dat3z$yi / sqrt(dat3z$vi), lower.tail=FALSE))
+fisher(pval3)
+```
+
+```{r}
+# Fisher failsafe N for datasets 1
+
+fsn(yi, vi, data=dat1, test="Fisher")
+```
+
+```{r}
+# Fisher failsafe N for datasets 2
+
+fsn(yi, vi, data=dat2, test="Fisher")
+```
+
+```{r}
+# Fisher failsafe N for datasets 3
+
+fsn(yi, vi, data=dat3z, test="Fisher")
+```
+
+The results again differ slightly due to the two reasons outlined earlier.
 
 ***
 
