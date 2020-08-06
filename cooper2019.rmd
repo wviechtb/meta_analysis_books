@@ -2029,6 +2029,8 @@ weightfunct(dat$yi, dat$vi)
 ```
 
 ```{r, include=FALSE}
+# Vevea and Hedges (1995) model (with more cutpoints)
+
 weightfunct(dat$yi, dat$vi, steps=c(0.01, 0.025, 0.05, 0.30, 0.50, 1.00))
 ```
 
@@ -2037,10 +2039,10 @@ weightfunct(dat$yi, dat$vi, steps=c(0.01, 0.025, 0.05, 0.30, 0.50, 1.00))
 
 ssp <- data.frame(
  steps = c(0.005, 0.01, 0.05, 0.10, 0.25, 0.35, 0.50, 0.65, 0.75, 0.90, 0.95, 0.99, 0.995, 1),
- weights.mod.1 = c(1, 0.99, 0.95, 0.80, 0.75, 0.65, 0.60, 0.55, 0.50, 0.50, 0.50, 0.50, 0.50, .50),
- weights.sev.1 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.40, 0.35, 0.30, 0.25, 0.10, 0.10, 0.10, .10),
- weights.mod.2 = c(1, 0.99, 0.95, 0.90, 0.80, 0.75, 0.60, 0.60, 0.75, 0.80, 0.90, 0.95, 0.99, 1),
- weights.sev.2 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.25, 0.25, 0.50, 0.60, 0.75, 0.90, 0.99, 1))
+ weights.mod.1 = c(1, 0.99, 0.95, 0.80, 0.75, 0.65, 0.60, 0.55, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50),
+ weights.sev.1 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.40, 0.35, 0.30, 0.25, 0.10, 0.10, 0.10, 0.10),
+ weights.mod.2 = c(1, 0.99, 0.95, 0.90, 0.80, 0.75, 0.60, 0.60, 0.75, 0.80, 0.90, 0.95, 0.99, 1.00),
+ weights.sev.2 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.25, 0.25, 0.50, 0.60, 0.75, 0.90, 0.99, 1.00))
 ssp
 ```
 
@@ -2080,7 +2082,7 @@ if (!require(metasens)) {
 ```{r, figure18_18, fig.width=9, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Copas and Shi (2001) model
 
-res <- metagen(dat$yi, sqrt(dat$vi), method.tau="ML")
+res <- metagen(yi, sqrt(vi), method.tau="ML", data=dat)
 sav <- copas(res)
 plot(sav)
 summary(sav)

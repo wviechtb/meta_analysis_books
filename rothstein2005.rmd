@@ -76,6 +76,7 @@ We will actually start with Appendix A, which provides the three datasets used t
 dat1 <- dat.raudenbush1985
 dat1$vi <- c(0.126, 0.147, 0.167, 0.397, 0.371, 0.103, 0.103, 0.221, 0.165, 0.260,
              0.307, 0.223, 0.289, 0.291, 0.159, 0.167, 0.139, 0.094, 0.174)^2
+dat1$weeks <- ifelse(dat1$weeks > 1, 1, 0) # dummy-code weeks variable into 'high' vs 'low'
 dat1
 
 # note: 'yi' are the standardized mean differences and 'vi' the corresponding sampling variances;
@@ -87,22 +88,22 @@ dat1
 ```{r}
 # fixed-effects model for studies where teachers had more than one week of contact with the students
 
-res.h <- rma(yi, vi, data=dat1, subset=weeks > 1, method="FE", digits=2)
+res.h <- rma(yi, vi, data=dat1, subset=weeks==1, method="FE", digits=2)
 res.h
 ```
 
 ```{r}
 # fixed-effects model for studies where teachers had a week or less of contact with the students
 
-res.l <- rma(yi, vi, data=dat1, subset=weeks <= 1, method="FE", digits=2)
+res.l <- rma(yi, vi, data=dat1, subset=weeks==0, method="FE", digits=2)
 res.l
 ```
 
 ```{r, figureA_1, fig.width=8.5, fig.height=10, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure A.1
 
-tmp <- rbind(dat1[dat1$weeks > 1,], dat1[dat1$weeks <= 1,])
-tmp$weeks <- ifelse(tmp$weeks > 1, "High", "Low")
+tmp <- rbind(dat1[dat1$weeks == 1,], dat1[dat1$weeks == 0,])
+tmp$weeks <- ifelse(tmp$weeks == 1, "High", "Low")
 
 forest(tmp$yi, tmp$vi, slab=paste0(tmp$author, ", ", tmp$year), psize=1,
        xlim=c(-5, 3.5), ylim=c(-1,25), header=TRUE, at=seq(-1,1.5,by=0.5),
@@ -262,7 +263,7 @@ funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=1,
 # Figure 5.8b
 
 funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=c(1,1),
-       back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat1$weeks > 1, 19, 17))
+       back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat1$weeks == 1, 19, 17))
 legend("topleft", inset=0.02, bg="white", pch=c(19,17), legend=c("High contact", "Low contact"))
 ```
 
@@ -534,7 +535,7 @@ The results again differ slightly due to the two reasons outlined earlier.
 # log odds ratios and corresponding standard errors as given in Table 8.1
 
 yi  <- c(-0.20, -0.07, 0.04, 0.16, 0.21, 0.27, 0.53, 0.56, 0.80, 1.08, 2.11)
-sei <- c(0.41, 0.18, 0.30, 0.53, 0.51, 0.33, 0.74, 1.08, 0.62, 0.66, 1.55)
+sei <- c( 0.41,  0.18, 0.30, 0.53, 0.51, 0.33, 0.74, 1.08, 0.62, 0.66, 1.55)
 ```
 
 ```{r}
@@ -653,6 +654,147 @@ dfround(tab, c(0,0,3,3,3))
 ```
 
 Note: One could do the same within the low- and high-contact subgroups, as illustrated in Table 8.4.
+
+***
+
+## 9) Selection Method Approaches
+
+```{r}
+# random-effects model for dataset 2 (unadjusted estimates)
+
+res.un <- rma(yi, vi, data=dat2, method="ML")
+res.un
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'weightr' package (if it is not already installed) and load it
+
+if (!require(weightr)) {
+   install.packages("weightr")
+   library(weightr)
+}
+```
+
+```{r, include=FALSE}
+# Vevea and Hedges (1995) model (weight function estimated)
+
+res <- weightfunct(dat2$yi, dat2$vi, steps=c(0.05, 0.10, 0.50, 1.00))
+res
+```
+
+```{r, figure9_1, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 9.1
+
+si <- c(0, res$steps)
+di <- c(1, res$output_adj$par[-c(1:2)])
+di <- di / max(di)
+tmp <- list(breaks=si, density=di, equidist=FALSE, xname="p-Value")
+class(tmp) <- "histogram"
+plot(tmp, ylab="Probability of Selection", main="", las=1, xaxt="n")
+axis(side=1, at=si)
+```
+
+```{r}
+# Table 9.3: Specification of weights for a priori weight functions
+
+ssp <- data.frame(
+ steps = c(0.005, 0.01, 0.05, 0.10, 0.25, 0.35, 0.50, 0.65, 0.75, 0.90, 0.95, 0.99, 0.995, 1),
+ weak.1 = c(1, 0.99, 0.95, 0.90, 0.80, 0.75, 0.65, 0.60, 0.55, 0.50, 0.50, 0.50, 0.50, 0.50),
+ stro.1 = c(1, 0.99, 0.90, 0.75, 0.60, 0.55, 0.50, 0.45, 0.40, 0.35, 0.30, 0.25, 0.20, 0.10),
+ weak.2 = c(1, 0.99, 0.95, 0.90, 0.80, 0.75, 0.60, 0.60, 0.75, 0.80, 0.90, 0.95, 0.99, 1.00),
+ stro.2 = c(1, 0.99, 0.90, 0.75, 0.60, 0.50, 0.25, 0.25, 0.50, 0.60, 0.75, 0.90, 0.99, 1.00))
+ssp
+```
+
+```{r, warning=FALSE}
+# apply a priori weight functions
+
+res.weak.1 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$weak.1)
+res.stro.1 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$stro.1)
+res.weak.2 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$weak.2)
+res.stro.2 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$stro.2)
+
+# Table 9.4 (but transposed)
+
+tab <- data.frame(logOR = c(coef(res.un), res.weak.1$adj_est[2,], res.stro.1$adj_est[2,],
+                                          res.weak.2$adj_est[2,], res.stro.1$adj_est[2,]),
+                  varcomp = c(res.un$tau2, res.weak.1$adj_est[1,], res.stro.1$adj_est[1,],
+                                           res.weak.2$adj_est[1,], res.stro.1$adj_est[1,]))
+rownames(tab) <- c("unadjusted", "weak one-tailed selection", "strong one-tailed selection",
+                                 "weak two-tailed selection", "strong two-tailed selection")
+dfround(tab, c(2,3))
+```
+
+```{r, message=FALSE, warning=FALSE}
+# install the 'metasens' package (if it is not already installed) and load it
+
+if (!require(metasens)) {
+   install.packages("metasens")
+   library(metasens)
+}
+```
+
+```{r, fig.width=9, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Copas and Shi (2001) model (selection depending on both T and sigma)
+
+res <- metagen(yi, sqrt(vi), method.tau="ML", data=dat2)
+sav <- copas(res)
+plot(sav)
+summary(sav)
+```
+
+Note that this analysis is a bit different than the one presented in the book (where parameters $a$ and $b$ are fixed to specific values).
+
+The analyses of dataset 3 (on the validity of the employment interview) presented in this chapter cannot be replicated because the meta-regression model considered here includes a moderator that is not actually part of the dataset provided in Appendix A (whether the interview was conducted for research or for administrative reasons). Hence, we will move on to the analysis of dataset 1.
+
+```{r}
+# meta-regression model for dataset 1 (unadjusted estimates)
+
+res.un <- rma(yi, vi, mods = ~ weeks, data=dat1, method="FE")
+res.un
+```
+
+```{r, include=FALSE}
+# Vevea and Hedges (1995) model (weight function estimated)
+
+res <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE, steps=c(0.05, 0.30, 1.00)))
+res
+```
+
+```{r, figure9_3, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 9.3
+
+si <- c(0, res$steps)
+di <- c(1, res$output_adj$par[-c(1:2)])
+di <- di / max(di)
+tmp <- list(breaks=si, density=di, equidist=FALSE, xname="p-Value")
+class(tmp) <- "histogram"
+plot(tmp, ylab="Probability of Selection", main="", las=1, xaxt="n")
+axis(side=1, at=si)
+```
+
+```{r, warning=FALSE}
+# apply a priori weight functions
+
+res.weak.1 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
+                                     steps=ssp$steps, weights=ssp$weak.1))
+res.stro.1 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
+                                     steps=ssp$steps, weights=ssp$stro.1))
+res.weak.2 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
+                                     steps=ssp$steps, weights=ssp$weak.2))
+res.stro.2 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
+                                     steps=ssp$steps, weights=ssp$stro.2))
+
+# Table 9.10 (but transposed)
+
+tab <- data.frame(rbind(coef(res.un), res.weak.1$adj_est[1:2,], res.stro.1$adj_est[1:2,],
+                                      res.weak.2$adj_est[1:2,], res.stro.2$adj_est[1:2,]))
+rownames(tab) <- c("unadjusted", "weak one-tailed selection", "strong one-tailed selection",
+                                 "weak two-tailed selection", "strong two-tailed selection")
+dfround(tab, 2)
+```
+
+As far as I can tell, the `copas()` function from the [metasens](https://cran.r-project.org/package=metasens) package cannot handle meta-regression models. Hence, this part cannot be reproduced.
 
 ## License
 
