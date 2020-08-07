@@ -102,6 +102,8 @@ res.l
 ```{r, figureA_1, fig.width=8.5, fig.height=10, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure A.1
 
+par(mar=c(4,4,2,2))
+
 tmp <- rbind(dat1[dat1$weeks == 1,], dat1[dat1$weeks == 0,])
 tmp$weeks <- ifelse(tmp$weeks == 1, "High", "Low")
 
@@ -141,6 +143,8 @@ predict(res, transf=exp)
 
 ```{r, figureA_2, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure A.2
+
+par(mar=c(4,4,2,2))
 
 wi <- fc(weights(res), digits=2)
 
@@ -184,6 +188,8 @@ res.p <- rma(yi, vi, method="DL", data=subset(dat3z, type=="p"))
 ```{r, figureA_3, fig.width=8.5, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure A.3
 
+par(mar=c(4,4,2,2))
+
 yi <- c(coef(res), coef(res.s), coef(res.u), coef(res.j), coef(res.p))
 vi <- c(vcov(res), vcov(res.s), vcov(res.u), vcov(res.j), vcov(res.p))
 slab <- c("Overall", "Structured", "Unstructured", "Job-Related", "Psychological")
@@ -224,11 +230,13 @@ funnel(res, yaxis="sei",   xlim=c(-4,4), ylim=c(0,2),       steps=3, back=NA, lt
 funnel(res, yaxis="seinv", xlim=c(-4,4), ylim=c(1e-6,32),            back=NA, lty=1, xlab="")
 funnel(res, yaxis="vi",    xlim=c(-4,4), ylim=c(0,3),       steps=4, back=NA, lty=1, xlab="")
 funnel(res, yaxis="vinv",  xlim=c(-4,4), ylim=c(1e-6,1000), steps=3, back=NA, lty=1, xlab="")
-funnel(res, yaxis="ni",    xlim=c(-4,4), ylim=c(0,60000),   steps=4, back=NA, lty=1)
-funnel(res, yaxis="lni",   xlim=c(-4,4), ylim=c(2,12),      steps=6, back=NA, lty=1,
+funnel(res, yaxis="ni",    xlim=c(-4,4), ylim=c(0,60000),   steps=4, back=NA, lty=1, xlab="")
+mtext("Log odds ratio", side=1, line=3, cex=0.7)
+funnel(res, yaxis="lni",   xlim=c(-4,4), ylim=c(2,12),      steps=6, back=NA, lty=1, xlab="",
        yaxt="n", ylab="Sample Size (log scale)")
 axis(side=2, at=log(c(10, 100, 1000, 10000, 100000)),
      labels=c("10", "100", "1000", "10000", "100000"))
+mtext("Log odds ratio", side=1, line=3, cex=0.7)
 ```
 
 ```{r}
@@ -240,6 +248,8 @@ res
 
 ```{r, figure5_7, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 5.7
+
+par(mar=c(5,4,2,2))
 
 funnel(res, atransf=exp, at=log(c(0.25,0.50,1,2,4,8)), ylim=c(0,.8), las=1, digits=c(2,1),
        back=NA, shade=NA, hlines="lightgray")
@@ -255,12 +265,16 @@ res
 ```{r, figure5_8a, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 5.8a
 
+par(mar=c(5,4,2,2))
+
 funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=1,
        back=NA, shade=NA, hlines="lightgray")
 ```
 
 ```{r, figure5_8b, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 5.8b
+
+par(mar=c(5,4,2,2))
 
 funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=c(1,1),
        back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat1$weeks == 1, 19, 17))
@@ -291,12 +305,16 @@ res
 ```{r, figure5_10a, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 5.10a
 
+par(mar=c(5,4,2,2))
+
 funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
        back=NA, shade=NA, hlines="lightgray")
 ```
 
 ```{r, figure5_10b, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 5.10b
+
+par(mar=c(5,4,2,2))
 
 sav <- funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
        back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat3z$struct == "u", 2, 19))
@@ -356,6 +374,8 @@ round(c(coef(reg$fit)[2], confint(reg$fit)[2,]), digits=2)
 
 res <- rma(yi, vi, data=dat, method="FE", subset=-c(8,16))
 
+par(mar=c(5,4,2,2))
+
 funnel(res, atransf=exp, at=log(c(.05, .10, .25, .50, 1, 2, 4, 8, 16)), xlim=log(c(.04,16)),
        ylim=c(0,1.5), steps=4, las=1, digits=list(2L,1), back=NA, shade=NA, hlines="lightgray",
        lty=5, lwd=2)
@@ -370,6 +390,8 @@ lines(coef(reg$fit)[1] + coef(reg$fit)[2]*se, se, lwd=2, lty=3)
 # Figure 6.1b
 
 res <- rma(yi, vi, data=dat, method="FE", subset=-8)
+
+par(mar=c(5,4,2,2))
 
 funnel(res, atransf=exp, at=log(c(.05, .10, .25, .50, 1, 2, 4, 8, 16)), xlim=log(c(.04,16)),
        ylim=c(0,1.5), steps=4, las=1, digits=list(2L,1), back=NA, shade=NA, hlines="lightgray",
@@ -567,6 +589,8 @@ predict(rtf, transf=exp, digits=2)
 ```{r, figure8_2, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 8.2
 
+par(mar=c(5,4,2,2))
+
 funnel(rtf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
        xlim=c(-3,3), ylim=c(1e-6,6), steps=7)
 ```
@@ -591,6 +615,8 @@ dfround(tab, c(0,0,2,2,2))
 
 ```{r, figure8_3, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 8.3
+
+par(mar=c(5,4,2,2))
 
 funnel(rtf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
        xlim=c(-0.8,0.9), at=c(-0.8, -0.4, 0, 0.4, 0.8), ylim=c(1e-6,12), steps=7)
@@ -690,6 +716,7 @@ di <- c(1, res$output_adj$par[-c(1:2)])
 di <- di / max(di)
 tmp <- list(breaks=si, density=di, equidist=FALSE, xname="p-Value")
 class(tmp) <- "histogram"
+par(mar=c(5,4,2,2))
 plot(tmp, ylab="Probability of Selection", main="", las=1, xaxt="n")
 axis(side=1, at=si)
 ```
@@ -769,6 +796,7 @@ di <- c(1, res$output_adj$par[-c(1:2)])
 di <- di / max(di)
 tmp <- list(breaks=si, density=di, equidist=FALSE, xname="p-Value")
 class(tmp) <- "histogram"
+par(mar=c(5,4,2,2))
 plot(tmp, ylab="Probability of Selection", main="", las=1, xaxt="n")
 axis(side=1, at=si)
 ```
