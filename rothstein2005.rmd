@@ -107,7 +107,7 @@ par(mar=c(4,4,2,2))
 tmp <- rbind(dat1[dat1$weeks == 1,], dat1[dat1$weeks == 0,])
 tmp$weeks <- ifelse(tmp$weeks == 1, "High", "Low")
 
-forest(tmp$yi, tmp$vi, slab=paste0(tmp$author, ", ", tmp$year), psize=1,
+forest(tmp$yi, tmp$vi, slab=paste0(tmp$author, ", ", tmp$year), psize=1, efac=c(0,1),
        xlim=c(-5, 3.5), ylim=c(-1,25), header=TRUE, at=seq(-1,1.5,by=0.5),
        rows=c(22:12, 9:2), ilab=tmp$weeks, ilab.xpos=-1.2, ilab.pos=2)
 
@@ -130,7 +130,7 @@ dat2 <- dat.hackshaw1998
 head(dat2, 10) # show the first 10 rows
 
 # note: 'yi' are the log odds ratios and 'vi' the corresponding sampling variances; the studies in
-# 'dat.hackshaw1998' are order by their publication year and hence are not in the same order as in
+# 'dat.hackshaw1998' are ordered by their publication year and hence are not in the same order as in
 # Figure A.2, but this is (with some minor rounding discrepancies) the same dataset; also note that
 # the 'yi' values are in some chapters referred to as log risk ratios
 ```
@@ -241,7 +241,7 @@ mtext("Log odds ratio", side=1, line=3, cex=0.7)
 ```
 
 ```{r}
-# fit fixed-effects model to illustrative dataset 2
+# fit fixed-effects model to dataset 2
 
 res <- rma(yi, vi, data=dat2, method="FE")
 res
@@ -257,7 +257,7 @@ funnel(res, atransf=exp, at=log(c(0.25,0.50,1,2,4,8)), ylim=c(0,.8), las=1, digi
 ```
 
 ```{r}
-# fit fixed-effects model to illustrative dataset 1
+# fit fixed-effects model to dataset 1
 
 res <- rma(yi, vi, data=dat1, method="FE")
 res
@@ -283,7 +283,7 @@ legend("topleft", inset=0.02, bg="white", pch=c(19,17), legend=c("High contact",
 ```
 
 ```{r}
-# fit fixed-effects model to illustrative dataset 3r
+# fit fixed-effects model to dataset 3r
 
 res <- rma(yi, vi, data=dat3r, method="FE")
 res
@@ -297,7 +297,7 @@ funnel(res, at=seq(-1,1,by=.25), ylim=c(0,.3), steps=4, las=1, digits=c(2,1),
 ```
 
 ```{r}
-# fit fixed-effects model to illustrative dataset 3z
+# fit fixed-effects model to dataset 3z
 
 res <- rma(yi, vi, data=dat3z, method="FE")
 res
@@ -358,7 +358,7 @@ reg
 
 # bias coefficient (with 95% CI)
 
-round(c(coef(reg$fit)[2], confint(reg$fit)[2,]), digits=2)
+round(c(coef=coef(reg$fit)[[2]], confint(reg$fit)[2,]), digits=2)
 
 # rank correlation test (excluding the study by Bertschat et al., 1989)
 
@@ -367,7 +367,7 @@ reg
 
 # bias coefficient (with 95% CI)
 
-round(c(coef(reg$fit)[2], confint(reg$fit)[2,]), digits=2)
+round(c(coef=coef(reg$fit)[[2]], confint(reg$fit)[2,]), digits=2)
 ```
 
 ```{r, figure6_1a, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -438,7 +438,7 @@ tab <- data.frame(
    reg_coef    = c(coef(reg2$fit)[2], coef(reg1$fit)[2], coef(reg3$fit)[2]),
    reg_coef_lb = c(confint(reg2$fit)[2,1], confint(reg1$fit)[2,1], confint(reg3$fit)[2,1]),
    reg_coef_ub = c(confint(reg2$fit)[2,2], confint(reg1$fit)[2,2], confint(reg3$fit)[2,2]))
-
+rownames(tab) <- c("dataset 1", "dataset 2", "dataset 3")
 dfround(tab, c(3,2,3,2,2,2))
 ```
 
@@ -467,7 +467,7 @@ fsn(yi, vi, data=dat3z)
 Note: The values obtained above differ slightly from those in the book due to two reasons:
 
 1. Some values were rounded intermittently in the book.
-2. The `fsn()` function uses (approximate) Wald-type tests for computing the $p$-values which are used as input for Stouffer's method, while t-tests were conducted for datasets 1 and 3.
+2. The `fsn()` function uses (approximate) Wald-type tests for computing the $p$-values which are used as input for Stouffer's method, while t-tests were conducted for datasets 1 and 3 in the book.
 
 ```{r}
 # failsafe N for dataset 1 using Orwin's method
@@ -702,7 +702,7 @@ if (!require(weightr)) {
 }
 ```
 
-```{r, include=FALSE}
+```{r}
 # Vevea and Hedges (1995) model (weight function estimated)
 
 res <- weightfunct(dat2$yi, dat2$vi, steps=c(0.05, 0.10, 0.50, 1.00))
@@ -782,7 +782,7 @@ res.un <- rma(yi, vi, mods = ~ weeks, data=dat1, method="FE")
 res.un
 ```
 
-```{r, include=FALSE}
+```{r}
 # Vevea and Hedges (1995) model (weight function estimated)
 
 res <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE, steps=c(0.05, 0.30, 1.00)))
@@ -823,7 +823,7 @@ rownames(tab) <- c("unadjusted", "weak one-tailed selection", "strong one-tailed
 dfround(tab, 2)
 ```
 
-As far as I can tell, the `copas()` function from the [metasens](https://cran.r-project.org/package=metasens) package cannot handle meta-regression models. Hence, this part cannot be reproduced.
+As far as I can tell, the `copas()` function from the [metasens](https://cran.r-project.org/package=metasens) package cannot handle meta-regression models. Hence, this part cannot be reproduced (without implementing the methods described on pages 157-158).
 
 ***
 
@@ -886,7 +886,7 @@ fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05), weighted=TRUE)
 ```
 
 ```{r}
-# conduct trim and fill analysis for dataset 2 and obtain the estimated odds ratio (with 95% CI)
+# trim and fill analysis
 
 rtf <- trimfill(res)
 predict(rtf, transf=exp, digits=3)
