@@ -10,7 +10,7 @@ The code is provided as [R Markdown](https://rmarkdown.rstudio.com/) documents, 
 
 * [The Handbook of Research Synthesis and Meta-Analysis](https://wviechtb.github.io/meta_analysis_books/cooper2019.html) by Cooper et al. (2019)
 
-* [Publication Bias in Meta-Analysis](https://wviechtb.github.io/meta_analysis_books/rothstein2005.html) by Rothstein et al. (2005) (not complete yet)
+* [Publication Bias in Meta-Analysis](https://wviechtb.github.io/meta_analysis_books/rothstein2005.html) by Rothstein et al. (2005)
 
 Feel free to adapt and incorporate the files into your own teaching materials.
 

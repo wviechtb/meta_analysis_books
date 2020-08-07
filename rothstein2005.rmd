@@ -131,7 +131,8 @@ head(dat2, 10) # show the first 10 rows
 
 # note: 'yi' are the log odds ratios and 'vi' the corresponding sampling variances; the studies in
 # 'dat.hackshaw1998' are order by their publication year and hence are not in the same order as in
-# Figure A.2, but this is (with some minor rounding discrepancies) the same dataset
+# Figure A.2, but this is (with some minor rounding discrepancies) the same dataset; also note that
+# the 'yi' values are in some chapters referred to as log risk ratios
 ```
 
 ```{r}
@@ -823,6 +824,100 @@ dfround(tab, 2)
 ```
 
 As far as I can tell, the `copas()` function from the [metasens](https://cran.r-project.org/package=metasens) package cannot handle meta-regression models. Hence, this part cannot be reproduced.
+
+***
+
+## 11) Software for Publication Bias
+
+```{r}
+# fit fixed-effects model to dataset 2 and obtain the estimated odds ratio (with 95% CI)
+
+res <- rma(yi, vi, data=dat2, method="FE", slab=paste0(author, ", ", year))
+predict(res, transf=exp, digits=3)
+```
+
+```{r, figure11_1, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 11.1
+
+par(mar=c(4,4,2,2))
+
+wi <- fc(weights(res), digits=2)
+
+forest(res, atransf=exp, psize=1, header=TRUE, xlim=c(-4.5,7), ylim=c(-0.6,40),
+       at=log(c(0.2, 0.5, 1, 2, 5, 10)), efac=c(0,1),
+       ilab=wi, ilab.xpos=3.3, ilab.pos=2, order="prec")
+text(2.8, 39, "Weight", font=2)
+
+wi <- rev(weights(res)[order(dat2$vi)])
+invisible(sapply(seq_along(wi), function(i) rect(3.5, i-0.35, 3.5+wi[i]/20, i+0.35, col="black")))
+```
+
+```{r, figure11_2, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 11.2
+
+par(mar=c(5,4,2,2))
+
+funnel(res, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
+       back=NA, shade=NA, hlines=NA, lty=1, pch=21)
+```
+
+```{r}
+# rank correlation test (note: a one-sided p-value is given in the book)
+
+ranktest(res, digits=3)
+```
+
+```{r}
+# Egger's test
+
+regtest(res, model="lm", digits=3)
+```
+
+```{r}
+# failsafe N
+
+fsn(yi, vi, data=dat2)
+```
+
+```{r}
+# failsafe N (Orwin's method)
+
+fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05), weighted=TRUE)
+```
+
+```{r}
+# conduct trim and fill analysis for dataset 2 and obtain the estimated odds ratio (with 95% CI)
+
+rtf <- trimfill(res)
+predict(rtf, transf=exp, digits=3)
+```
+
+```{r, figure11_4, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 11.4
+
+par(mar=c(5,4,2,2))
+
+funnel(rtf, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
+       back=NA, shade=NA, hlines=NA, lty=1, pch=21, pch.fill=19)
+```
+
+```{r, figure11_5, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
+# Figure 11.5: Cumulative forest plot
+
+sav <- cumul(res, order=order(dat2$vi))
+
+wi <- cumsum(weights(res)[order(dat2$vi)])
+wi <- fc(wi, digits=2)
+
+par(mar=c(4,4,2,2))
+
+forest(sav, atransf=exp, psize=1, header=TRUE, xlim=c(-2,3), ylim=c(1,40),
+       at=log(c(0.5, 1, 2)), efac=c(0,1), ilab=wi, ilab.xpos=1.4, ilab.pos=2)
+text(1.2, 39, "Weight", font=2)
+
+wi <- rev(cumsum(weights(res)[order(dat2$vi)]))
+invisible(sapply(seq_along(wi), function(i) rect(1.5, i-0.35, 1.5+wi[i]/250, i+0.35, col="black")))
+```
 
 ## License
 
