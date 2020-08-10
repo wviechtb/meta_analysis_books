@@ -1089,9 +1089,7 @@ fsn(dat$yi, dat$vi)
 ```{r}
 # Orwin's Fail-safe N
 
-fsn(dat$yi, dat$vi, type="Orwin", target=log(1.05))
-
-# note: value given in book is 103 (not sure why there is this discrepancy)
+fsn(dat$yi, dat$vi, type="Orwin", target=log(1.05), weighted=TRUE)
 ```
 
 ```{r}
@@ -1313,7 +1311,7 @@ res.u
 S2 <- sum(dat$n * (dat$r - coef(res))^2) / sum(dat$n)
 round((S2 - res.u$tau2) / S2, digits=4)
 
-# note: minor difference probably due to rounding in book
+# note: minor difference probably due to rounding in the book
 ```
 
 ***

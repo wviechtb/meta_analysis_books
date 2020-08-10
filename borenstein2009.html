@@ -298,7 +298,7 @@ div.tocify {
 <h1 class="title toc-ignore">R Code Corresponding to the Book <em>Introduction to Meta-Analysis</em> by Borenstein et al. (2009)</h1>
 <h4 class="author"><p>Wolfgang Viechtbauer<br />
 Maastricht University</p></h4>
-<h4 class="date">07 August, 2020</h4>
+<h4 class="date">10 August, 2020</h4>
 
 </div>
 
@@ -1997,14 +1997,13 @@ dat$pvals   &lt;-<span class="st"> </span><span class="kw">formatC</span>(<span 
 ## Fail-safe N: 393</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Orwin's Fail-safe N</span>
 
-<span class="kw">fsn</span>(dat$yi, dat$vi, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="kw">log</span>(<span class="fl">1.05</span>))</code></pre></div>
+<span class="kw">fsn</span>(dat$yi, dat$vi, <span class="dt">type=</span><span class="st">&quot;Orwin&quot;</span>, <span class="dt">target=</span><span class="kw">log</span>(<span class="fl">1.05</span>), <span class="dt">weighted=</span><span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Fail-safe N Calculation Using the Orwin Approach
 ## 
-## Average Effect Size: 0.2951
+## Average Effect Size: 0.1858
 ## Target Effect Size:  0.0488
 ## 
-## Fail-safe N: 187</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: value given in book is 103 (not sure why there is this discrepancy)</span></code></pre></div>
+## Fail-safe N: 104</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># trim and fill analysis</span>
 
 rtf &lt;-<span class="st"> </span><span class="kw">trimfill</span>(res)
@@ -2432,7 +2431,7 @@ res.u</code></pre></div>
 S2 &lt;-<span class="st"> </span><span class="kw">sum</span>(dat$n *<span class="st"> </span>(dat$r -<span class="st"> </span><span class="kw">coef</span>(res))^<span class="dv">2</span>) /<span class="st"> </span><span class="kw">sum</span>(dat$n)
 <span class="kw">round</span>((S2 -<span class="st"> </span>res.u$tau2) /<span class="st"> </span>S2, <span class="dt">digits=</span><span class="dv">4</span>)</code></pre></div>
 <pre><code>## [1] 0.7955</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: minor difference probably due to rounding in book</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># note: minor difference probably due to rounding in the book</span></code></pre></div>
 <hr />
 </div>
 <div id="cumulative-meta-analysis" class="section level2">
