@@ -6,6 +6,7 @@ author: |
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
+    # code_download: true
     df_print: default
     toc: true
     number_sections: false
@@ -24,6 +25,11 @@ output:
 fig_caption: no
 # bibliography: references.bib
 ---
+
+```{r klippy, echo=FALSE, include=TRUE}
+# remotes::install_github("rlesur/klippy")
+klippy::klippy(position = c("top", "right"), color="gray20")
+```
 
 ## General Notes / Setup
 
