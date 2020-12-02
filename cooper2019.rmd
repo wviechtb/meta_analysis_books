@@ -1802,6 +1802,26 @@ if (!require(mice)) {
 ```
 
 ```{r}
+# due to a recent change in the 'mice' package (that currently breaks compatibility
+# with the metafor package), we need to create a helper function to make things work
+# again
+
+withold <- function (data, expr) {
+  call <- match.call()
+  analyses <- as.list(seq_len(data$m))
+  for (i in seq_along(analyses)) {
+    data.i <- complete(data, i)
+    analyses[[i]] <- eval(expr = substitute(expr), envir = data.i, enclos = parent.frame())
+    if (is.expression(analyses[[i]]))
+      analyses[[i]] <- eval(expr = analyses[[i]], envir = data.i, enclos = parent.frame())
+  }
+  object <- list(call = call, call1 = data$call, nmis = data$nmis, analyses = analyses)
+  oldClass(object) <- c("mira", "matrix")
+  object
+}
+```
+
+```{r}
 # multiple imputation using the MAR data
 
 dat$age <- 1999 - dat$year
@@ -1817,7 +1837,7 @@ impMethod["age"] <- "norm"
 impMethod
 
 imp <- mice(dat, print=FALSE, m=100, predictorMatrix=predMatrix, method=impMethod, seed=1234)
-fit <- with(imp, rma(yi, vi, mods = ~ intensity + age))
+fit <- withold(imp, rma(yi, vi, mods = ~ intensity + age))
 pool <- summary(pool(fit))
 
 # Table 17.5
