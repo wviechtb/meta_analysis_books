@@ -772,9 +772,9 @@ if (!require(metasens)) {
 # Copas and Shi (2001) model (selection depending on both T and sigma)
 
 res <- metagen(yi, sqrt(vi), method.tau="ML", data=dat2)
-sav <- copas(res)
-plot(sav)
-summary(sav)
+#sav <- copas(res) # this generates an error at the moment; hopefully this problem can be fixed
+#plot(sav)
+#summary(sav)
 ```
 
 Note that this analysis is a bit different than the one presented in the book (where parameters $a$ and $b$ are fixed to specific values).
@@ -910,7 +910,7 @@ funnel(rtf, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
 ```{r, figure11_5, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 11.5: Cumulative forest plot
 
-sav <- cumul(res, order=order(dat2$vi))
+sav <- cumul(res, order=dat2$vi)
 
 wi <- cumsum(weights(res)[order(dat2$vi)])
 wi <- fc(wi, digits=2)

@@ -442,7 +442,8 @@ Donat      94  19 200    82  17 200
 Stewart    98  21  50    88  22  45
 Young      96  21  85    92  22  85")
 
-dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2, slab=study, data=dat, vtype="LS2")
+dat <- escalc("SMD", m1i=mean1, sd1i=sd1, n1i=n1, m2i=mean2, sd2i=sd2, n2i=n2,
+              slab=study, data=dat, vtype="LS2")
 dat
 ```
 
@@ -1116,7 +1117,7 @@ title("Funnel Plot of Standard Error by Log Risk Ratio")
 ```{r}
 # cumulative meta-analysis
 
-rcm <- cumul(res, order=order(dat$vi))
+rcm <- cumul(res, order=dat$vi)
 rcm
 ```
 
