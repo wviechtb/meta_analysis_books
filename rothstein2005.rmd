@@ -33,16 +33,13 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-The book *Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments* by Rothstein et al. (2005) provides a very comprehensive treatment of the topic of publication bias. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+The book *Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments* by Rothstein et al. (2005) provides a very comprehensive treatment of the topic of publication bias. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but a few other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
-Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+The package can be installed with:
 
 ```{r, eval=FALSE}
-install.packages("remotes")
-remotes::install_github("wviechtb/metafor")
+install.packages("metafor")
 ```
-
-This step will become obsolete once a new release of the `metafor` package is published on CRAN.
 
 Once the package is installed, we can load it with:
 
@@ -53,7 +50,7 @@ library(metafor)
 A few additional notes:
 
 1. Results are only reproduced for chapters containing worked examples.
-2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process. Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them).
+2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process. Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them if they are known).
 3. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -172,8 +169,8 @@ dat3z <- escalc(measure="ZCOR", ri=ri, ni=ni, data=dat3)
 head(dat3r, 10) # show the first 10 rows
 
 # note: in 'dat3r', 'yi' are the raw correlation coefficients and 'vi' the corresponding sampling
-# variances; in 'dat3z', 'yi' are the r-to-z transformed coefficients and 'vi' the corresponding
-# sampling variances
+# variances; in 'dat3z', 'yi' are the r-to-z transformed correlation coefficients and 'vi' the
+# corresponding sampling variances
 ```
 
 ```{r}
@@ -186,10 +183,10 @@ predict(res, transf=transf.ztor)
 ```{r}
 # fit random-effects models for the various subgroups
 
-res.s <- rma(yi, vi, method="DL", data=subset(dat3z, struct=="s"))
-res.u <- rma(yi, vi, method="DL", data=subset(dat3z, struct=="u"))
-res.j <- rma(yi, vi, method="DL", data=subset(dat3z, type=="j" | type=="s"))
-res.p <- rma(yi, vi, method="DL", data=subset(dat3z, type=="p"))
+res.s <- rma(yi, vi, method="DL", data=dat3z, subset=struct=="s")
+res.u <- rma(yi, vi, method="DL", data=dat3z, subset=struct=="u")
+res.j <- rma(yi, vi, method="DL", data=dat3z, subset=type=="j" | type=="s")
+res.p <- rma(yi, vi, method="DL", data=dat3z, subset=type=="p")
 ```
 
 ```{r, figureA_3, fig.width=8.5, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -583,14 +580,14 @@ predict(res, transf=exp, digits=2)
 ```{r}
 # trim and fill analysis
 
-rtf <- trimfill(res)
-rtf
+taf <- trimfill(res)
+taf
 ```
 
 ```{r}
 # estimated odds ratio (and 95% CI)
 
-predict(rtf, transf=exp, digits=2)
+predict(taf, transf=exp, digits=2)
 ```
 
 ```{r, figure8_2, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -598,7 +595,7 @@ predict(rtf, transf=exp, digits=2)
 
 par(mar=c(5,4,2,2))
 
-funnel(rtf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
+funnel(taf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
        xlim=c(-3,3), ylim=c(1e-6,6), steps=7)
 ```
 
@@ -606,16 +603,16 @@ funnel(rtf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
 # trim and fill analysis for dataset 2
 
 res <- rma(yi, vi=vi, data=dat2, method="DL")
-rtf <- trimfill(res)
+taf <- trimfill(res)
 pred.res <- predict(res, transf=exp)
-pred.rtf <- predict(rtf, transf=exp)
+pred.taf <- predict(taf, transf=exp)
 
 tab <- data.frame(
-   k     = c(res$k, rtf$k),
-   k0    = c(0, rtf$k0),
-   theta = c(pred.res$pred, pred.rtf$pred),
-   ci.lb = c(pred.res$ci.lb, pred.rtf$ci.lb),
-   ci.ub = c(pred.res$ci.ub, pred.rtf$ci.ub))
+   k     = c(res$k, taf$k),
+   k0    = c(0, taf$k0),
+   theta = c(pred.res$pred, pred.taf$pred),
+   ci.lb = c(pred.res$ci.lb, pred.taf$ci.lb),
+   ci.ub = c(pred.res$ci.ub, pred.taf$ci.ub))
 rownames(tab) <- c("Observed", "Filled")
 dfround(tab, c(0,0,2,2,2))
 ```
@@ -625,7 +622,7 @@ dfround(tab, c(0,0,2,2,2))
 
 par(mar=c(5,4,2,2))
 
-funnel(rtf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
+funnel(taf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
        xlim=c(-0.8,0.9), at=c(-0.8, -0.4, 0, 0.4, 0.8), ylim=c(1e-6,12), steps=7)
 ```
 
@@ -633,17 +630,17 @@ funnel(rtf, yaxis="seinv", xlab="ln(Odds Ratio)", back=NA, las=1,
 # trim and fill analysis for dataset 3 - structured interviews
 
 res <- rma(yi, vi=vi, data=subset(dat3z, struct=="s"), method="DL")
-rtf <- trimfill(res)
-rtf
+taf <- trimfill(res)
+taf
 pred.res <- predict(res, transf=transf.ztor)
-pred.rtf <- predict(rtf, transf=transf.ztor)
+pred.taf <- predict(taf, transf=transf.ztor)
 
 tab <- data.frame(
-   k     = c(res$k, rtf$k),
-   k0    = c(0, rtf$k0),
-   theta = c(pred.res$pred, pred.rtf$pred),
-   ci.lb = c(pred.res$ci.lb, pred.rtf$ci.lb),
-   ci.ub = c(pred.res$ci.ub, pred.rtf$ci.ub))
+   k     = c(res$k, taf$k),
+   k0    = c(0, taf$k0),
+   theta = c(pred.res$pred, pred.taf$pred),
+   ci.lb = c(pred.res$ci.lb, pred.taf$ci.lb),
+   ci.ub = c(pred.res$ci.ub, pred.taf$ci.ub))
 rownames(tab) <- c("Observed", "Filled")
 dfround(tab, c(0,0,3,3,3))
 ```
@@ -652,17 +649,17 @@ dfround(tab, c(0,0,3,3,3))
 # trim and fill analysis for dataset 3 - unstructured interviews
 
 res <- rma(yi, vi=vi, data=subset(dat3z, struct=="u"), method="DL")
-rtf <- trimfill(res)
-rtf
+taf <- trimfill(res)
+taf
 pred.res <- predict(res, transf=transf.ztor)
-pred.rtf <- predict(rtf, transf=transf.ztor)
+pred.taf <- predict(taf, transf=transf.ztor)
 
 tab <- data.frame(
-   k     = c(res$k, rtf$k),
-   k0    = c(0, rtf$k0),
-   theta = c(pred.res$pred, pred.rtf$pred),
-   ci.lb = c(pred.res$ci.lb, pred.rtf$ci.lb),
-   ci.ub = c(pred.res$ci.ub, pred.rtf$ci.ub))
+   k     = c(res$k, taf$k),
+   k0    = c(0, taf$k0),
+   theta = c(pred.res$pred, pred.taf$pred),
+   ci.lb = c(pred.res$ci.lb, pred.taf$ci.lb),
+   ci.ub = c(pred.res$ci.ub, pred.taf$ci.ub))
 rownames(tab) <- c("Observed", "Filled")
 dfround(tab, c(0,0,3,3,3))
 ```
@@ -673,15 +670,15 @@ Note: One could continue to do the same with other subgroups, as illustrated in 
 # trim and fill analysis for dataset 1
 
 res <- rma(yi, vi=vi, data=dat1, method="DL")
-rtf <- trimfill(res)
-rtf
+taf <- trimfill(res)
+taf
 
 tab <- data.frame(
-   k     = c(res$k, rtf$k),
-   k0    = c(0, rtf$k0),
-   theta = c(coef(res), coef(rtf)),
-   ci.lb = c(res$ci.lb, rtf$ci.lb),
-   ci.ub = c(res$ci.ub, rtf$ci.ub))
+   k     = c(res$k, taf$k),
+   k0    = c(0, taf$k0),
+   theta = c(coef(res), coef(taf)),
+   ci.lb = c(res$ci.lb, taf$ci.lb),
+   ci.ub = c(res$ci.ub, taf$ci.ub))
 rownames(tab) <- c("Observed", "Filled")
 dfround(tab, c(0,0,3,3,3))
 ```
@@ -699,33 +696,19 @@ res.un <- rma(yi, vi, data=dat2, method="ML")
 res.un
 ```
 
-```{r, message=FALSE, warning=FALSE}
-# install the 'weightr' package (if it is not already installed) and load it
-
-if (!require(weightr)) {
-   install.packages("weightr")
-   library(weightr)
-}
-```
-
 ```{r}
 # Vevea and Hedges (1995) model (weight function estimated)
 
-res <- weightfunct(dat2$yi, dat2$vi, steps=c(0.05, 0.10, 0.50, 1.00))
-res
+sel <- selmodel(res.un, type="stepfun", steps=c(0.05, 0.10, 0.50, 1.00))
+sel
 ```
 
 ```{r, figure9_1, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 9.1
 
-si <- c(0, res$steps)
-di <- c(1, res$output_adj$par[-c(1:2)])
-di <- di / max(di)
-tmp <- list(breaks=si, density=di, equidist=FALSE, xname="p-Value")
-class(tmp) <- "histogram"
 par(mar=c(5,4,2,2))
-plot(tmp, ylab="Probability of Selection", main="", las=1, xaxt="n")
-axis(side=1, at=si)
+plot(sel, scale=TRUE, rug=FALSE, bty="n", xaxt="n")
+axis(side=1, at=c(0,sel$steps))
 ```
 
 ```{r}
@@ -740,20 +723,20 @@ ssp <- data.frame(
 ssp
 ```
 
-```{r, warning=FALSE}
+```{r}
 # apply a priori weight functions
 
-res.weak.1 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$weak.1)
-res.stro.1 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$stro.1)
-res.weak.2 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$weak.2)
-res.stro.2 <- weightfunct(dat2$yi, dat2$vi, steps=ssp$steps, weights=ssp$stro.2)
+res.weak.1 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$weak.1)
+res.stro.1 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$stro.1)
+res.weak.2 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$weak.2)
+res.stro.2 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$stro.2)
 
 # Table 9.4 (but transposed)
 
-tab <- data.frame(logOR = c(coef(res.un), res.weak.1$adj_est[2,], res.stro.1$adj_est[2,],
-                                          res.weak.2$adj_est[2,], res.stro.1$adj_est[2,]),
-                  varcomp = c(res.un$tau2, res.weak.1$adj_est[1,], res.stro.1$adj_est[1,],
-                                           res.weak.2$adj_est[1,], res.stro.1$adj_est[1,]))
+tab <- data.frame(logOR = c(coef(res.un), coef(res.weak.1)$beta, coef(res.stro.1)$beta,
+                                          coef(res.weak.2)$beta, coef(res.stro.2)$beta),
+                  varcomp = c(res.un$tau2, res.weak.1$tau2, res.stro.1$tau2,
+                                           res.weak.2$tau2, res.stro.2$tau2))
 rownames(tab) <- c("unadjusted", "weak one-tailed selection", "strong one-tailed selection",
                                  "weak two-tailed selection", "strong two-tailed selection")
 dfround(tab, c(2,3))
@@ -768,13 +751,13 @@ if (!require(metasens)) {
 }
 ```
 
-```{r, fig.width=9, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
+```{r}
 # Copas and Shi (2001) model (selection depending on both T and sigma)
 
 res <- metagen(yi, sqrt(vi), method.tau="ML", data=dat2)
-#sav <- copas(res) # this generates an error at the moment; hopefully this problem can be fixed
+sav <- copas(res)
 #plot(sav)
-#summary(sav)
+summary(sav)
 ```
 
 Note that this analysis is a bit different than the one presented in the book (where parameters $a$ and $b$ are fixed to specific values).
@@ -791,39 +774,32 @@ res.un
 ```{r}
 # Vevea and Hedges (1995) model (weight function estimated)
 
-res <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE, steps=c(0.05, 0.30, 1.00)))
-res
+sel <- selmodel(res.un, type="stepfun", steps=c(0.05, 0.30, 1.00))
+sel
+
 ```
 
 ```{r, figure9_3, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 9.3
 
-si <- c(0, res$steps)
-di <- c(1, res$output_adj$par[-c(1:2)])
-di <- di / max(di)
-tmp <- list(breaks=si, density=di, equidist=FALSE, xname="p-Value")
-class(tmp) <- "histogram"
 par(mar=c(5,4,2,2))
-plot(tmp, ylab="Probability of Selection", main="", las=1, xaxt="n")
-axis(side=1, at=si)
+plot(sel, scale=TRUE, rug=FALSE, bty="n", xaxt="n")
+axis(side=1, at=c(0,sel$steps))
 ```
 
-```{r, warning=FALSE}
+```{r}
 # apply a priori weight functions
 
-res.weak.1 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
-                                     steps=ssp$steps, weights=ssp$weak.1))
-res.stro.1 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
-                                     steps=ssp$steps, weights=ssp$stro.1))
-res.weak.2 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
-                                     steps=ssp$steps, weights=ssp$weak.2))
-res.stro.2 <- with(dat1, weightfunct(yi, vi, mods = ~ weeks, fe=TRUE,
-                                     steps=ssp$steps, weights=ssp$stro.2))
+res.weak.1 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$weak.1)
+res.stro.1 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$stro.1)
+res.weak.2 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$weak.2)
+res.stro.2 <- selmodel(res.un, type="stepfun", steps=ssp$steps, delta=ssp$stro.2)
 
 # Table 9.10 (but transposed)
 
-tab <- data.frame(rbind(coef(res.un), res.weak.1$adj_est[1:2,], res.stro.1$adj_est[1:2,],
-                                      res.weak.2$adj_est[1:2,], res.stro.2$adj_est[1:2,]))
+tab <- data.frame(logOR = rbind(coef(res.un), coef(res.weak.1)$beta, coef(res.stro.1)$beta,
+                                          coef(res.weak.2)$beta, coef(res.stro.2)$beta))
+colnames(tab) <- names(coef(res.un))
 rownames(tab) <- c("unadjusted", "weak one-tailed selection", "strong one-tailed selection",
                                  "weak two-tailed selection", "strong two-tailed selection")
 dfround(tab, 2)
@@ -894,8 +870,8 @@ fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05), weighted=TRUE)
 ```{r}
 # trim and fill analysis
 
-rtf <- trimfill(res)
-predict(rtf, transf=exp, digits=3)
+taf <- trimfill(res)
+predict(taf, transf=exp, digits=3)
 ```
 
 ```{r, figure11_4, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -903,7 +879,7 @@ predict(rtf, transf=exp, digits=3)
 
 par(mar=c(5,4,2,2))
 
-funnel(rtf, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
+funnel(taf, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
        back=NA, shade=NA, hlines=NA, lty=1, pch=21, pch.fill=19)
 ```
 

@@ -35,14 +35,14 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 *The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
-Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+Note that the 'devel' version of `metafor` needs to be installed to run all of the following code. The 'devel' version of the package can be installed with:
 
 ```{r, eval=FALSE}
 install.packages("remotes")
 remotes::install_github("wviechtb/metafor")
 ```
 
-This step will become obsolete once a new release of the `metafor` package is published on CRAN.
+This step will become obsolete once a new release of the `metafor` package is published on [CRAN](https://cran.r-project.org/package=metafor).
 
 Once the package is installed, we can load it with:
 
@@ -53,7 +53,7 @@ library(metafor)
 A few additional notes:
 
 1. Results are only reproduced for chapters containing worked examples.
-2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process (e.g., when using MCMC sampling in the chapter on Bayesian methods). Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them).
+2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. These can result from using different software packages that implement methods in slightly different ways, due to intermittent rounding or using a different rounding scheme, or due to chance when the analyses involve some stochastic process (e.g., when using MCMC sampling in the chapter on Bayesian methods). Minor discrepancies will (usually) not be commented on. However, where discrepancies are more substantial, they will be noted (and the reasons for them if they are known).
 3. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -245,7 +245,7 @@ irr::agree(c1c2)
 
 # note: agree(c1c2) would have been sufficient, but due to the large number of
 # additional packages being used, I will make it clear by using the :: operator
-# which package a function belongs to (unless this is clear from the contexts)
+# which package a function belongs to (unless this is clear from the context)
 ```
 
 ```{r}
@@ -403,7 +403,7 @@ tmp$var <- fc(tmp$var, 3)
 size <- sqrt(weights(res))
 size <- 2.5 * size / max(size)
 
-par(mar=c(4,4,2,2))
+par(mar=c(5,4,2,2))
 
 forest(res, xlim=c(-6.5,1.4), psize=size, header=TRUE, mlab="Combined",
        efac=c(0,1,2), annotate=FALSE, xlab="Standardized Mean Difference",
@@ -797,8 +797,8 @@ tab <- data.frame(rho  = rhos,
                   z2   = sapply(res, function(x) x$zval[2]))
 dfround(tab, digits=c(1,2,3,2,2,2,2,3,2,2,2))
 
-# note: there are some printing errors in the table in the book; also,
-# the values given in the Z_2 column in the book are quite off
+# note: there are some printing errors in the table in the book;
+# also the values given in the Z_2 column in the book are quite off
 ```
 
 ```{r}
@@ -884,6 +884,15 @@ agg$Group.1 <- agg$x <- NULL
 agg
 ```
 
+```{r, include=FALSE, eval=FALSE}
+# can also do this (requires 'devel' version of metafor)
+
+dat <- escalc(yi=d, vi=v, data=dat, var.names=c("d","v"))
+agg <- aggregate(dat, cluster=dat$study, struct="CS", rho=1, weighted=FALSE, checkpd=FALSE,
+                 select=c("study", "d", "v"))
+agg
+```
+
 ```{r}
 # fit standard random-effects model to the dataset with synthetic effects
 
@@ -944,9 +953,9 @@ inits[[3]]$.RNG.seed <- 12343
 # the seed for each chain (the same will be done below for other models)
 
 model <- jags.model(textConnection(fe.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.fe <- coda.samples(model, variable.names=c("theta"), n.iter=100000)
-dic.fe <- dic.samples(model, n.iter=100000, type="pD")
+update(model, n.iter=10000, progress.bar="none")
+bma.fe <- coda.samples(model, variable.names=c("theta"), n.iter=100000, progress.bar="none")
+dic.fe <- dic.samples(model, n.iter=100000, type="pD", progress.bar="none")
 bma.fe <- summary(bma.fe)$quantiles[c(3,1,5)]
 bma.fe <- rbind(theta=bma.fe, exp.theta = exp(bma.fe))
 round(bma.fe, digits=2)
@@ -982,10 +991,10 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
+update(model, n.iter=10000, progress.bar="none")
 bma.re <- coda.samples(model, variable.names=c("mu","tau2","theta.2","theta.3","theta.new"),
-                       n.iter=100000)
-dic.re <- dic.samples(model, n.iter=100000, type="pD")
+                       n.iter=100000, progress.bar="none")
+dic.re <- dic.samples(model, n.iter=100000, type="pD", progress.bar="none")
 bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
 bma.re <- rbind(mu=bma.re[1,], exp.mu=exp(bma.re[1,]), tau2=bma.re[2,],
                 bma.re[3:5,], exp.theta.new=exp(bma.re[5,]))
@@ -1022,8 +1031,8 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.hn <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+update(model, n.iter=10000, progress.bar="none")
+bma.hn <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
 bma.hn <- summary(bma.hn)$quantiles[,c(3,1,5)]
 bma.hn <- rbind(mu=bma.hn[1,], exp.mu=exp(bma.hn[1,]), tau2=bma.hn[2,])
 ```
@@ -1048,8 +1057,8 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.ig <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+update(model, n.iter=10000, progress.bar="none")
+bma.ig <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
 bma.ig <- summary(bma.ig)$quantiles[,c(3,1,5)]
 bma.ig <- rbind(mu=bma.ig[1,], exp.mu=exp(bma.ig[1,]), tau2=bma.ig[2,])
 ```
@@ -1092,9 +1101,10 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"), n.iter=100000)
-dic.me <- dic.samples(model, n.iter=100000, type="pD")
+update(model, n.iter=10000, progress.bar="none")
+bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"),
+                       n.iter=100000, progress.bar="none")
+dic.me <- dic.samples(model, n.iter=100000, type="pD", progress.bar="none")
 bma.me <- summary(bma.me)$quantiles[,c(3,1,5)]
 bma.me <- rbind(bma.me[c(1,2,4),], exp.beta0=exp(bma.me[1,]), exp.betasum=exp(bma.me[3,]))
 round(bma.me, digits=2)
@@ -1159,8 +1169,8 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.re <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+update(model, n.iter=10000, progress.bar="none")
+bma.re <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
 bma.re <- summary(bma.re)$quantiles[,c(3,1,5)]
 bma.re <- rbind(mu=bma.re[1,], exp.mu=exp(bma.re[1,]), tau2=bma.re[2,])
 round(bma.re, digits=2)
@@ -1187,8 +1197,8 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(re.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.ip <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000)
+update(model, n.iter=10000, progress.bar="none")
+bma.ip <- coda.samples(model, variable.names=c("mu","tau2"), n.iter=100000, progress.bar="none")
 bma.ip <- summary(bma.ip)$quantiles[,c(3,1,5)]
 bma.ip <- rbind(mu=bma.ip[1,], exp.mu=exp(bma.ip[1,]), tau2=bma.ip[2,])
 round(bma.ip, digits=2)
@@ -1217,8 +1227,9 @@ inits[[2]]$.RNG.seed <- 12342
 inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(me.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
-update(model, n.iter=10000)
-bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"), n.iter=100000)
+update(model, n.iter=10000, progress.bar="none")
+bma.me <- coda.samples(model, variable.names=c("beta0","beta1","tau2","betasum"),
+                       n.iter=100000, progress.bar="none")
 bma.me <- summary(bma.me)$quantiles[,c(3,1,5)]
 bma.me <- rbind(bma.me[c(1,2,4),], exp.beta0=exp(bma.me[1,]), exp.betasum=exp(bma.me[3,]))
 round(bma.me, digits=2)
@@ -1526,8 +1537,8 @@ if (!require(igraph)) {
 
 B <- R
 B[,] <- 0
-B[2:3,4] <- fit1$tab$estimate
-B[2:4,1] <- fit2$tab$estimate
+B[2:3,4] <- fit1$tab$beta
+B[2:4,1] <- fit2$tab$beta
 P <- B
 P[,] <- 1
 P[2:3,4] <- fit1$tab$pval
@@ -1612,8 +1623,8 @@ round(fit.I$vb, digits=4)
 ```{r}
 # Wald-type test of the difference in slopes of conf -> perf
 
-rma(yi = c(fit.I$tab["conf", "estimate"], fit.T$tab["conf", "estimate"]),
-    vi = c(fit.I$tab["conf", "se"],       fit.T$tab["conf", "se"])^2,
+rma(yi = c(fit.I$tab["conf", "beta"], fit.T$tab["conf", "beta"]),
+    vi = c(fit.I$tab["conf", "se"],   fit.T$tab["conf", "se"])^2,
     mods = c(0,1), method = "FE", digits = 3)
 
 # note: z=-0.094 differs from value in chapter (-0.079) due to rounding
@@ -1898,6 +1909,7 @@ res
 ```{r, figure18_12, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # funnel plot
 
+par(mar=c(5,4,2,2))
 funnel(res, atransf=exp, at=log(c(.25, .5, 1, 2, 4, 8)),
        ylim=c(0,0.6), steps=7, las=1)
 ```
@@ -1906,6 +1918,7 @@ funnel(res, atransf=exp, at=log(c(.25, .5, 1, 2, 4, 8)),
 # cumulative meta-analysis (in order of precision) and corresponding forest plot
 
 sav <- cumul(res, order=dat$vi)
+par(mar=c(5,4,2,2))
 forest(sav, header=TRUE)
 ```
 
@@ -1914,6 +1927,7 @@ An alternative way of plotting the results from such a cumulative meta-analysis 
 ```{r, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # plot cumulative meta-analysis results
 
+par(mar=c(5,4,2,2))
 plot(sav, xlim=c(0.1,0.5), ylim=c(0,.16), las=1)
 ```
 
@@ -1978,6 +1992,7 @@ if (!require(puniform)) {
 ```{r, figure18_15, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # p-uniform
 
+par(mar=c(5,4,2,2))
 puniform(yi=dat$yi, vi=dat$vi, side="right", plot=TRUE)
 ```
 
@@ -2001,6 +2016,7 @@ if (!require(selectMeta)) {
 
 sav <- DearBegg(dat$yi, sqrt(dat$vi), trace=FALSE)
 
+par(mar=c(5,4,2,2))
 plot(0, 0, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="p-Values", ylab="Estimated Weight Function")
 ps <- seq(0, 1, by = 0.01)
 pval <- summary(dat)$pval
@@ -2013,6 +2029,7 @@ weightLine(pval, w=sav$w, col0="black", lwd0=1, lty0="solid")
 
 sav <- DearBeggMonotone(dat$yi, sqrt(dat$vi), trace=FALSE)
 
+par(mar=c(5,4,2,2))
 plot(0, 0, type="n", xlim=c(0, 1), ylim=c(0, 1), xlab="p-Values", ylab="Estimated Weight Function")
 ps <- seq(0, 1, by = 0.01)
 pval <- summary(dat)$pval
@@ -2020,25 +2037,20 @@ rug(pval, lwd=3)
 weightLine(pval, w=sav$w, col0="black", lwd0=1, lty0="solid")
 ```
 
-```{r, message=FALSE, warning=FALSE}
-# install the 'weightr' package (if it is not already installed) and load it
-
-if (!require(weightr)) {
-   install.packages("weightr")
-   library(weightr)
-}
-```
-
 ```{r}
 # Vevea and Hedges (1995) model (with a single cutpoint at p=0.025)
 
-weightfunct(dat$yi, dat$vi)
+selmodel(res, type="stepfun", steps=.025)
 ```
 
 ```{r, include=FALSE}
 # Vevea and Hedges (1995) model (with more cutpoints)
 
-weightfunct(dat$yi, dat$vi, steps=c(0.01, 0.025, 0.05, 0.30, 0.50, 1.00))
+selmodel(res, type="stepfun", steps=c(0.01, 0.025, 0.05, 0.30, 0.50, 1.00),
+         delta=c(1,NA,NA,NA,.01,NA))
+
+# note: the value of the selection parameter for the interval that contains no
+# p-values needs to be constrained to a fixed value to be able to fit this model
 ```
 
 ```{r}
@@ -2056,25 +2068,25 @@ ssp
 ```{r, warning=FALSE}
 # Vevea and Wood (2005) model using moderate one-tailed selection
 
-weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.mod.1)
+selmodel(res, type="stepfun", steps=ssp$steps, delta=ssp$weights.mod.1)
 ```
 
 ```{r, warning=FALSE}
 # Vevea and Wood (2005) model using severe one-tailed selection
 
-weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.sev.1)
+selmodel(res, type="stepfun", steps=ssp$steps, delta=ssp$weights.sev.1)
 ```
 
 ```{r, warning=FALSE}
 # Vevea and Wood (2005) model using moderate two-tailed selection
 
-weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.mod.2)
+selmodel(res, type="stepfun", steps=ssp$steps, delta=ssp$weights.mod.2)
 ```
 
 ```{r, warning=FALSE}
 # Vevea and Wood (2005) model using severe two-tailed selection
 
-weightfunct(dat$yi, dat$vi, steps=ssp$steps, weights=ssp$weights.sev.2)
+selmodel(res, type="stepfun", steps=ssp$steps, delta=ssp$weights.sev.2)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
@@ -2090,9 +2102,9 @@ if (!require(metasens)) {
 # Copas and Shi (2001) model
 
 res <- metagen(yi, sqrt(vi), method.tau="ML", data=dat)
-#sav <- copas(res) # this generates an error at the moment; hopefully this problem can be fixed
-#plot(sav)
-#summary(sav)
+sav <- copas(res)
+plot(sav)
+summary(sav)
 ```
 
 ```{r}
@@ -2168,7 +2180,7 @@ summary(escalc(measure="RD", ai=100, bi=50, ci=60, di=90), transf=function(x) 1/
 ```{r}
 # using effect-size translations with confidence intervals (after a meta-analysis)
 
-# note: using some made-up data that yield the same results as shown om page 443
+# note: using some made-up data that yield the same results as shown on page 443
 
 # example with standardized mean differences
 
@@ -2211,6 +2223,7 @@ res
 ```{r, figure20_2, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # forest plot
 
+par(mar=c(5,4,2,2))
 forest(res, header=TRUE)
 ```
 
@@ -2260,6 +2273,7 @@ print(res.re, digits=3)
 
 wi <- fc(cbind(weights(res.fe), weights(res.re)), digits=2, width=5)
 
+par(mar=c(5,4,2,2))
 forest(res.fe, header=TRUE, xlim=c(-1.5,4), ylim=c(-2.5,9), psize=1, efac=c(0,1),
        ilab=wi, ilab.xpos=c(1.7,2.4), ilab.pos=2, digits=c(3,2))
 addpoly(res.re, width=c(5,6,5), digits=3)

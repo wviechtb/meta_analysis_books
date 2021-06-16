@@ -33,14 +33,13 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/). Note that the 'devel' version of `metafor` needs to be installed as some of the datasets used below are not currently in the official release of the package on [CRAN](https://cran.r-project.org/package=metafor). The 'devel' version of the package can be installed with:
+As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+
+The package can be installed with:
 
 ```{r, eval=FALSE}
-install.packages("remotes")
-remotes::install_github("wviechtb/metafor")
+install.packages("metafor")
 ```
-
-This step will become obsolete once a new release of the `metafor` package is published on CRAN.
 
 Once the package is installed, we can load it with:
 
@@ -51,7 +50,7 @@ library(metafor)
 A few additional notes:
 
 1. Results are only reproduced for chapters containing worked examples.
-2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. Where such discrepancies arise, they are noted (and the reasons for them).
+2. Occasionally, there are some minor discrepancies between the results shown in the book and those obtained below. Where such discrepancies arise, they are noted (and the reasons for them if they are known).
 3. I did not attempt to reproduce the figures exactly as they appear in the book. There are some fundamental differences in the aesthetics of the figures shown in the book and the functions in the `metafor` package for producing the corresponding figures. I made some adjustments to the defaults here and there to make the figures below look similar to the ones shown in the book and made sure to include all relevant elements.
 4. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 
@@ -191,7 +190,7 @@ summary(dat)
 ```
 
 ```{r}
-# response ratios (log transformed ratio of means)
+# response ratio (log transformed ratio of means)
 
 dat <- escalc("ROM", m1i=61.515, m2i=51.015, sd1i=19.475, sd2i=19.475, n1i=10, n2i=10)
 summary(dat)
@@ -844,16 +843,9 @@ round(tab, digits=5)
 ```{r, figure_20_2, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 20.2
 
-size <- 1 / sqrt(dat$vi)
-size <- 7 * size / max(size)
-
-# set up plot (risk ratios on y-axis, absolute latitude on x-axis)
-plot(dat$ablat, dat$yi, xlim=c(0,70), ylim=c(-3,1),
-     xlab="Latitude", ylab="ln(RR)", las=1, cex=size)
+regplot(reg, xlim=c(0,70), ylim=c(-3,1), xlab="Latitude", ylab="ln(RR)", las=1,
+        pch=1, plim=c(NA,8), ci=FALSE)
 title("Regression of log risk ratio on latitude (fixed-effect)")
-
-pred <- predict(reg, newmods=c(13,55))
-lines(c(13,55), pred$pred, lwd=2)
 ```
 
 ```{r}
@@ -882,15 +874,9 @@ reg
 ```{r, figure_20_6, fig.width=8, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 20.6
 
-size <- 1 / sqrt(dat$vi + reg$tau2)
-size <- 7 * size / max(size)
-
-plot(dat$ablat, dat$yi, xlim=c(0,70), ylim=c(-3,1),
-     xlab="Latitude", ylab="ln(RR)", las=1, cex=size)
-title("Regression of log risk ratio on latitude (random-effects)")
-
-pred <- predict(reg, newmods=c(13,55))
-lines(c(13,55), pred$pred, lwd=2)
+regplot(reg, xlim=c(0,70), ylim=c(-3,1), xlab="Latitude", ylab="ln(RR)", las=1,
+        pch=1, plim=c(NA,8), ci=FALSE)
+title("Regression of log risk ratio on latitude (random-effect)")
 ```
 
 ***
@@ -970,9 +956,8 @@ res
 ```{r}
 # compute combined effect across subgroups within studies
 
-agg <- do.call(rbind, lapply(split(dat, dat$study), function(x) {
-   tmp <- rma(es, var, data=x, method="FE")
-   c(es = unname(coef(tmp)), var = vcov(tmp))}))
+dat <- escalc(yi=es, vi=var, data=dat, var.names=c("es","var"))
+agg <- aggregate(dat, cluster=dat$study, struct="ID", select=c("study","es","var"))
 agg
 ```
 
@@ -1011,11 +996,9 @@ dat
 ```{r}
 # compute combined effect across outcomes and corresponding sampling variance
 
-agg <- do.call(rbind, lapply(split(dat, dat$study), function(x) {
-   R <- matrix(x$cor[1], nrow=nrow(x), ncol=nrow(x))
-   diag(R) <- 1
-   V <- diag(sqrt(x$var)) %*% R %*% diag(sqrt(x$var))
-   c(es = mean(x$es), var = 1/nrow(x)^2 * sum(V))}))
+dat <- escalc(yi=es, vi=var, data=dat, var.names=c("es","var"))
+agg <- aggregate(dat, cluster=dat$study, struct="CS", select=c("study","es","var"),
+                 rho=tapply(dat$cor, dat$study, head, 1))
 agg
 ```
 
@@ -1038,6 +1021,19 @@ dif
 
 rma(es, var, data=dif, method="FE")
 ```
+
+```{r}
+# could also approach this as a multivariate meta-analysis (not shown in the book)
+
+V <- lapply(split(dat, dat$study), function(x) {
+   Vi <- matrix(x$var, nrow=2, ncol=2)
+   Vi[1,2] <- Vi[2,1] <- x$cor[1]*sqrt(Vi[1,1]*Vi[2,2])
+   Vi})
+
+rma.mv(es, V, mods = ~ outcome, data=dat)
+```
+
+# the coefficient for 'outcomeReading' is the estimate of the difference
 
 ***
 
@@ -1102,15 +1098,15 @@ fsn(dat$yi, dat$vi, type="Orwin", target=log(1.05), weighted=TRUE)
 ```{r}
 # trim and fill analysis
 
-rtf <- trimfill(res)
-rtf
-predict(rtf, transf=exp, digits=3)
+taf <- trimfill(res)
+taf
+predict(taf, transf=exp, digits=3)
 ```
 
 ```{r, figure_30_3, fig.width=8, fig.height=7.0, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 30.3
 
-funnel(rtf, xlim=c(-2,2), ylim=c(0,0.8), pch=21, pch.fill=19)
+funnel(taf, xlim=c(-2,2), ylim=c(0,0.8), pch=21, pch.fill=19)
 title("Funnel Plot of Standard Error by Log Risk Ratio")
 ```
 
