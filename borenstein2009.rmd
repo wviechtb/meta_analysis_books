@@ -1031,9 +1031,9 @@ V <- lapply(split(dat, dat$study), function(x) {
    Vi})
 
 rma.mv(es, V, mods = ~ outcome, data=dat)
-```
 
-# the coefficient for 'outcomeReading' is the estimate of the difference
+# note: the coefficient for 'outcomeReading' is the estimate of the difference
+```
 
 ***
 
