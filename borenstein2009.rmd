@@ -33,7 +33,7 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
 The package can be installed with:
 
@@ -424,7 +424,7 @@ text(2.2,  8, "Weight", pos=2, font=2)
 
 ### Notes
 
-1. The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](http://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, we can obtain the same results as those provided in the book.
+1. The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](https://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, we can obtain the same results as those provided in the book.
 2. The confidence intervals for $\tau^2$ and $I^2$ are also computed in a different way. The `metafor` package uses the Q-profile method, which is an exact method (under the assumptions of the model), while the methods described in the book are based on large-sample approximations.
 
 ### Example for Continuous Data

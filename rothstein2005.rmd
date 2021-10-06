@@ -33,7 +33,7 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-The book *Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments* by Rothstein et al. (2005) provides a very comprehensive treatment of the topic of publication bias. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but a few other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+The book *Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments* by Rothstein et al. (2005) provides a very comprehensive treatment of the topic of publication bias. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but a few other packages will also be used. To read more about the `metafor` package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
 The package can be installed with:
 

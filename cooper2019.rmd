@@ -33,7 +33,7 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-*The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+*The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
 Note that the 'devel' version of `metafor` needs to be installed to run all of the following code. The 'devel' version of the package can be installed with:
 
@@ -1523,6 +1523,18 @@ dfround(fit2$tab[1:4], digits=c(2,3,2,3))
 round(fit2$R2 * 100, digits=2)
 ```
 
+```{r, include=FALSE, eval=FALSE}
+library(metaSEM)
+model <- '
+conf ~ acog + asom
+perf ~ acog + asom + conf
+acog ~~ 1*acog
+asom ~~ 1*asom
+acog ~~ asom'
+fit <- wls(R, vcov(res), n=1, RAM=lavaan2RAM(model, obs.variables=rownames(R)))
+summary(fit)
+```
+
 ```{r, message=FALSE, warning=FALSE}
 # install the 'igraph' package (if it is not already installed) and load it
 
@@ -2239,7 +2251,7 @@ predict(res, pi.type="simple", digits=0)
 predict(res, pi.type="riley", digits=0)
 ```
 
-Note: The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](http://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, equation 20.7 is used.
+Note: The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](https://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, equation 20.7 is used.
 
 ```{r}
 # data for Figure 20.3

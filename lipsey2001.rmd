@@ -33,7 +33,7 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-The book *Practical Meta-Analysis* by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the fixed-, random-, and the mixed-effects model) using the `metafor` package. To read more about the package, see the [package website](http://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+The book *Practical Meta-Analysis* by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the fixed-, random-, and the mixed-effects model) using the `metafor` package. To read more about the package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
 The package can be installed with:
 
@@ -187,7 +187,7 @@ The points are drawn in size proportional to the weight the various studies rece
 
 ## 7) Heterogeneity Accounted For
 
-The amount of heterogeneity accounted for by the moderator(s) included in the model is typically computed by comparing the amount of heterogeneity from the random-effects model with the amount of residual heterogeneity from the mixed-effects model (for more details, see the [here](http://www.metafor-project.org/doku.php/faq#for_mixed-effects_models_how_i)). The value is given in the output above. We can also carry out this computation explicitly by doing a full versus reduced model comparison with:
+The amount of heterogeneity accounted for by the moderator(s) included in the model is typically computed by comparing the amount of heterogeneity from the random-effects model with the amount of residual heterogeneity from the mixed-effects model (for more details, see the [here](https://www.metafor-project.org/doku.php/faq#for_mixed-effects_models_how_i)). The value is given in the output above. We can also carry out this computation explicitly by doing a full versus reduced model comparison with (note that a warning will be issued with respect to the likelihood ratio test that is also part of this output since LRTs should be based on ML/REML estimation):
 
 ```{r}
 anova(res.re, res.me)
