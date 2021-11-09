@@ -33,7 +33,7 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ## General Notes / Setup
 
-The book *Practical Meta-Analysis* by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the fixed-, random-, and the mixed-effects model) using the `metafor` package. To read more about the package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
+The book *Practical Meta-Analysis* by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the equal-, random-, and the mixed-effects model) using the `metafor` package. To read more about the package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
 The package can be installed with:
 
@@ -77,13 +77,13 @@ The `yi` values are standardized mean differences based on studies examining the
 
 ***
 
-## 2) Fixed-Effects Model
+## 2) Equal-Effects Model
 
-We can fit a fixed-effects model to these data with:
+We can fit an equal-effects model to these data with:
 
 ```{r}
-res.fe <- rma(yi, vi, data=dat, method="FE")
-res.fe
+res.ee <- rma(yi, vi, data=dat, method="EE")
+res.ee
 ```
 
 These results match what is reported on page 132-133 (see Exhibit 7.3).
@@ -114,21 +114,21 @@ forest(res.re, xlim=c(-2,3), header=c("Study", "SMD [95% CI]"), top=2,
 
 ## 4) Analog to the ANOVA
 
-Next, we can carry out the ANOVA-type analysis described on pages 135-138. In particular, a fixed-effects model with the `random` variable as moderator can be fitted with:
+Next, we can carry out the ANOVA-type analysis described on pages 135-138. In particular, a fixed-effects meta-regression model with the `random` variable as moderator can be fitted with:
 
 ```{r}
 res.anova <- rma(yi, vi, mods = ~ random, data=dat, method="FE")
 res.anova
 ```
 
-Note that the $Q_E$ and $Q_M$ statistics add up to the $Q$ statistic given earlier for the fixed/random-effects models (i.e., $`r fc(res.anova$QE)` + `r fc(res.anova$QM)` = `r fc(res.fe$QE)`$).
+Note that the $Q_E$ and $Q_M$ statistics add up to the $Q$ statistic given earlier for the equal-effects models (i.e., $`r fc(res.anova$QE)` + `r fc(res.anova$QM)` = `r fc(res.ee$QE)`$).
 
 The tests for heterogeneity within the two subgroups formed by the moderator can be obtained with:
 
 ```{r}
-res.r0 <- rma(yi, vi, data=dat, method="FE", subset=random==0)
+res.r0 <- rma(yi, vi, data=dat, method="EE", subset=random==0)
 res.r0
-res.r1 <- rma(yi, vi, data=dat, method="FE", subset=random==1)
+res.r1 <- rma(yi, vi, data=dat, method="EE", subset=random==1)
 res.r1
 ```
 
@@ -146,7 +146,7 @@ All of the values shown in Exhibit 7.4 have now been computed.
 
 ## 5) Weighted Regression Analysis
 
-The 'weighted regression analysis' described on pages 138-140 is again nothing else than a fixed-effects model with moderators. Here, the authors are including both the `random` and the `intensity` moderators in the model. This can be done with:
+The 'weighted regression analysis' described on pages 138-140 is again nothing else than a fixed-effects meta-regression model with moderators. Here, the authors are including both the `random` and the `intensity` moderators in the model. This can be done with:
 
 ```{r}
 res.wr <- rma(yi, vi, mods = ~ random + intensity, data=dat, method="FE")

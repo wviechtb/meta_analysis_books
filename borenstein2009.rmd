@@ -256,11 +256,13 @@ dat
 ```
 
 ```{r}
-# fixed-effect model analysis
+# equal-effects model analysis
 
-res <- rma(yi, vi, data=dat, method="FE", digits=2)
+res <- rma(yi, vi, data=dat, method="EE", digits=2)
 res
 ```
+
+Note: The book uses the term 'fixed-effect model', but I will use the term 'equal-effects model' throughout this document. My reasons for using the latter term are explained [here](https://wviechtb.github.io/metafor/reference/misc-models.html).
 
 ```{r, figure_14_1, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 14.1
@@ -314,9 +316,9 @@ dat
 ```
 
 ```{r}
-# fixed-effect model analysis
+# equal-effects model analysis
 
-res <- rma(yi, vi, data=dat, method="FE", digits=2)
+res <- rma(yi, vi, data=dat, method="EE", digits=2)
 res
 predict(res, transf=exp)
 ```
@@ -375,9 +377,9 @@ dat
 ```
 
 ```{r}
-# fixed-effect model analysis
+# equal-effects model analysis
 
-res <- rma(yi, vi, data=dat, method="FE", digits=2)
+res <- rma(yi, vi, data=dat, method="EE", digits=2)
 res
 predict(res, transf=transf.ztor)
 ```
@@ -573,24 +575,24 @@ Thorwald     B 0.740 0.012")
 dat
 ```
 
-### FE models within subgroups
+### EE models within subgroups
 
 ```{r}
-# fixed-effect model for subgroup A
+# equal-effects model for subgroup A
 
-resA <- rma(g, var, data=dat, method="FE", subset=type=="A")
+resA <- rma(g, var, data=dat, method="EE", subset=type=="A")
 resA
 
-# fixed-effect model for subgroup B
+# equal-effects model for subgroup B
 
-resB <- rma(g, var, data=dat, method="FE", subset=type=="B")
+resB <- rma(g, var, data=dat, method="EE", subset=type=="B")
 resB
 ```
 
 ```{r}
-# fixed-effect model for all 10 studies
+# equal-effects model for all 10 studies
 
-res <- rma(g, var, data=dat, method="FE", slab=study)
+res <- rma(g, var, data=dat, method="EE", slab=study)
 res
 ```
 
@@ -808,9 +810,9 @@ dat
 ```
 
 ```{r}
-# fixed-effect model
+# equal-effects model
 
-res <- rma(yi, vi, data=dat, method="FE")
+res <- rma(yi, vi, data=dat, method="EE")
 res
 ```
 
@@ -949,7 +951,7 @@ dat
 ```{r}
 # treat each subgroup as a separate study
 
-res <- rma(es, var, data=dat, method="FE")
+res <- rma(es, var, data=dat, method="EE")
 res
 ```
 
@@ -964,7 +966,7 @@ agg
 ```{r}
 # use study as the unit of analysis
 
-res <- rma(es, var, data=agg, method="FE")
+res <- rma(es, var, data=agg, method="EE")
 res
 ```
 
@@ -1003,9 +1005,9 @@ agg
 ```
 
 ```{r}
-# fixed-effect model using the aggregated data
+# equal-effects model using the aggregated data
 
-rma(es, var, data=agg, method="FE")
+rma(es, var, data=agg, method="EE")
 ```
 
 ```{r}
@@ -1017,9 +1019,9 @@ dif
 ```
 
 ```{r}
-# fixed-effect model using the differences data
+# equal-effects model using the differences data
 
-rma(es, var, data=dif, method="FE")
+rma(es, var, data=dif, method="EE")
 ```
 
 ```{r}
@@ -1051,9 +1053,9 @@ dat
 ```
 
 ```{r}
-# fixed-effect model
+# equal-effects model
 
-res <- rma(yi, vi, data=dat, method="FE", slab=paste0(author, ", ", year))
+res <- rma(yi, vi, data=dat, method="EE", slab=paste0(author, ", ", year))
 res
 predict(res, transf=exp, digits=3)
 ```

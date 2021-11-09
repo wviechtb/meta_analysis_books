@@ -1713,7 +1713,7 @@ div.tocify {
 <h1 class="title toc-ignore">R Code Corresponding to the Book <em>Practical Meta-Analysis</em> by Lipsey and Wilson (2001)</h1>
 <h4 class="author"><div class="line-block">Wolfgang Viechtbauer<br />
 Maastricht University</div></h4>
-<h4 class="date">06 October, 2021</h4>
+<h4 class="date">09 November, 2021</h4>
 
 </div>
 
@@ -1724,7 +1724,7 @@ Maastricht University</div></h4>
 </script>
 <div id="general-notes-setup" class="section level2">
 <h2>General Notes / Setup</h2>
-<p>The book <em>Practical Meta-Analysis</em> by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the fixed-, random-, and the mixed-effects model) using the <code>metafor</code> package. To read more about the package, see the <a href="https://www.metafor-project.org/">package website</a> and the <a href="https://wviechtb.github.io/metafor/">package documentation</a>.</p>
+<p>The book <em>Practical Meta-Analysis</em> by Lipsey and Wilson (2001) is an excellent introduction to meta-analysis and covers (in less than 250 pages) the most important aspects of conducting a meta-analysis. This document provides the R code to reproduce the analyses conducted in chapter 7 (which is focused on the computational aspects of a meta-analysis, including the equal-, random-, and the mixed-effects model) using the <code>metafor</code> package. To read more about the package, see the <a href="https://www.metafor-project.org/">package website</a> and the <a href="https://wviechtb.github.io/metafor/">package documentation</a>.</p>
 <p>The package can be installed with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">install.packages</span>(<span class="st">&quot;metafor&quot;</span>)</a></code></pre></div>
 <p>Once the package is installed, we can load it with:</p>
@@ -1755,12 +1755,12 @@ Maastricht University</div></h4>
 <p>The <code>yi</code> values are standardized mean differences based on studies examining the effectiveness of ‘challenge programs’ to treat juvenile delinquency (presumably with positive values indicating that delinquent behaviors were reduced in the group of juveniles participating in such a challenge program compared to those who did not). The <code>vi</code> values are the corresponding sampling variances. The dummy variable <code>random</code> indicates whether juveniles were randomly assigned to the two conditions with a study (1 = yes, 0 = no). Finally, <code>intensity</code> is a variable coded for the purposes of the meta-analysis which indicates (based on assessment of the coder) the intensity of the challenge program (coded from 1 = ‘very low’ to 7 = ‘very high’). These last two variables are potential moderators of the treatment effectiveness.</p>
 <hr />
 </div>
-<div id="fixed-effects-model" class="section level2">
-<h2>2) Fixed-Effects Model</h2>
-<p>We can fit a fixed-effects model to these data with:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">res.fe &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
-<a class="sourceLine" id="cb5-2" title="2">res.fe</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 10)
+<div id="equal-effects-model" class="section level2">
+<h2>2) Equal-Effects Model</h2>
+<p>We can fit an equal-effects model to these data with:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">res.ee &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>)</a>
+<a class="sourceLine" id="cb5-2" title="2">res.ee</a></code></pre></div>
+<pre><code>## Equal-Effects Model (k = 10)
 ## 
 ## I^2 (total heterogeneity / total variability):   39.04%
 ## H^2 (total variability / sampling variability):  1.64
@@ -1811,7 +1811,7 @@ Maastricht University</div></h4>
 </div>
 <div id="analog-to-the-anova" class="section level2">
 <h2>4) Analog to the ANOVA</h2>
-<p>Next, we can carry out the ANOVA-type analysis described on pages 135-138. In particular, a fixed-effects model with the <code>random</code> variable as moderator can be fitted with:</p>
+<p>Next, we can carry out the ANOVA-type analysis described on pages 135-138. In particular, a fixed-effects meta-regression model with the <code>random</code> variable as moderator can be fitted with:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">res.anova &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">mods =</span> <span class="op">~</span><span class="st"> </span>random, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
 <a class="sourceLine" id="cb10-2" title="2">res.anova</a></code></pre></div>
 <pre><code>## Fixed-Effects with Moderators Model (k = 10)
@@ -1834,11 +1834,11 @@ Maastricht University</div></h4>
 ## 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Note that the <span class="math inline">\(Q_E\)</span> and <span class="math inline">\(Q_M\)</span> statistics add up to the <span class="math inline">\(Q\)</span> statistic given earlier for the fixed/random-effects models (i.e., <span class="math inline">\(7.6901 + 7.0739 = 14.7640\)</span>).</p>
+<p>Note that the <span class="math inline">\(Q_E\)</span> and <span class="math inline">\(Q_M\)</span> statistics add up to the <span class="math inline">\(Q\)</span> statistic given earlier for the equal-effects models (i.e., <span class="math inline">\(7.6901 + 7.0739 = 14.7640\)</span>).</p>
 <p>The tests for heterogeneity within the two subgroups formed by the moderator can be obtained with:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">res.r0 &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">subset=</span>random<span class="op">==</span><span class="dv">0</span>)</a>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">res.r0 &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">subset=</span>random<span class="op">==</span><span class="dv">0</span>)</a>
 <a class="sourceLine" id="cb12-2" title="2">res.r0</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 6)
+<pre><code>## Equal-Effects Model (k = 6)
 ## 
 ## I^2 (total heterogeneity / total variability):   22.34%
 ## H^2 (total variability / sampling variability):  1.29
@@ -1853,9 +1853,9 @@ Maastricht University</div></h4>
 ## 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">res.r1 &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">subset=</span>random<span class="op">==</span><span class="dv">1</span>)</a>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">res.r1 &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">subset=</span>random<span class="op">==</span><span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb14-2" title="2">res.r1</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 4)
+<pre><code>## Equal-Effects Model (k = 4)
 ## 
 ## I^2 (total heterogeneity / total variability):   0.00%
 ## H^2 (total variability / sampling variability):  0.42
@@ -1881,7 +1881,7 @@ Maastricht University</div></h4>
 </div>
 <div id="weighted-regression-analysis" class="section level2">
 <h2>5) Weighted Regression Analysis</h2>
-<p>The ‘weighted regression analysis’ described on pages 138-140 is again nothing else than a fixed-effects model with moderators. Here, the authors are including both the <code>random</code> and the <code>intensity</code> moderators in the model. This can be done with:</p>
+<p>The ‘weighted regression analysis’ described on pages 138-140 is again nothing else than a fixed-effects meta-regression model with moderators. Here, the authors are including both the <code>random</code> and the <code>intensity</code> moderators in the model. This can be done with:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">res.wr &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">mods =</span> <span class="op">~</span><span class="st"> </span>random <span class="op">+</span><span class="st"> </span>intensity, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
 <a class="sourceLine" id="cb18-2" title="2">res.wr</a></code></pre></div>
 <pre><code>## Fixed-Effects with Moderators Model (k = 10)

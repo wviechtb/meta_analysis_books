@@ -1713,7 +1713,7 @@ div.tocify {
 <h1 class="title toc-ignore">R Code Corresponding to the Book <em>Introduction to Meta-Analysis</em> by Borenstein et al. (2009)</h1>
 <h4 class="author"><div class="line-block">Wolfgang Viechtbauer<br />
 Maastricht University</div></h4>
-<h4 class="date">06 October, 2021</h4>
+<h4 class="date">09 November, 2021</h4>
 
 </div>
 
@@ -1985,11 +1985,11 @@ Maastricht University</div></h4>
 ## 4   Donat    94  19 200    82  17 200 0.6644 0.0105 
 ## 5 Stewart    98  21  50    88  22  45 0.4618 0.0427 
 ## 6   Young    96  21  85    92  22  85 0.1852 0.0234</code></pre>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="co"># fixed-effect model analysis</span></a>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="co"># equal-effects model analysis</span></a>
 <a class="sourceLine" id="cb47-2" title="2"></a>
-<a class="sourceLine" id="cb47-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">digits=</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb47-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">digits=</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb47-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 6)
+<pre><code>## Equal-Effects Model (k = 6)
 ## 
 ## I^2 (total heterogeneity / total variability):   58.34%
 ## H^2 (total variability / sampling variability):  2.40
@@ -2004,6 +2004,7 @@ Maastricht University</div></h4>
 ## 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Note: The book uses the term ‘fixed-effect model’, but I will use the term ‘equal-effects model’ throughout this document. My reasons for using the latter term are explained <a href="https://wviechtb.github.io/metafor/reference/misc-models.html">here</a>.</p>
 <div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1"><span class="co"># Figure 14.1</span></a>
 <a class="sourceLine" id="cb49-2" title="2"></a>
 <a class="sourceLine" id="cb49-3" title="3"><span class="kw">par</span>(<span class="dt">mar=</span><span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">2</span>))</a>
@@ -2070,11 +2071,11 @@ Maastricht University</div></h4>
 ## 4    Lane      25        375 400      80        320 400 -1.3218 0.0583 
 ## 5  Wright       8         32  40      11         29  40 -0.4169 0.2816 
 ## 6     Day      16         49  65      18         47  65 -0.1595 0.1597</code></pre>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="co"># fixed-effect model analysis</span></a>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="co"># equal-effects model analysis</span></a>
 <a class="sourceLine" id="cb55-2" title="2"></a>
-<a class="sourceLine" id="cb55-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">digits=</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb55-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">digits=</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb55-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 6)
+<pre><code>## Equal-Effects Model (k = 6)
 ## 
 ## I^2 (total heterogeneity / total variability):   52.61%
 ## H^2 (total variability / sampling variability):  2.11
@@ -2160,11 +2161,11 @@ Maastricht University</div></h4>
 ## 4 Granger   0.20 400 0.2027 0.0025 
 ## 5 Milland   0.70  60 0.8673 0.0175 
 ## 6   Finch   0.45  50 0.4847 0.0213</code></pre>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="co"># fixed-effect model analysis</span></a>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb65-1" title="1"><span class="co"># equal-effects model analysis</span></a>
 <a class="sourceLine" id="cb65-2" title="2"></a>
-<a class="sourceLine" id="cb65-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">digits=</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb65-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">digits=</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb65-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 6)
+<pre><code>## Equal-Effects Model (k = 6)
 ## 
 ## I^2 (total heterogeneity / total variability):   86.17%
 ## H^2 (total variability / sampling variability):  7.23
@@ -2468,13 +2469,13 @@ Maastricht University</div></h4>
 ## 8      Doyle    B 0.651 0.015
 ## 9     Stella    B 0.710 0.025
 ## 10  Thorwald    B 0.740 0.012</code></pre>
-<div id="fe-models-within-subgroups" class="section level3">
-<h3>FE models within subgroups</h3>
-<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb104-1" title="1"><span class="co"># fixed-effect model for subgroup A</span></a>
+<div id="ee-models-within-subgroups" class="section level3">
+<h3>EE models within subgroups</h3>
+<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb104-1" title="1"><span class="co"># equal-effects model for subgroup A</span></a>
 <a class="sourceLine" id="cb104-2" title="2"></a>
-<a class="sourceLine" id="cb104-3" title="3">resA &lt;-<span class="st"> </span><span class="kw">rma</span>(g, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">subset=</span>type<span class="op">==</span><span class="st">&quot;A&quot;</span>)</a>
+<a class="sourceLine" id="cb104-3" title="3">resA &lt;-<span class="st"> </span><span class="kw">rma</span>(g, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">subset=</span>type<span class="op">==</span><span class="st">&quot;A&quot;</span>)</a>
 <a class="sourceLine" id="cb104-4" title="4">resA</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 5)
+<pre><code>## Equal-Effects Model (k = 5)
 ## 
 ## I^2 (total heterogeneity / total variability):   52.56%
 ## H^2 (total variability / sampling variability):  2.11
@@ -2489,11 +2490,11 @@ Maastricht University</div></h4>
 ## 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb106-1" title="1"><span class="co"># fixed-effect model for subgroup B</span></a>
+<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb106-1" title="1"><span class="co"># equal-effects model for subgroup B</span></a>
 <a class="sourceLine" id="cb106-2" title="2"></a>
-<a class="sourceLine" id="cb106-3" title="3">resB &lt;-<span class="st"> </span><span class="kw">rma</span>(g, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">subset=</span>type<span class="op">==</span><span class="st">&quot;B&quot;</span>)</a>
+<a class="sourceLine" id="cb106-3" title="3">resB &lt;-<span class="st"> </span><span class="kw">rma</span>(g, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">subset=</span>type<span class="op">==</span><span class="st">&quot;B&quot;</span>)</a>
 <a class="sourceLine" id="cb106-4" title="4">resB</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 5)
+<pre><code>## Equal-Effects Model (k = 5)
 ## 
 ## I^2 (total heterogeneity / total variability):   11.95%
 ## H^2 (total variability / sampling variability):  1.14
@@ -2508,11 +2509,11 @@ Maastricht University</div></h4>
 ## 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb108-1" title="1"><span class="co"># fixed-effect model for all 10 studies</span></a>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb108-1" title="1"><span class="co"># equal-effects model for all 10 studies</span></a>
 <a class="sourceLine" id="cb108-2" title="2"></a>
-<a class="sourceLine" id="cb108-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(g, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">slab=</span>study)</a>
+<a class="sourceLine" id="cb108-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(g, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">slab=</span>study)</a>
 <a class="sourceLine" id="cb108-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 10)
+<pre><code>## Equal-Effects Model (k = 10)
 ## 
 ## I^2 (total heterogeneity / total variability):   65.96%
 ## H^2 (total variability / sampling variability):  2.94
@@ -2901,11 +2902,11 @@ Maastricht University</div></h4>
 ## 11    11       Comstock et al 1974  186 50448  141 27197    18 systematic -0.3394 0.0124 
 ## 12    12   Comstock &amp; Webster 1969    5  2493    3  2338    33 systematic  0.4459 0.5325 
 ## 13    13       Comstock et al 1976   27 16886   29 17825    33 systematic -0.0173 0.0714</code></pre>
-<div class="sourceCode" id="cb146"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb146-1" title="1"><span class="co"># fixed-effect model</span></a>
+<div class="sourceCode" id="cb146"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb146-1" title="1"><span class="co"># equal-effects model</span></a>
 <a class="sourceLine" id="cb146-2" title="2"></a>
-<a class="sourceLine" id="cb146-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb146-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>)</a>
 <a class="sourceLine" id="cb146-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 13)
+<pre><code>## Equal-Effects Model (k = 13)
 ## 
 ## I^2 (total heterogeneity / total variability):   92.12%
 ## H^2 (total variability / sampling variability):  12.69
@@ -3105,11 +3106,13 @@ Maastricht University</div></h4>
 <pre><code>## Running 8192 iterations for exact permutation test.</code></pre>
 <pre><code>## Model Results:
 ## 
-## estimate      se     zval   pval*    ci.lb    ci.ub 
+## estimate      se     zval   pval¹    ci.lb    ci.ub 
 ##  -0.7141  0.1787  -3.9952  0.0017  -1.0644  -0.3638  ** 
 ## 
 ## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## 1) p-value based on permutation testing</code></pre>
 <div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb171-1" title="1"><span class="co"># mixed-effects meta-regression model with permutation test</span></a>
 <a class="sourceLine" id="cb171-2" title="2"></a>
 <a class="sourceLine" id="cb171-3" title="3"><span class="co"># note: an exact permutation test would require 389188800 iterations, which will</span></a>
@@ -3120,17 +3123,19 @@ Maastricht University</div></h4>
 <a class="sourceLine" id="cb171-8" title="8"><span class="kw">set.seed</span>(<span class="dv">1234</span>)</a>
 <a class="sourceLine" id="cb171-9" title="9"><span class="kw">permutest</span>(res)</a></code></pre></div>
 <pre><code>## Running 1000 iterations for approximate permutation test.</code></pre>
-<pre><code>## Test of Moderators (coefficient 2):
-## QM(df = 1) = 18.8452, p-val* = 0.0070
+<pre><code>## Test of Moderators (coefficient 2):¹
+## QM(df = 1) = 18.8452, p-val = 0.0070
 ## 
 ## Model Results:
 ## 
-##          estimate      se     zval   pval*    ci.lb    ci.ub 
+##          estimate      se     zval   pval¹    ci.lb    ci.ub 
 ## intrcpt    0.2595  0.2323   1.1172  0.6300  -0.1958   0.7149     
 ## ablat     -0.0292  0.0067  -4.3411  0.0070  -0.0424  -0.0160  ** 
 ## 
 ## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## 1) p-values based on permutation testing</code></pre>
 <hr />
 </div>
 <div id="subgroups-within-studies" class="section level2">
@@ -3164,9 +3169,9 @@ Maastricht University</div></h4>
 ## 10 Study 5  Stage 2 0.3 0.06</code></pre>
 <div class="sourceCode" id="cb176"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb176-1" title="1"><span class="co"># treat each subgroup as a separate study</span></a>
 <a class="sourceLine" id="cb176-2" title="2"></a>
-<a class="sourceLine" id="cb176-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(es, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb176-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(es, var, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>)</a>
 <a class="sourceLine" id="cb176-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 10)
+<pre><code>## Equal-Effects Model (k = 10)
 ## 
 ## I^2 (total heterogeneity / total variability):   0.00%
 ## H^2 (total variability / sampling variability):  0.38
@@ -3194,9 +3199,9 @@ Maastricht University</div></h4>
 ## 5 Study 5 0.3500 0.0300</code></pre>
 <div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb180-1" title="1"><span class="co"># use study as the unit of analysis</span></a>
 <a class="sourceLine" id="cb180-2" title="2"></a>
-<a class="sourceLine" id="cb180-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(es, var, <span class="dt">data=</span>agg, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a>
+<a class="sourceLine" id="cb180-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(es, var, <span class="dt">data=</span>agg, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>)</a>
 <a class="sourceLine" id="cb180-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 5)
+<pre><code>## Equal-Effects Model (k = 5)
 ## 
 ## I^2 (total heterogeneity / total variability):   0.00%
 ## H^2 (total variability / sampling variability):  0.45
@@ -3255,10 +3260,10 @@ Maastricht University</div></h4>
 ## 3 Study 3 0.3000 0.0400 
 ## 4 Study 4 0.1500 0.0070 
 ## 5 Study 5 0.3500 0.0540</code></pre>
-<div class="sourceCode" id="cb187"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb187-1" title="1"><span class="co"># fixed-effect model using the aggregated data</span></a>
+<div class="sourceCode" id="cb187"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb187-1" title="1"><span class="co"># equal-effects model using the aggregated data</span></a>
 <a class="sourceLine" id="cb187-2" title="2"></a>
-<a class="sourceLine" id="cb187-3" title="3"><span class="kw">rma</span>(es, var, <span class="dt">data=</span>agg, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 5)
+<a class="sourceLine" id="cb187-3" title="3"><span class="kw">rma</span>(es, var, <span class="dt">data=</span>agg, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>)</a></code></pre></div>
+<pre><code>## Equal-Effects Model (k = 5)
 ## 
 ## I^2 (total heterogeneity / total variability):   0.00%
 ## H^2 (total variability / sampling variability):  0.27
@@ -3284,10 +3289,10 @@ Maastricht University</div></h4>
 ## Study 3 0.2 0.040
 ## Study 4 0.1 0.012
 ## Study 5 0.1 0.024</code></pre>
-<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb191-1" title="1"><span class="co"># fixed-effect model using the differences data</span></a>
+<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb191-1" title="1"><span class="co"># equal-effects model using the differences data</span></a>
 <a class="sourceLine" id="cb191-2" title="2"></a>
-<a class="sourceLine" id="cb191-3" title="3"><span class="kw">rma</span>(es, var, <span class="dt">data=</span>dif, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>)</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 5)
+<a class="sourceLine" id="cb191-3" title="3"><span class="kw">rma</span>(es, var, <span class="dt">data=</span>dif, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>)</a></code></pre></div>
+<pre><code>## Equal-Effects Model (k = 5)
 ## 
 ## I^2 (total heterogeneity / total variability):   0.00%
 ## H^2 (total variability / sampling variability):  0.09
@@ -3378,11 +3383,11 @@ Maastricht University</div></h4>
 <div class="sourceCode" id="cb198"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb198-1" title="1"><span class="co"># note: the &#39;yi&#39; values are log odds ratios, not log risk ratios as suggested in</span></a>
 <a class="sourceLine" id="cb198-2" title="2"><span class="co"># the book; also, there are slight differences between the data used in the book</span></a>
 <a class="sourceLine" id="cb198-3" title="3"><span class="co"># and those in &#39;dat.hackshaw1998&#39;; the differences are negligible though</span></a></code></pre></div>
-<div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb199-1" title="1"><span class="co"># fixed-effect model</span></a>
+<div class="sourceCode" id="cb199"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb199-1" title="1"><span class="co"># equal-effects model</span></a>
 <a class="sourceLine" id="cb199-2" title="2"></a>
-<a class="sourceLine" id="cb199-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;FE&quot;</span>, <span class="dt">slab=</span><span class="kw">paste0</span>(author, <span class="st">&quot;, &quot;</span>, year))</a>
+<a class="sourceLine" id="cb199-3" title="3">res &lt;-<span class="st"> </span><span class="kw">rma</span>(yi, vi, <span class="dt">data=</span>dat, <span class="dt">method=</span><span class="st">&quot;EE&quot;</span>, <span class="dt">slab=</span><span class="kw">paste0</span>(author, <span class="st">&quot;, &quot;</span>, year))</a>
 <a class="sourceLine" id="cb199-4" title="4">res</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 37)
+<pre><code>## Equal-Effects Model (k = 37)
 ## 
 ## I^2 (total heterogeneity / total variability):   24.21%
 ## H^2 (total variability / sampling variability):  1.32
@@ -3441,8 +3446,7 @@ Maastricht University</div></h4>
 <a class="sourceLine" id="cb210-3" title="3">taf &lt;-<span class="st"> </span><span class="kw">trimfill</span>(res)</a>
 <a class="sourceLine" id="cb210-4" title="4">taf</a></code></pre></div>
 <pre><code>## Estimated number of missing studies on the left side: 7 (SE = 4.0405)
-## 
-## Fixed-Effects Model (k = 44)
+## Equal-Effects Model (k = 44)
 ## 
 ## I^2 (total heterogeneity / total variability):   30.44%
 ## H^2 (total variability / sampling variability):  1.44
@@ -3759,7 +3763,7 @@ Maastricht University</div></h4>
 <div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb247-1" title="1"><span class="co"># Mantel-Haenszel method</span></a>
 <a class="sourceLine" id="cb247-2" title="2"></a>
 <a class="sourceLine" id="cb247-3" title="3"><span class="kw">rma.mh</span>(<span class="dt">measure=</span><span class="st">&quot;OR&quot;</span>, <span class="dt">ai=</span>events1, <span class="dt">n1i=</span>n1, <span class="dt">ci=</span>events2, <span class="dt">n2i=</span>n2, <span class="dt">data=</span>dat)</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 6)
+<pre><code>## Equal-Effects Model (k = 6)
 ## 
 ## I^2 (total heterogeneity / total variability):  52.78%
 ## H^2 (total variability / sampling variability): 2.12
@@ -3782,7 +3786,7 @@ Maastricht University</div></h4>
 <div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb249-1" title="1"><span class="co"># Peto&#39;s method</span></a>
 <a class="sourceLine" id="cb249-2" title="2"></a>
 <a class="sourceLine" id="cb249-3" title="3"><span class="kw">rma.peto</span>(<span class="dt">ai=</span>events1, <span class="dt">n1i=</span>n1, <span class="dt">ci=</span>events2, <span class="dt">n2i=</span>n2, <span class="dt">data=</span>dat)</a></code></pre></div>
-<pre><code>## Fixed-Effects Model (k = 6)
+<pre><code>## Equal-Effects Model (k = 6)
 ## 
 ## I^2 (total heterogeneity / total variability):  49.25%
 ## H^2 (total variability / sampling variability): 1.97

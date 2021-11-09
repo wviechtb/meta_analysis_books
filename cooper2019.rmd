@@ -394,7 +394,7 @@ dat
 ```{r, figure11_1, fig.width=8.5, fig.height=5.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 11.1
 
-res <- rma(md, var, data=dat, method="FE", slab=study)
+res <- rma(md, var, data=dat, method="EE", slab=study)
 
 tmp <- dat[-1]
 tmp$se  <- fc(tmp$se,  3)
@@ -540,7 +540,7 @@ summary(dat)
 
 ***
 
-## 12) Statistically Analyzing Effect Sizes: Fixed- and Random-Effects Models
+## 12) Statistically Analyzing Effect Sizes: Equal- and Random-Effects Models
 
 ```{r}
 # Table 12.1: Data for the Gender Differences in Conformity Example
@@ -564,11 +564,13 @@ dat
 ```
 
 ```{r}
-# fixed-effects model analysis
+# equal-effects model analysis
 
-res <- rma(d, v, data=dat, method="FE")
+res <- rma(d, v, data=dat, method="EE")
 print(res, digits=3)
 ```
+
+Note: The book uses the term 'fixed-effects model', but I will use the term 'equal-effects model' throughout this document. My reasons for using the latter term are explained [here](https://wviechtb.github.io/metafor/reference/misc-models.html).
 
 ```{r}
 # random-effects model analysis
@@ -929,7 +931,7 @@ dat
 ```
 
 ```{r}
-# Bayesian fixed-effects model
+# Bayesian equal-effects model
 
 k <- length(dat$yi)
 
@@ -954,18 +956,18 @@ inits[[3]]$.RNG.seed <- 12343
 
 model <- jags.model(textConnection(fe.model), inits=inits, data=jags.data, n.chains=3, quiet=TRUE)
 update(model, n.iter=10000, progress.bar="none")
-bma.fe <- coda.samples(model, variable.names=c("theta"), n.iter=100000, progress.bar="none")
-dic.fe <- dic.samples(model, n.iter=100000, type="pD", progress.bar="none")
-bma.fe <- summary(bma.fe)$quantiles[c(3,1,5)]
-bma.fe <- rbind(theta=bma.fe, exp.theta = exp(bma.fe))
-round(bma.fe, digits=2)
+bma.ee <- coda.samples(model, variable.names=c("theta"), n.iter=100000, progress.bar="none")
+dic.ee <- dic.samples(model, n.iter=100000, type="pD", progress.bar="none")
+bma.ee <- summary(bma.ee)$quantiles[c(3,1,5)]
+bma.ee <- rbind(theta=bma.ee, exp.theta = exp(bma.ee))
+round(bma.ee, digits=2)
 ```
 
 ```{r}
 # compare with results from a non-Bayesian analysis
 
-res.fe <- rma(yi, vi, data=dat, method="FE", digits=2)
-predict(res.fe, transf=exp)
+res.ee <- rma(yi, vi, data=dat, method="EE", digits=2)
+predict(res.ee, transf=exp)
 ```
 
 ```{r}
@@ -1121,11 +1123,11 @@ round(confint(res.me)$random["tau^2",], digits=2)
 ```{r}
 # Table 14.3
 
-tab <- rbind(c(sum(dic.fe$deviance), sum(dic.fe[[2]]), sum(dic.fe$deviance) + sum(dic.fe[[2]])),
+tab <- rbind(c(sum(dic.ee$deviance), sum(dic.ee[[2]]), sum(dic.ee$deviance) + sum(dic.ee[[2]])),
              c(sum(dic.re$deviance), sum(dic.re[[2]]), sum(dic.re$deviance) + sum(dic.re[[2]])),
              c(sum(dic.me$deviance), sum(dic.me[[2]]), sum(dic.me$deviance) + sum(dic.me[[2]])))
 colnames(tab) <- c("mean(D)", "p_D", "DIC")
-rownames(tab) <- c("Fixed-effect meta-analysis",
+rownames(tab) <- c("Equal-effect meta-analysis",
                    "Random-effects meta-analysis",
                    "Random-effects meta-regression")
 round(tab, digits=1)
@@ -2271,9 +2273,9 @@ dat
 ```
 
 ```{r}
-# fit fixed- and random-effects models
+# fit equal- and random-effects models
 
-res.fe <- rma(yi, vi, data=dat, method="FE")
+res.ee <- rma(yi, vi, data=dat, method="EE")
 res.re <- rma(yi, vi, data=dat, method="DL")
 
 # show random-effects model results
@@ -2281,15 +2283,15 @@ print(res.re, digits=3)
 ```
 
 ```{r, figure20_3, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
-# Figure 20.3: Meta-Analysis Showing Relative Weights for Fixed-Effect and Random-Effects Models
+# Figure 20.3: Meta-Analysis Showing Relative Weights for the Equal- and Random-Effects Models
 
-wi <- fc(cbind(weights(res.fe), weights(res.re)), digits=2, width=5)
+wi <- fc(cbind(weights(res.ee), weights(res.re)), digits=2, width=5)
 
 par(mar=c(5,4,2,2))
-forest(res.fe, header=TRUE, xlim=c(-1.5,4), ylim=c(-2.5,9), psize=1, efac=c(0,1),
+forest(res.ee, header=TRUE, xlim=c(-1.5,4), ylim=c(-2.5,9), psize=1, efac=c(0,1),
        ilab=wi, ilab.xpos=c(1.7,2.4), ilab.pos=2, digits=c(3,2))
 addpoly(res.re, width=c(5,6,5), digits=3)
-text(1.45, 8, "Weight\n(Fixed)",  font=2)
+text(1.45, 8, "Weight\n(Equal)",  font=2)
 text(2.15, 8, "Weight\n(Random)", font=2)
 ```
 

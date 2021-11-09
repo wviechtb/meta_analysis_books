@@ -89,16 +89,16 @@ dat1
 ```
 
 ```{r}
-# fixed-effects model for studies where teachers had more than one week of contact with the students
+# equal-effects model for studies where teachers had more than one week of contact with the students
 
-res.h <- rma(yi, vi, data=dat1, subset=weeks==1, method="FE", digits=2)
+res.h <- rma(yi, vi, data=dat1, subset=weeks==1, method="EE", digits=2)
 res.h
 ```
 
 ```{r}
-# fixed-effects model for studies where teachers had a week or less of contact with the students
+# equal-effects model for studies where teachers had a week or less of contact with the students
 
-res.l <- rma(yi, vi, data=dat1, subset=weeks==0, method="FE", digits=2)
+res.l <- rma(yi, vi, data=dat1, subset=weeks==0, method="EE", digits=2)
 res.l
 ```
 
@@ -119,7 +119,7 @@ text(-1.6, 24, "Prior Contact", font=2)
 addpoly(res.h, row=11, mlab="High", cex=1, width=c(4,5,3), col="white", font=c(sans=2))
 addpoly(res.l, row= 1, mlab="Low",  cex=1, width=c(4,5,3), col="white", font=c(sans=2))
 
-res <- rma(yi, vi, data=tmp, method="FE")
+res <- rma(yi, vi, data=tmp, method="EE")
 addpoly(res, row=-1, mlab="Overall", cex=1, width=c(4,5,3), font=c(sans=2))
 abline(h=0)
 ```
@@ -219,9 +219,9 @@ dat
 ```
 
 ```{r}
-# fit fixed-effects model
+# fit an equal-effects model
 
-res <- rma(yi, vi, data=dat, method="FE", digits=3)
+res <- rma(yi, vi, data=dat, method="EE", digits=3)
 res
 ```
 
@@ -244,9 +244,9 @@ mtext("Log odds ratio", side=1, line=3, cex=0.7)
 ```
 
 ```{r}
-# fit fixed-effects model to dataset 2
+# fit an equal-effects model to dataset 2
 
-res <- rma(yi, vi, data=dat2, method="FE")
+res <- rma(yi, vi, data=dat2, method="EE")
 res
 ```
 
@@ -260,9 +260,9 @@ funnel(res, atransf=exp, at=log(c(0.25,0.50,1,2,4,8)), ylim=c(0,.8), las=1, digi
 ```
 
 ```{r}
-# fit fixed-effects model to dataset 1
+# fit an equal-effects model to dataset 1
 
-res <- rma(yi, vi, data=dat1, method="FE")
+res <- rma(yi, vi, data=dat1, method="EE")
 res
 ```
 
@@ -286,9 +286,9 @@ legend("topleft", inset=0.02, bg="white", pch=c(19,17), legend=c("High contact",
 ```
 
 ```{r}
-# fit fixed-effects model to dataset 3r
+# fit an equal-effects model to dataset 3r
 
-res <- rma(yi, vi, data=dat3r, method="FE")
+res <- rma(yi, vi, data=dat3r, method="EE")
 res
 ```
 
@@ -300,9 +300,9 @@ funnel(res, at=seq(-1,1,by=.25), ylim=c(0,.3), steps=4, las=1, digits=c(2,1),
 ```
 
 ```{r}
-# fit fixed-effects model to dataset 3z
+# fit an equal-effects model to dataset 3z
 
-res <- rma(yi, vi, data=dat3z, method="FE")
+res <- rma(yi, vi, data=dat3z, method="EE")
 res
 ```
 
@@ -376,7 +376,7 @@ round(c(coef=coef(reg$fit)[[2]], confint(reg$fit)[2,]), digits=2)
 ```{r, figure6_1a, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 6.1a
 
-res <- rma(yi, vi, data=dat, method="FE", subset=-c(8,16))
+res <- rma(yi, vi, data=dat, method="EE", subset=-c(8,16))
 
 par(mar=c(5,4,2,2))
 
@@ -393,7 +393,7 @@ lines(coef(reg$fit)[1] + coef(reg$fit)[2]*se, se, lwd=2, lty=3)
 ```{r, figure6_1b, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 6.1b
 
-res <- rma(yi, vi, data=dat, method="FE", subset=-8)
+res <- rma(yi, vi, data=dat, method="EE", subset=-8)
 
 par(mar=c(5,4,2,2))
 
@@ -812,9 +812,9 @@ As far as I can tell, the `copas()` function from the [metasens](https://cran.r-
 ## 11) Software for Publication Bias
 
 ```{r}
-# fit fixed-effects model to dataset 2 and obtain the estimated odds ratio (with 95% CI)
+# fit an equal-effects model to dataset 2 and obtain the estimated odds ratio (with 95% CI)
 
-res <- rma(yi, vi, data=dat2, method="FE", slab=paste0(author, ", ", year))
+res <- rma(yi, vi, data=dat2, method="EE", slab=paste0(author, ", ", year))
 predict(res, transf=exp, digits=3)
 ```
 
