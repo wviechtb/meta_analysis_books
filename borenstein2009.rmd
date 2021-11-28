@@ -31,6 +31,19 @@ fig_caption: no
 klippy::klippy(position = c("top", "right"), color="gray20")
 ```
 
+```{r crayon, echo=FALSE, message=FALSE, include=TRUE}
+library(crayon)
+.mstyle <- list(legend=crayon::make_style("gray90"))
+options(crayon.enabled = TRUE)
+knitr::knit_hooks$set(output = function(x, options){
+   paste0(
+      '<pre class="r-output"><code>',
+      fansi::sgr_to_html(x = htmltools::htmlEscape(x), warn = FALSE),
+      '</code></pre>'
+   )
+})
+```
+
 ## General Notes / Setup
 
 As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).

@@ -31,6 +31,19 @@ fig_caption: no
 klippy::klippy(position = c("top", "right"), color="gray20")
 ```
 
+```{r crayon, echo=FALSE, message=FALSE, include=TRUE}
+library(crayon)
+.mstyle <- list(legend=crayon::make_style("gray90"))
+options(crayon.enabled = TRUE)
+knitr::knit_hooks$set(output = function(x, options){
+   paste0(
+      '<pre class="r-output"><code>',
+      fansi::sgr_to_html(x = htmltools::htmlEscape(x), warn = FALSE),
+      '</code></pre>'
+   )
+})
+```
+
 ## General Notes / Setup
 
 The book *Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments* by Rothstein et al. (2005) provides a very comprehensive treatment of the topic of publication bias. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but a few other packages will also be used. To read more about the `metafor` package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
