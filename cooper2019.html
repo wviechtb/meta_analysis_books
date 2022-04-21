@@ -1439,6 +1439,7 @@ margin-right: 4.5px; } }
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -1554,6 +1555,9 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
   padding: 0;
@@ -1713,7 +1717,7 @@ div.tocify {
 <h1 class="title toc-ignore">R Code Corresponding to the Book <em>The Handbook of Research Synthesis and Meta-Analysis</em> by Cooper et al. (2019)</h1>
 <h4 class="author"><div class="line-block">Wolfgang Viechtbauer<br />
 Maastricht University</div></h4>
-<h4 class="date">28 November, 2021</h4>
+<h4 class="date">21 April, 2022</h4>
 
 </div>
 
@@ -1725,10 +1729,8 @@ Maastricht University</div></h4>
 <div id="general-notes-setup" class="section level2">
 <h2>General Notes / Setup</h2>
 <p><em>The Handbook of Research Synthesis and Meta-Analysis</em> by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the <code>metafor</code> package, but several other packages will also be used. To read more about the <code>metafor</code> package, see the <a href="https://www.metafor-project.org/">package website</a> and the <a href="https://wviechtb.github.io/metafor/">package documentation</a>.</p>
-<p>Note that the ‘devel’ version of <code>metafor</code> needs to be installed to run all of the following code. The ‘devel’ version of the package can be installed with:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</a>
-<a class="sourceLine" id="cb1-2" title="2">remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;wviechtb/metafor&quot;</span>)</a></code></pre></div>
-<p>This step will become obsolete once a new release of the <code>metafor</code> package is published on <a href="https://cran.r-project.org/package=metafor">CRAN</a>.</p>
+<p>The package can be installed with:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">install.packages</span>(<span class="st">&quot;metafor&quot;</span>)</a></code></pre></div>
 <p>Once the package is installed, we can load it with:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">library</span>(metafor)</a></code></pre></div>
 <p>A few additional notes:</p>
@@ -2020,12 +2022,12 @@ Maastricht University</div></h4>
 ## 
 ## Intraclass correlation coefficients 
 ##                          type  ICC   F df1 df2     p lower bound upper bound
-## Single_raters_absolute   ICC1 0.28 1.8  24  25 0.082      -0.052        0.55
-## Single_random_raters     ICC2 0.35 2.6  24  24 0.010       0.034        0.61
-## Single_fixed_raters      ICC3 0.45 2.6  24  24 0.010       0.142        0.68
-## Average_raters_absolute ICC1k 0.43 1.8  24  25 0.082      -0.110        0.71
-## Average_random_raters   ICC2k 0.52 2.6  24  24 0.010       0.066        0.76
-## Average_fixed_raters    ICC3k 0.62 2.6  24  24 0.010       0.248        0.81
+## Single_raters_absolute   ICC1 0.28 1.8  24  25 0.082      -0.118        0.60
+## Single_random_raters     ICC2 0.35 2.6  24  24 0.010      -0.025        0.65
+## Single_fixed_raters      ICC3 0.45 2.6  24  24 0.010       0.075        0.71
+## Average_raters_absolute ICC1k 0.43 1.8  24  25 0.082      -0.268        0.75
+## Average_random_raters   ICC2k 0.52 2.6  24  24 0.010      -0.050        0.79
+## Average_fixed_raters    ICC3k 0.62 2.6  24  24 0.010       0.140        0.83
 ## 
 ##  Number of subjects = 25     Number of Judges =  2
 ## See the help file for a discussion of the other 4 McGraw and Wong estimates,
@@ -4638,7 +4640,7 @@ Maastricht University</div></h4>
 <pre class="r-output"><code>## Result of limit meta-analysis:
 ## 
 ##  Random effects model                   95%-CI    z   pval
-##     Adjusted estimate 0.0854 [-0.2181; 0.3889] 0.55 0.5813
+##     Adjusted estimate 0.0854 [-0.2800; 0.4508] 0.46 0.6469
 ##   Unadjusted estimate 0.4176 [ 0.2003; 0.6348] 3.77 0.0002
 ## 
 ## Quantifying heterogeneity:

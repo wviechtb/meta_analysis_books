@@ -1012,7 +1012,7 @@ dat
 # compute combined effect across outcomes and corresponding sampling variance
 
 dat <- escalc(yi=es, vi=var, data=dat, var.names=c("es","var"))
-agg <- aggregate(dat, cluster=dat$study, struct="CS", select=c("study","es","var"),
+agg <- aggregate(dat, cluster=study, struct="CS", select=c("study","es","var"),
                  rho=tapply(dat$cor, dat$study, head, 1))
 agg
 ```

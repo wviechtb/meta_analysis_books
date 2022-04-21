@@ -48,14 +48,11 @@ knitr::knit_hooks$set(output = function(x, options){
 
 *The Handbook of Research Synthesis and Meta-Analysis* by Cooper et al. (2019), now in its third edition, has been one of the quintessential texts on meta-analysis and the entire research synthesis process as a whole. In this document, I provide the R code to reproduce the worked examples and analyses from various chapters. Emphasis will be on using the `metafor` package, but several other packages will also be used. To read more about the `metafor` package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
-Note that the 'devel' version of `metafor` needs to be installed to run all of the following code. The 'devel' version of the package can be installed with:
+The package can be installed with:
 
 ```{r, eval=FALSE}
-install.packages("remotes")
-remotes::install_github("wviechtb/metafor")
+install.packages("metafor")
 ```
-
-This step will become obsolete once a new release of the `metafor` package is published on [CRAN](https://cran.r-project.org/package=metafor).
 
 Once the package is installed, we can load it with:
 
