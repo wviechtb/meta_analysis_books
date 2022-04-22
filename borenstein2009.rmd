@@ -134,7 +134,7 @@ formatC(res$pval, format="f", digits=7) # p-value of the summary estimate
 par(mar=c(4,4,2,2))
 
 forest(res, xlim=c(-10,9), atransf=exp, at=log(c(.01, 0.1, 1, 10, 100)),
-       header=TRUE, top=2, ilab=dat$year, ilab.xpos=-6, digits=3L, cex=0.8,
+       header=TRUE, top=2, ilab=year, ilab.xpos=-6, digits=3L, cex=0.8,
        efac=c(0,1), fonts=c("sans", "inconsolata"))
 # note: using a monospaced font for the annotations on the right, so they are
 # fully aligned; if the "Inconsolata" font is not available, can also use "mono"
@@ -972,7 +972,7 @@ res
 # compute combined effect across subgroups within studies
 
 dat <- escalc(yi=es, vi=var, data=dat, var.names=c("es","var"))
-agg <- aggregate(dat, cluster=dat$study, struct="ID", select=c("study","es","var"))
+agg <- aggregate(dat, cluster=study, struct="ID", select=c("study","es","var"))
 agg
 ```
 
@@ -1101,13 +1101,13 @@ title("Funnel Plot of Standard Error by Log Risk Ratio")
 ```{r}
 # Rosenthal's Fail-safe N
 
-fsn(dat$yi, dat$vi)
+fsn(yi, vi, data=dat)
 ```
 
 ```{r}
 # Orwin's Fail-safe N
 
-fsn(dat$yi, dat$vi, type="Orwin", target=log(1.05), weighted=TRUE)
+fsn(yi, vi, data=dat, type="Orwin", target=log(1.05), weighted=TRUE)
 ```
 
 ```{r}
@@ -1128,7 +1128,7 @@ title("Funnel Plot of Standard Error by Log Risk Ratio")
 ```{r}
 # cumulative meta-analysis
 
-rcm <- cumul(res, order=dat$vi)
+rcm <- cumul(res, order=vi)
 rcm
 ```
 
@@ -1252,11 +1252,11 @@ if (!require(poolr)) {
 ```{r}
 # apply Fisher's method for pooling the p-values
 
-fisher(c(dat$pval))
+fisher(dat$pval)
 
 # apply Stouffer's method for pooling the p-values
 
-stouffer(c(dat$pval))
+stouffer(dat$pval)
 ```
 
 ***

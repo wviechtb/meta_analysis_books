@@ -724,7 +724,7 @@ print(res, digits=3)
 ```{r}
 # robust variance estimation
 
-robust(res, cluster=dat$study, digits=3)
+robust(res, cluster=study, digits=3)
 
 # note: the test statistic for log(nitems) is somewhat off in the book
 ```
@@ -749,18 +749,11 @@ dat
 ```{r}
 # construct variance-covariance matrices assuming rho = 0.7
 
-vcalc <- function(v, rho) {
-   S <- diag(sqrt(v), nrow=length(v), ncol=length(v))
-   R <- matrix(rho, nrow=length(v), ncol=length(v))
-   diag(R) <- 1
-   S %*% R %*% S
-}
-
-V <- lapply(split(dat$v, dat$study), vcalc, rho=0.7)
+V <- vcalc(v, cluster=study, type=outcome, rho=0.7, data=dat)
 
 # var-cov matrix for studies 22 to 26
 
-lapply(V[22:26], round, digits=4)
+blsplit(V, cluster=dat$study, round, 4)[22:26]
 ```
 
 ```{r}
@@ -790,7 +783,7 @@ print(res, digits=3)
 rhos <- c(0, 0.5, 0.6, 0.7, 0.8)
 res <- list()
 for (i in 1:length(rhos)) {
-   V <- lapply(split(dat$v, dat$study), vcalc, rho=rhos[i])
+   V <- vcalc(v, cluster=study, type=outcome, rho=rhos[i], data=dat)
    res[[i]] <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
 }
 
@@ -816,9 +809,9 @@ dfround(tab, digits=c(1,2,3,2,2,2,2,3,2,2,2))
 ```{r}
 # robust variance estimation
 
-V <- lapply(split(dat$v, dat$study), vcalc, rho=0.7)
+V <- vcalc(v, cluster=study, type=outcome, rho=0.7, data=dat)
 res <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
-robust(res, cluster=dat$study)
+robust(res, cluster=study)
 
 # note: this is not the exact same approach that is described in the book; it
 # uses a different weighting scheme and uses k-p for the degrees of freedom
@@ -829,14 +822,12 @@ robust(res, cluster=dat$study)
 ```{r, message=FALSE, warning=FALSE}
 # install the 'clubSandwich' package (if it is not already installed) and load it
 
-if (!require(clubSandwich)) {
+if (!require(clubSandwich))
    install.packages("clubSandwich")
-   library(clubSandwich)
-}
 ```
 
 ```{r}
-coef_test(res, vcov="CR2", cluster=dat$study)
+robust(res, cluster=study, clubSandwich=TRUE)
 
 # note: but these are still not the same results as given in the book because
 # of the different weighting scheme; we can get the same results as given in
@@ -861,13 +852,12 @@ robu(d ~ outcome - 1, data=dat, studynum=study, var.eff.size=v, rho=0.7, small=T
 ```{r}
 # reproduce robumeta results using metafor and clubSandwich
 
-vcalc <- function(v, tau2)
+vcalcfun <- function(v, tau2)
    diag((tau2 + mean(v)) * length(v), nrow=length(v), ncol=length(v))
 
-V <- lapply(split(dat$v, dat$study), vcalc, tau2=0)
+V <- lapply(split(dat$v, dat$study), vcalcfun, tau2=0)
 res <- rma.mv(d, V, mods = ~ outcome - 1, data=dat)
-coef_test(res, vcov="CR2", cluster=dat$study)
-conf_int(res, vcov="CR2", cluster=dat$study)
+robust(res, cluster=study, clubSandwich=TRUE)
 ```
 
 ```{r, include=FALSE}
@@ -877,10 +867,9 @@ tmp <- dat
 tmp$v <- tmp$v / 10
 res <- robu(d ~ outcome - 1, data=tmp, studynum=study, var.eff.size=v, rho=0.7, small=TRUE)
 res
-V <- lapply(split(tmp$v, tmp$study), vcalc, tau2=c(res$mod_info$tau.sq))
+V <- lapply(split(tmp$v, tmp$study), vcalcfun, tau2=c(res$mod_info$tau.sq))
 res <- rma.mv(d, V, mods = ~ outcome - 1, data=tmp)
-coef_test(res, vcov="CR2", cluster=tmp$study)
-conf_int(res,  vcov="CR2", cluster=tmp$study)
+robust(res, cluster=study, clubSandwich=TRUE)
 ```
 
 ```{r}
@@ -900,7 +889,7 @@ agg
 # can also do this
 
 dat <- escalc(yi=d, vi=v, data=dat, var.names=c("d","v"))
-agg <- aggregate(dat, cluster=dat$study, struct="CS", rho=1, weighted=FALSE, checkpd=FALSE,
+agg <- aggregate(dat, cluster=study, struct="CS", rho=1, weighted=FALSE, checkpd=FALSE,
                  select=c("study", "d", "v"))
 agg
 ```
@@ -1941,7 +1930,7 @@ funnel(res, atransf=exp, at=log(c(.25, .5, 1, 2, 4, 8)),
 ```{r, figure18_13, fig.width=8, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # cumulative meta-analysis (in order of precision) and corresponding forest plot
 
-sav <- cumul(res, order=dat$vi)
+sav <- cumul(res, order=vi)
 par(mar=c(5,4,2,2))
 forest(sav, header=TRUE)
 ```
@@ -2023,7 +2012,7 @@ puniform(yi=dat$yi, vi=dat$vi, side="right", plot=TRUE)
 ```{r}
 # excess significance test
 
-tes(dat$yi, dat$vi)
+tes(yi, vi, data=dat)
 ```
 
 ```{r, message=FALSE, warning=FALSE}

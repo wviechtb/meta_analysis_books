@@ -123,9 +123,9 @@ par(mar=c(4,4,2,2))
 tmp <- rbind(dat1[dat1$weeks == 1,], dat1[dat1$weeks == 0,])
 tmp$weeks <- ifelse(tmp$weeks == 1, "High", "Low")
 
-forest(tmp$yi, tmp$vi, slab=paste0(tmp$author, ", ", tmp$year), psize=1, efac=c(0,1),
+with(tmp, forest(yi, vi, slab=paste0(author, ", ", year), psize=1, efac=c(0,1),
        xlim=c(-5, 3.5), ylim=c(-1,25), header=TRUE, at=seq(-1,1.5,by=0.5),
-       rows=c(22:12, 9:2), ilab=tmp$weeks, ilab.xpos=-1.2, ilab.pos=2)
+       rows=c(22:12, 9:2), ilab=weeks, ilab.xpos=-1.2, ilab.pos=2))
 
 text(-1.6, 24, "Prior Contact", font=2)
 
@@ -294,7 +294,7 @@ funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=1,
 par(mar=c(5,4,2,2))
 
 funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=c(1,1),
-       back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat1$weeks == 1, 19, 17))
+       back=NA, shade=NA, hlines="lightgray", pch=ifelse(weeks == 1, 19, 17))
 legend("topleft", inset=0.02, bg="white", pch=c(19,17), legend=c("High contact", "Low contact"))
 ```
 
@@ -334,7 +334,7 @@ funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
 par(mar=c(5,4,2,2))
 
 sav <- funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
-       back=NA, shade=NA, hlines="lightgray", pch=ifelse(dat3z$struct == "u", 2, 19))
+       back=NA, shade=NA, hlines="lightgray", pch=ifelse(struct == "u", 2, 19))
 with(subset(sav, dat3z$struct == "u"), points(x, y, pch=24, bg="white"))
 legend("topright", inset=0.02, bg="white", pch=c(2,19), legend=c("Unstructured", "Structured"))
 ```
@@ -356,11 +356,11 @@ dat <- escalc(measure="OR", ai=ai, n1i=n1i, ci=ci, n2i=n2i, data=dat)
 ```{r}
 # rank correlation test excluding ISIS-4 study (and the study by Bertschat et al., 1989)
 
-ranktest(dat$yi, dat$vi, subset=-c(8,16), digits=3, exact=FALSE)
+ranktest(yi, vi, data=dat, subset=-c(8,16), digits=3, exact=FALSE)
 
 # rank correlation test (excluding the study by Bertschat et al., 1989)
 
-ranktest(dat$yi, dat$vi, subset=-8, digits=3, exact=FALSE)
+ranktest(yi, vi, data=dat, subset=-8, digits=3, exact=FALSE)
 
 # note: by default, ranktest() computes exact p-values (if k < 50 and there are no ties);
 # using exact=FALSE, we can force the use of the normalized test described in the book
@@ -369,7 +369,7 @@ ranktest(dat$yi, dat$vi, subset=-8, digits=3, exact=FALSE)
 ```{r}
 # regression test excluding ISIS-4 study (and the study by Bertschat et al., 1989)
 
-reg <- regtest(dat$yi, dat$vi, subset=-c(8,16), model="lm", digits=3)
+reg <- regtest(yi, vi, data=dat, subset=-c(8,16), model="lm", digits=3)
 reg
 
 # bias coefficient (with 95% CI)
@@ -378,7 +378,7 @@ round(c(coef=coef(reg$fit)[[2]], confint(reg$fit)[2,]), digits=2)
 
 # rank correlation test (excluding the study by Bertschat et al., 1989)
 
-reg <- regtest(dat$yi, dat$vi, subset=-8, model="lm", digits=3)
+reg <- regtest(yi, vi, data=dat, subset=-8, model="lm", digits=3)
 reg
 
 # bias coefficient (with 95% CI)
@@ -438,14 +438,14 @@ regtest(res, ret.fit=TRUE)
 ```{r}
 # Table 6.2 (rank correlation and regression tests for the three example meta-analyses)
 
-ran1 <- ranktest(dat1$yi, dat1$vi, exact=FALSE)
-reg1 <- regtest(dat1$yi,  dat1$vi, model="lm")
+ran1 <- ranktest(yi, vi, data=dat1, exact=FALSE)
+reg1 <- regtest(yi,  vi, data=dat1, model="lm")
 
-ran2 <- ranktest(dat2$yi, dat2$vi, exact=FALSE)
-reg2 <- regtest(dat2$yi,  dat2$vi, model="lm")
+ran2 <- ranktest(yi, vi, data=dat2, exact=FALSE)
+reg2 <- regtest(yi,  vi, data=dat2, model="lm")
 
-ran3 <- ranktest(dat3z$yi, dat3z$vi, exact=FALSE)
-reg3 <- regtest(dat3z$yi,  dat3z$vi, model="lm")
+ran3 <- ranktest(yi, vi, data=dat3z, exact=FALSE)
+reg3 <- regtest(yi,  vi, data=dat3z, model="lm")
 
 tab <- data.frame(
    rank_pval   = c(ran2$pval, ran1$pval, ran3$pval),
@@ -899,7 +899,7 @@ funnel(taf, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
 ```{r, figure11_5, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 11.5: Cumulative forest plot
 
-sav <- cumul(res, order=dat2$vi)
+sav <- cumul(res, order=vi)
 
 wi <- cumsum(weights(res)[order(dat2$vi)])
 wi <- fc(wi, digits=2)
