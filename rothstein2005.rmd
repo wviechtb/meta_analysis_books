@@ -129,11 +129,11 @@ with(tmp, forest(yi, vi, slab=paste0(author, ", ", year), psize=1, efac=c(0,1),
 
 text(-1.6, 24, "Prior Contact", font=2)
 
-addpoly(res.h, row=11, mlab="High", cex=1, width=c(4,5,3), col="white", font=c(sans=2))
-addpoly(res.l, row= 1, mlab="Low",  cex=1, width=c(4,5,3), col="white", font=c(sans=2))
+addpoly(res.h, row=11, mlab="High", col="white", font=c(sans=2))
+addpoly(res.l, row= 1, mlab="Low",  col="white", font=c(sans=2))
 
 res <- rma(yi, vi, data=tmp, method="EE")
-addpoly(res, row=-1, mlab="Overall", cex=1, width=c(4,5,3), font=c(sans=2))
+addpoly(res, row=-1, mlab="Overall", font=c(sans=2))
 abline(h=0)
 ```
 

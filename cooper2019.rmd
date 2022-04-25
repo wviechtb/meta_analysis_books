@@ -2289,7 +2289,7 @@ wi <- fc(cbind(weights(res.ee), weights(res.re)), digits=2, width=5)
 par(mar=c(5,4,2,2))
 forest(res.ee, header=TRUE, xlim=c(-1.5,4), ylim=c(-2.5,9), psize=1, efac=c(0,1),
        ilab=wi, ilab.xpos=c(1.7,2.4), ilab.pos=2, digits=c(3,2))
-addpoly(res.re, width=c(5,6,5), digits=3)
+addpoly(res.re)
 text(1.45, 8, "Weight\n(Equal)",  font=2)
 text(2.15, 8, "Weight\n(Random)", font=2)
 ```
