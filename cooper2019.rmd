@@ -15,7 +15,7 @@ output:
       collapsed: true
     theme: default
     # lots of nice themes can be used: https://bootswatch.com/
-    highlight: haddock
+    highlight: haddockadj.theme
   # rmarkdown::github_document
   # pdf_document:
   #   toc: true
@@ -940,7 +940,7 @@ fe.model <- "model {
    for (i in 1:k) {
       yi[i] ~ dnorm(theta, 1/vi[i])
    }
-   theta ~ dnorm(0, .0001)
+   theta ~ dnorm(0, 0.0001)
 }"
 
 inits <- list(theta=0, .RNG.name="base::Mersenne-Twister")
@@ -977,7 +977,7 @@ re.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(mu, 1/tau2)
    }
-   mu ~ dnorm(0, .0001)
+   mu ~ dnorm(0, 0.0001)
    tau ~ dunif(0, 2)
    tau2 <- tau^2
    theta.2 <- theta[2]
@@ -1020,7 +1020,7 @@ re.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(mu, 1/tau2)
    }
-   mu ~ dnorm(0, .0001)
+   mu ~ dnorm(0, 0.0001)
    tau ~ dnorm(0, 1/0.5^2) T(0,)
    tau2 <- tau^2
 }"
@@ -1039,15 +1039,15 @@ bma.hn <- rbind(mu=bma.hn[1,], exp.mu=exp(bma.hn[1,]), tau2=bma.hn[2,])
 ```
 
 ```{r}
-# Bayesian random-effects model with gamma(.001,.001) prior for 1/tau^2
+# Bayesian random-effects model with gamma(0.001,0.001) prior for 1/tau^2
 
 re.model <- "model {
    for (i in 1:k) {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(mu, prec)
    }
-   mu ~ dnorm(0, .0001)
-   prec ~ dgamma(.001, .001)
+   mu ~ dnorm(0, 0.0001)
+   prec ~ dgamma(0.001, 0.001)
    tau2 <- 1/prec
 }"
 
@@ -1088,8 +1088,8 @@ me.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(beta0 + beta1 * xi[i], 1/tau2)
    }
-   beta0 ~ dnorm(0, .0001)
-   beta1 ~ dnorm(0, .0001)
+   beta0 ~ dnorm(0, 0.0001)
+   beta1 ~ dnorm(0, 0.0001)
    tau ~ dunif(0, 2)
    tau2 <- tau^2
    betasum <- beta0 + beta1
@@ -1156,9 +1156,9 @@ re.model <- "model {
       logit(pc[i]) <- alpha[i] - theta[i]/2
       logit(pt[i]) <- alpha[i] + theta[i]/2
       theta[i] ~ dnorm(mu, 1/tau2)
-      alpha[i] ~ dnorm(0, .0001)
+      alpha[i] ~ dnorm(0, 0.0001)
    }
-   mu ~ dnorm(0, .0001)
+   mu ~ dnorm(0, 0.0001)
    tau ~ dunif(0, 2)
    tau2 <- tau^2
 }"
@@ -1215,8 +1215,8 @@ me.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(beta0 + beta1 * xi[i], 1/tau2)
    }
-   beta0 ~ dnorm(0, .0001)
-   beta1 ~ dnorm(0, .0001)
+   beta0 ~ dnorm(0, 0.0001)
+   beta1 ~ dnorm(0, 0.0001)
    tau2 ~ dlnorm(-2.49, 1/1.52^2)
    betasum <- beta0 + beta1
 }"
@@ -1264,7 +1264,7 @@ re.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(mu, 1/tau2)
    }
-   mu ~ dnorm(0, .0001)
+   mu ~ dnorm(0, 0.0001)
    tau ~ dunif(0, 2)
    tau2 <- tau^2
 }"
@@ -1286,7 +1286,7 @@ re.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(mu, 1/tau2)
    }
-   mu ~ dnorm(0, .0001)
+   mu ~ dnorm(0, 0.0001)
    tau ~ dnorm(0, 1/0.5^2) T(0,)
    tau2 <- tau^2
 }"
@@ -1308,8 +1308,8 @@ re.model <- "model {
       yi[i] ~ dnorm(theta[i], 1/vi[i])
       theta[i] ~ dnorm(mu, prec)
    }
-   mu ~ dnorm(0, .0001)
-   prec ~ dgamma(.001, .001)
+   mu ~ dnorm(0, 0.0001)
+   prec ~ dgamma(0.001, 0.001)
    tau2 <- 1/prec
 }"
 
@@ -1472,7 +1472,7 @@ res <- lapply(levels(dat$v.), function(l) rma.mv(ri, V, data=dat, subset=v.==l))
 ba1 <- data.frame(Q    = sapply(res, function(x) x$QE),
                   df   = sapply(res, function(x) x$k-1),
                   pval = sapply(res, function(x) x$QEp))
-ba1$sig <- ifelse(ba1$pval <= .05/6, "*", "")
+ba1$sig <- ifelse(ba1$pval <= 0.05/6, "*", "")
 rownames(ba1) <- levels(dat$var1.var2)
 dfround(ba1, digits=c(1,0,4,NA))
 ```
@@ -1567,8 +1567,8 @@ plot(g, layout=L,
      vertex.color = "black", vertex.label.color = "black",
      vertex.shape = "none", vertex.size = 20,
      edge.label = paste0("              ", fc(t(B)[t(B) != 0], 2),
-                         ifelse(t(P)[t(B) != 0] <= .05, "*", "")),
-     edge.lty   = ifelse(t(P)[t(B) != 0] <= .05, "solid", "dashed"))
+                         ifelse(t(P)[t(B) != 0] <= 0.05, "*", "")),
+     edge.lty   = ifelse(t(P)[t(B) != 0] <= 0.05, "solid", "dashed"))
 ```
 
 ```{r, warning=FALSE}
@@ -1923,7 +1923,7 @@ res
 # funnel plot
 
 par(mar=c(5,4,2,2))
-funnel(res, atransf=exp, at=log(c(.25, .5, 1, 2, 4, 8)),
+funnel(res, atransf=exp, at=log(c(0.25, 0.5, 1, 2, 4, 8)),
        ylim=c(0,0.6), steps=7, las=1)
 ```
 
@@ -1941,7 +1941,7 @@ An alternative way of plotting the results from such a cumulative meta-analysis 
 # plot cumulative meta-analysis results
 
 par(mar=c(5,4,2,2))
-plot(sav, xlim=c(0.1,0.5), ylim=c(0,.16), las=1)
+plot(sav, xlim=c(0.1,0.5), ylim=c(0,0.16), las=1)
 ```
 
 ```{r}
@@ -2053,14 +2053,14 @@ weightLine(pval, w=sav$w, col0="black", lwd0=1, lty0="solid")
 ```{r}
 # Vevea and Hedges (1995) model (with a single cutpoint at p=0.025)
 
-selmodel(res, type="stepfun", steps=.025)
+selmodel(res, type="stepfun", steps=0.025)
 ```
 
 ```{r, include=FALSE}
 # Vevea and Hedges (1995) model (with more cutpoints)
 
 selmodel(res, type="stepfun", steps=c(0.01, 0.025, 0.05, 0.30, 0.50, 1.00),
-         delta=c(1,NA,NA,NA,.01,NA))
+         delta=c(1,NA,NA,NA,0.01,NA))
 
 # note: the value of the selection parameter for the interval that contains no
 # p-values needs to be constrained to a fixed value to be able to fit this model
@@ -2197,20 +2197,20 @@ summary(escalc(measure="RD", ai=100, bi=50, ci=60, di=90), transf=function(x) 1/
 
 # example with standardized mean differences
 
-dat <- data.frame(di = c(.03, .93, .66),
-                  vi = c(.072, .063, .047))
+dat <- data.frame(di = c(0.03, 0.93, 0.66),
+                  vi = c(0.072, 0.063, 0.047))
 res <- rma(di, vi, data=dat, digits=2)
 res
 predict(res, transf=transf.dtou3)
 
 # example with (log) odds ratios
 
-dat <- data.frame(logori = c(.40, .74, .99, .84, .75),
-                  vi = c(.111, .093, .165, .128, .114))
+dat <- data.frame(logori = c(0.40, 0.74, 0.99, 0.84, 0.75),
+                  vi = c(0.111, 0.093, 0.165, 0.128, 0.114))
 res <- rma(logori, vi, data=dat, digits=3)
 res
 predict(res, transf=exp, digits=2)
-predict(res, transf=function(x) transf.logortord(x, pc=.12), digits=2)
+predict(res, transf=function(x) transf.lnortord(x, pc=0.12), digits=2)
 ```
 
 See also the R functions provided by the chapter authors (Jeffrey Valentine, Ariel Aloe, and Sandra Wilson) at the end of the chapter. The code is also available on the publisher's website for the book ([see here](https://www.russellsage.org/publications/handbook-research-synthesis-and-meta-analysis)).

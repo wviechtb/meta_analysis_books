@@ -15,7 +15,7 @@ output:
       collapsed: true
     theme: default
     # lots of nice themes can be used: https://bootswatch.com/
-    highlight: haddock
+    highlight: haddockadj.theme
   # rmarkdown::github_document
   # pdf_document:
   #   toc: true

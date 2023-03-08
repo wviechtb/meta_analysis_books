@@ -15,7 +15,7 @@ output:
       collapsed: true
     theme: default
     # lots of nice themes can be used: https://bootswatch.com/
-    highlight: haddock
+    highlight: haddockadj.theme
   # rmarkdown::github_document
   # pdf_document:
   #   toc: true
@@ -211,7 +211,7 @@ yi <- c(coef(res), coef(res.s), coef(res.u), coef(res.j), coef(res.p))
 vi <- c(vcov(res), vcov(res.s), vcov(res.u), vcov(res.j), vcov(res.p))
 slab <- c("Overall", "Structured", "Unstructured", "Job-Related", "Psychological")
 forest(yi, vi, slab=slab, xlim=c(-0.2,0.65), ylim=c(0,10),
-       atransf=transf.ztor, at=transf.rtoz(c(0,.1,.2,.3,.4)),
+       atransf=transf.ztor, at=transf.rtoz(c(0,0.1,0.2,0.3,0.4)),
        xlab="Correlation Coefficient", header=c("Subgroup", "Correlation [95% CI]"),
        refline=NA, efac=0, psize=1, rows=c(7, 5:4, 2:1))
 ```
@@ -268,7 +268,7 @@ res
 
 par(mar=c(5,4,2,2))
 
-funnel(res, atransf=exp, at=log(c(0.25,0.50,1,2,4,8)), ylim=c(0,.8), las=1, digits=c(2,1),
+funnel(res, atransf=exp, at=log(c(0.25,0.50,1,2,4,8)), ylim=c(0,0.8), las=1, digits=c(2,1),
        back=NA, shade=NA, hlines="lightgray")
 ```
 
@@ -284,7 +284,7 @@ res
 
 par(mar=c(5,4,2,2))
 
-funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=1,
+funnel(res, at=seq(-1.2,1.2,by=0.4), ylim=c(0,0.4), las=1, digits=1,
        back=NA, shade=NA, hlines="lightgray")
 ```
 
@@ -293,7 +293,7 @@ funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=1,
 
 par(mar=c(5,4,2,2))
 
-funnel(res, at=seq(-1.2,1.2,by=.4), ylim=c(0,.4), las=1, digits=c(1,1),
+funnel(res, at=seq(-1.2,1.2,by=0.4), ylim=c(0,0.4), las=1, digits=c(1,1),
        back=NA, shade=NA, hlines="lightgray", pch=ifelse(weeks == 1, 19, 17))
 legend("topleft", inset=0.02, bg="white", pch=c(19,17), legend=c("High contact", "Low contact"))
 ```
@@ -308,7 +308,7 @@ res
 ```{r, figure5_9, fig.width=8.5, fig.height=6.5, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 5.8
 
-funnel(res, at=seq(-1,1,by=.25), ylim=c(0,.3), steps=4, las=1, digits=c(2,1),
+funnel(res, at=seq(-1,1,by=0.25), ylim=c(0,0.3), steps=4, las=1, digits=c(2,1),
        back=NA, shade=NA, hlines="lightgray")
 ```
 
@@ -324,7 +324,7 @@ res
 
 par(mar=c(5,4,2,2))
 
-funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
+funnel(res, at=seq(-1,3,by=0.5), ylim=c(0,0.6), steps=7, las=1, digits=1,
        back=NA, shade=NA, hlines="lightgray")
 ```
 
@@ -333,7 +333,7 @@ funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
 
 par(mar=c(5,4,2,2))
 
-sav <- funnel(res, at=seq(-1,3,by=.5), ylim=c(0,.6), steps=7, las=1, digits=1,
+sav <- funnel(res, at=seq(-1,3,by=0.5), ylim=c(0,0.6), steps=7, las=1, digits=1,
        back=NA, shade=NA, hlines="lightgray", pch=ifelse(struct == "u", 2, 19))
 with(subset(sav, dat3z$struct == "u"), points(x, y, pch=24, bg="white"))
 legend("topright", inset=0.02, bg="white", pch=c(2,19), legend=c("Unstructured", "Structured"))
@@ -393,7 +393,7 @@ res <- rma(yi, vi, data=dat, method="EE", subset=-c(8,16))
 
 par(mar=c(5,4,2,2))
 
-funnel(res, atransf=exp, at=log(c(.05, .10, .25, .50, 1, 2, 4, 8, 16)), xlim=log(c(.04,16)),
+funnel(res, atransf=exp, at=log(c(0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8, 16)), xlim=log(c(0.04,16)),
        ylim=c(0,1.5), steps=4, las=1, digits=list(2L,1), back=NA, shade=NA, hlines="lightgray",
        lty=5, lwd=2)
 
@@ -410,7 +410,7 @@ res <- rma(yi, vi, data=dat, method="EE", subset=-8)
 
 par(mar=c(5,4,2,2))
 
-funnel(res, atransf=exp, at=log(c(.05, .10, .25, .50, 1, 2, 4, 8, 16)), xlim=log(c(.04,16)),
+funnel(res, atransf=exp, at=log(c(0.05, 0.1, 0.25, 0.5, 1, 2, 4, 8, 16)), xlim=log(c(0.04,16)),
        ylim=c(0,1.5), steps=4, las=1, digits=list(2L,1), back=NA, shade=NA, hlines="lightgray",
        lty=5, lwd=2)
 
@@ -852,7 +852,7 @@ invisible(sapply(seq_along(wi), function(i) rect(3.5, i-0.35, 3.5+wi[i]/20, i+0.
 
 par(mar=c(5,4,2,2))
 
-funnel(res, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
+funnel(res, xlim=c(-2,2), ylim=c(0,0.8), las=1, digits=1,
        back=NA, shade=NA, hlines=NA, lty=1, pch=21)
 ```
 
@@ -892,7 +892,7 @@ predict(taf, transf=exp, digits=3)
 
 par(mar=c(5,4,2,2))
 
-funnel(taf, xlim=c(-2,2), ylim=c(0,.8), las=1, digits=1,
+funnel(taf, xlim=c(-2,2), ylim=c(0,0.8), las=1, digits=1,
        back=NA, shade=NA, hlines=NA, lty=1, pch=21, pch.fill=19)
 ```
 

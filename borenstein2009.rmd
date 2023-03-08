@@ -15,7 +15,7 @@ output:
       collapsed: true
     theme: default
     # lots of nice themes can be used: https://bootswatch.com/
-    highlight: haddock
+    highlight: haddockadj.theme
   # rmarkdown::github_document
   # pdf_document:
   #   toc: true
@@ -133,7 +133,7 @@ formatC(res$pval, format="f", digits=7) # p-value of the summary estimate
 
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-10,9), atransf=exp, at=log(c(.01, 0.1, 1, 10, 100)),
+forest(res, xlim=c(-10,9), atransf=exp, at=log(c(0.01, 0.1, 1, 10, 100)),
        header=TRUE, top=2, ilab=year, ilab.xpos=-6, digits=3L, cex=0.8,
        efac=c(0,1), fonts=c("sans", "inconsolata"))
 # note: using a monospaced font for the annotations on the right, so they are
@@ -344,7 +344,7 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
-       atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
+       atransf=exp, at=log(c(0.125, 0.25, 0.5, 1, 2, 4)), digits=c(2L,3L),
        ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5))
 text(2.5, -1, "100%", pos=2)
 text(2.5,  8, "Weight", pos=2, font=2)
@@ -365,7 +365,7 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
-       atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
+       atransf=exp, at=log(c(0.125, 0.25, 0.5, 1, 2, 4)), digits=c(2L,3L),
        ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5))
 text(2.5, -1, "100%", pos=2)
 text(2.5,  8, "Weight", pos=2, font=2)
@@ -405,7 +405,7 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
-       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .85)),
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, 0.5, 0.85)),
        ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5))
 text(2.2, -1, "100%", pos=2)
 text(2.2,  8, "Weight", pos=2, font=2)
@@ -427,7 +427,7 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
-       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .85)),
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, 0.5, 0.85)),
        ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5))
 text(2.2, -1, "100%", pos=2)
 text(2.2,  8, "Weight", pos=2, font=2)
@@ -519,7 +519,7 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
-       atransf=exp, at=log(c(.125, .25, .5, 1, 2, 4)), digits=c(2L,3L),
+       atransf=exp, at=log(c(0.125, 0.25, 0.5, 1, 2, 4)), digits=c(2L,3L),
        ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5),
        addpred=TRUE, pi.type="riley")
 text(2.5, -1, "100%", pos=2)
@@ -561,7 +561,7 @@ par(mar=c(4,4,2,2))
 dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
-       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, .5, .9)),
+       atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, 0.5, 0.9)),
        ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5),
        addpred=TRUE, pi.type="riley")
 text(2.2, -1, "100%", pos=2)
@@ -617,7 +617,7 @@ par(mar=c(4,4,2,2))
 forest(res, xlim=c(-1,2), cex=1, refline=0.5,
        header=c("Type / Study", "SMD [95% CI]"),
        xlab="Standardized Mean Difference", mlab="Combined",
-       at=seq(-.2, 1.2, by=.2), efac=c(0,1,1.5),
+       at=seq(-0.2, 1.2, by=0.2), efac=c(0,1,1.5),
        rows=c(3:7, 12:16), ylim=c(-1.2,21))
 text(-1, 17.5, "Type A", pos=4, font=2)
 text(-1,  8.5, "Type B", pos=4, font=2)
@@ -701,7 +701,7 @@ par(mar=c(4,4,2,2))
 forest(res, xlim=c(-1,2), cex=1, refline=0.5,
        header=c("Type / Study", "SMD [95% CI]"),
        xlab="Standardized Mean Difference", mlab="Combined",
-       at=seq(-.2, 1.2, by=.2), efac=c(0,1,1.5),
+       at=seq(-0.2, 1.2, by=0.2), efac=c(0,1,1.5),
        rows=c(3:7, 12:16), ylim=c(-1.2,21))
 text(-1, 17.5, "Type A", pos=4, font=2)
 text(-1,  8.5, "Type B", pos=4, font=2)
@@ -773,7 +773,7 @@ par(mar=c(4,4,2,2))
 forest(res, xlim=c(-1,2), cex=1, refline=0.5,
        header=c("Type / Study", "SMD [95% CI]"),
        xlab="Standardized Mean Difference", mlab="Combined",
-       at=seq(-.2, 1.2, by=.2), efac=c(0,1,1.5),
+       at=seq(-0.2, 1.2, by=0.2), efac=c(0,1,1.5),
        rows=c(3:7, 12:16), ylim=c(-1.2,21))
 text(-1, 17.5, "Type A", pos=4, font=2)
 text(-1,  8.5, "Type B", pos=4, font=2)
@@ -834,7 +834,7 @@ res
 
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-8,7), atransf=exp, at=log(c(.10, 1, 10)), digits=3L, cex=0.8,
+forest(res, xlim=c(-8,7), atransf=exp, at=log(c(0.1, 1, 10)), digits=3L, cex=0.8,
        header=TRUE, top=2, mlab="Summary", efac=c(0,1,1.5), order="obs")
 ```
 
@@ -875,7 +875,7 @@ predict(res, transf=exp, digits=2)
 # Figure 20.5
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-8,7), atransf=exp, at=log(c(.10, 1, 10)), digits=3L, cex=0.8,
+forest(res, xlim=c(-8,7), atransf=exp, at=log(c(0.1, 1, 10)), digits=3L, cex=0.8,
        header=TRUE, top=2, mlab="Summary", efac=c(0,1,1.5), order="obs")
 ```
 
@@ -1083,7 +1083,7 @@ dat$pvals   <- formatC(summary(dat)$pval, format="f", digits=3)
 
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-5,8), atransf=exp, at=log(c(.1, 1, 10)),
+forest(res, xlim=c(-5,8), atransf=exp, at=log(c(0.1, 1, 10)),
        header=TRUE, top=2, mlab="Summary",
        ilab=data.frame(dat$weights, dat$pvals), ilab.xpos=c(3.5,5), ilab.pos=2,
        efac=c(0,1,1.5), order="prec", cex=0.7)
@@ -1137,7 +1137,7 @@ rcm
 
 par(mar=c(4,4,2,2))
 
-forest(rcm, xlim=c(-1.5,1.5), atransf=exp, at=log(c(.5, 1, 2)),
+forest(rcm, xlim=c(-1.5,1.5), atransf=exp, at=log(c(0.5, 1, 2)),
        header=TRUE, top=2, efac=c(0,1,1.5), cex=0.7)
 ```
 
@@ -1180,7 +1180,7 @@ predict(res, transf=exp, digits=2)
 
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-5,7), atransf=exp, at=log(c(.1, 1, 10, 100)),
+forest(res, xlim=c(-5,7), atransf=exp, at=log(c(0.1, 1, 10, 100)),
        header=TRUE, top=2, mlab="Summary", efac=c(0,1), cex=0.7,
        fonts=c("sans", "inconsolata"))
 ```
@@ -1211,7 +1211,7 @@ var <- diag(vcov(sub))
 cat <- c("High risk", "Partner", "Random")
 forest(est, var, slab=cat, header=c("Studies", "OR [95% CI]"), top=2,
        xlim=c(-2,4), ylim=c(-1.5,5), xlab="Odds Ratio (log scale)",
-       atransf=exp, at=log(c(.5, 1, 2, 4, 8)), digits=3L, efac=0)
+       atransf=exp, at=log(c(0.5, 1, 2, 4, 8)), digits=3L, efac=0)
 abline(h=0)
 
 res <- rma(est, var, method="DL")
@@ -1352,7 +1352,7 @@ predict(res, transf=exp, digits=3)
 
 par(mar=c(4,4,2,2))
 
-forest(res, xlim=c(-10,9), atransf=exp, at=log(c(.01, 0.1, 1, 10, 100)),
+forest(res, xlim=c(-10,9), atransf=exp, at=log(c(0.01, 0.1, 1, 10, 100)),
        header=TRUE, top=2, ilab=dat$year, ilab.xpos=-6, digits=3L, cex=0.8,
        efac=c(0,1), fonts=c("sans", "inconsolata"))
 text(-6, 35, "Year", font=2, cex=0.8)
