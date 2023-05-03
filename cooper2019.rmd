@@ -1932,7 +1932,7 @@ funnel(res, atransf=exp, at=log(c(0.25, 0.5, 1, 2, 4, 8)),
 
 sav <- cumul(res, order=vi)
 par(mar=c(5,4,2,2))
-forest(sav, header=TRUE)
+forest(sav, header=TRUE, xlim=c(-1,1.5))
 ```
 
 An alternative way of plotting the results from such a cumulative meta-analysis is to plot the pooled estimates (in this case, the estimated average log risk ratios) against the estimates of the amount of heterogeneity as studies are added. The color gradient of the points/lines indicates the order of the cumulative results (light gray at the beginning, dark gray at the end).
@@ -2237,7 +2237,7 @@ res
 # forest plot
 
 par(mar=c(5,4,2,2))
-forest(res, header=TRUE)
+forest(res, header=TRUE, xlim=c(-170, 310))
 ```
 
 ```{r}
