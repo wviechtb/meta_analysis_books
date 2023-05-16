@@ -73,13 +73,6 @@ pointsize <- 14
 options(width=94)
 ```
 
-Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but this one does not drop trailing zeros).
-
-```{r}
-fc <- function(x, digits=4, ...)
-   formatC(x, format="f", digits=digits, ...)
-```
-
 ## Appendix A: Data Sets
 
 We will actually start with Appendix A, which provides the three datasets used throughout the book for illustrative purposes.
@@ -163,7 +156,7 @@ predict(res, transf=exp)
 
 par(mar=c(4,4,2,2))
 
-wi <- fc(weights(res), digits=2)
+wi <- fmtx(weights(res), digits=2)
 
 forest(res, atransf=exp, psize=1, header=TRUE, xlim=c(-4.5,7), ylim=c(-0.6,40),
        at=log(c(0.2, 0.5, 1, 2, 5, 10)), efac=c(0,1),
@@ -836,7 +829,7 @@ predict(res, transf=exp, digits=3)
 
 par(mar=c(4,4,2,2))
 
-wi <- fc(weights(res), digits=2)
+wi <- fmtx(weights(res), digits=2)
 
 forest(res, atransf=exp, psize=1, header=TRUE, xlim=c(-4.5,7), ylim=c(-0.6,40),
        at=log(c(0.2, 0.5, 1, 2, 5, 10)), efac=c(0,1),
@@ -902,7 +895,7 @@ funnel(taf, xlim=c(-2,2), ylim=c(0,0.8), las=1, digits=1,
 sav <- cumul(res, order=vi)
 
 wi <- cumsum(weights(res)[order(dat2$vi)])
-wi <- fc(wi, digits=2)
+wi <- fmtx(wi, digits=2)
 
 par(mar=c(4,4,2,2))
 

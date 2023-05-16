@@ -73,13 +73,6 @@ pointsize <- 14
 options(width=94)
 ```
 
-Finally, let's create a little helper function for formatting some results later on (essentially like `round()`, but this one does not drop trailing zeros).
-
-```{r}
-fc <- function(x, digits=4, ...)
-   formatC(x, format="f", digits=digits, ...)
-```
-
 ***
 
 ## 1) Research Synthesis as a Scientific Process
@@ -407,8 +400,8 @@ dat
 res <- rma(md, var, data=dat, method="EE", slab=study)
 
 tmp <- dat[-1]
-tmp$se  <- fc(tmp$se,  3)
-tmp$var <- fc(tmp$var, 3)
+tmp$se  <- fmtx(tmp$se,  digits=3)
+tmp$var <- fmtx(tmp$var, digits=3)
 
 size <- sqrt(weights(res))
 size <- 2.5 * size / max(size)
@@ -1566,7 +1559,7 @@ plot(g, layout=L,
      edge.color = "black", edge.label.color = "black",
      vertex.color = "black", vertex.label.color = "black",
      vertex.shape = "none", vertex.size = 20,
-     edge.label = paste0("              ", fc(t(B)[t(B) != 0], 2),
+     edge.label = paste0("              ", fmtx(t(B)[t(B) != 0], 2),
                          ifelse(t(P)[t(B) != 0] <= 0.05, "*", "")),
      edge.lty   = ifelse(t(P)[t(B) != 0] <= 0.05, "solid", "dashed"))
 ```
@@ -2284,7 +2277,7 @@ print(res.re, digits=3)
 ```{r, figure20_3, fig.width=8.5, fig.height=7, dev.args=list(pointsize=pointsize), fig.align='center'}
 # Figure 20.3: Meta-Analysis Showing Relative Weights for the Equal- and Random-Effects Models
 
-wi <- fc(cbind(weights(res.ee), weights(res.re)), digits=2, width=5)
+wi <- fmtx(cbind(weights(res.ee), weights(res.re)), digits=2)
 
 par(mar=c(5,4,2,2))
 forest(res.ee, header=TRUE, xlim=c(-1.5,4), ylim=c(-2.5,9), psize=1, efac=c(0,1),

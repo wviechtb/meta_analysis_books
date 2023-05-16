@@ -48,11 +48,14 @@ knitr::knit_hooks$set(output = function(x, options){
 
 As the title promises, the book *Introduction to Meta-Analysis* by Borenstein et al. (2009) is a comprehensive introduction to standard meta-analytic methodology, with focus on the statistical methods. This document provides the R code to reproduce all examples and illustrations from the book using the `metafor` package. To read more about the package, see the [package website](https://www.metafor-project.org/) and the [package documentation](https://wviechtb.github.io/metafor/).
 
-The package can be installed with:
+Note that the development version of `metafor` needs to be installed to run all of the following code. This can be installed with:
 
 ```{r, eval=FALSE}
-install.packages("metafor")
+install.packages("remotes")
+remotes::install_github("wviechtb/metafor")
 ```
+
+This step will become obsolete once a new release of the `metafor` package is published on [CRAN](https://cran.r-project.org/package=metafor).
 
 Once the package is installed, we can load it with:
 
@@ -439,8 +442,8 @@ text(2.2,  8, "Weight", pos=2, font=2)
 
 ### Notes
 
-1. The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](https://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="riley"`, we can obtain the same results as those provided in the book.
-2. The confidence intervals for $\tau^2$ and $I^2$ are also computed in a different way. The `metafor` package uses the Q-profile method, which is an exact method (under the assumptions of the model), while the methods described in the book are based on large-sample approximations.
+1. The prediction interval is computed in a slightly different way in the book compared to how this is done (by default) in the `metafor` package. For more details, see [here](https://www.metafor-project.org/doku.php/faq#for_random-effects_models_fitt). However, by using argument `pi.type="Riley"`, we can obtain the same results as those provided in the book.
+2. The confidence intervals for $\tau^2$ and $I^2$ are also computed in a different way. By default, the `metafor` package uses the Q-profile method, which is an exact method (under the assumptions of the model), while the methods described in the book are based on large-sample approximations. However, we can still obtain the latter by using argument `type="HT"`.
 
 ### Example for Continuous Data
 
@@ -466,8 +469,8 @@ dat
 
 res <- rma(yi, vi, data=dat, method="DL")
 res
-predict(res, pi.type="riley")
-confint(res)
+predict(res, pi.type="Riley")
+confint(res, type="HT")
 ```
 
 ```{r, figure_18_1, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -479,7 +482,7 @@ dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 
 forest(res, xlim=c(-2,3), header=TRUE, top=2, mlab="Summary",
        ilab=dat$weights, ilab.xpos=1.6, ilab.pos=2, efac=c(0,1,1.5),
-       addpred=TRUE, pi.type="riley")
+       addpred=TRUE, pi.type="Riley")
 text(1.6, -1, "100%", pos=2)
 text(1.6,  8, "Weight", pos=2, font=2)
 ```
@@ -507,8 +510,8 @@ dat
 
 res <- rma(yi, vi, data=dat, method="DL")
 res
-predict(res, transf=exp, pi.type="riley")
-confint(res)
+predict(res, transf=exp, pi.type="Riley")
+confint(res, type="HT")
 ```
 
 ```{r, figure_18_2, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -521,7 +524,7 @@ dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 forest(res, xlim=c(-3.5,5), header=TRUE, top=2, mlab="Summary",
        atransf=exp, at=log(c(0.125, 0.25, 0.5, 1, 2, 4)), digits=c(2L,3L),
        ilab=dat$weights, ilab.xpos=2.5, ilab.pos=2, efac=c(0,1,1.5),
-       addpred=TRUE, pi.type="riley")
+       addpred=TRUE, pi.type="Riley")
 text(2.5, -1, "100%", pos=2)
 text(2.5,  8, "Weight", pos=2, font=2)
 ```
@@ -549,8 +552,8 @@ dat
 
 res <- rma(yi, vi, data=dat, method="DL")
 res
-predict(res, transf=transf.ztor, pi.type="riley")
-confint(res)
+predict(res, transf=transf.ztor, pi.type="Riley")
+confint(res, type="HT")
 ```
 
 ```{r, figure_18_3, fig.width=8, fig.height=5, dev.args=list(pointsize=pointsize), fig.align='center'}
@@ -563,7 +566,7 @@ dat$weights <- paste0(round(weights(res)), "%") # weights in % (rounded)
 forest(res, xlim=c(-2,4), header=TRUE, top=2, mlab="Summary",
        atransf=transf.ztor, at=transf.rtoz(c(-0.5, 0, 0.5, 0.9)),
        ilab=dat$weights, ilab.xpos=2.2, ilab.pos=2, efac=c(0,1,1.5),
-       addpred=TRUE, pi.type="riley")
+       addpred=TRUE, pi.type="Riley")
 text(2.2, -1, "100%", pos=2)
 text(2.2,  8, "Weight", pos=2, font=2)
 ```

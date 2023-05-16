@@ -65,9 +65,6 @@ library(metafor)
 pointsize <- 14
 
 options(width=94)
-
-fc <- function(x, digits=4, ...)
-   formatC(x, format="f", digits=digits, ...)
 ```
 
 ***
@@ -134,7 +131,7 @@ res.anova <- rma(yi, vi, mods = ~ random, data=dat, method="FE")
 res.anova
 ```
 
-Note that the $Q_E$ and $Q_M$ statistics add up to the $Q$ statistic given earlier for the equal-effects models (i.e., $`r fc(res.anova$QE)` + `r fc(res.anova$QM)` = `r fc(res.ee$QE)`$).
+Note that the $Q_E$ and $Q_M$ statistics add up to the $Q$ statistic given earlier for the equal-effects models (i.e., $`r fmtx(res.anova$QE)` + `r fmtx(res.anova$QM)` = `r fmtx(res.ee$QE)`$).
 
 The tests for heterogeneity within the two subgroups formed by the moderator can be obtained with:
 
@@ -145,7 +142,7 @@ res.r1 <- rma(yi, vi, data=dat, method="EE", subset=random==1)
 res.r1
 ```
 
-Here, we note that the two separate $Q$ statistics add up to the $Q_E$ statistic given earlier (i.e., $`r fc(res.r0$QE)` + `r fc(res.r1$QE)` = `r fc(res.anova$QE)`$).
+Here, we note that the two separate $Q$ statistics add up to the $Q_E$ statistic given earlier (i.e., $`r fmtx(res.r0$QE)` + `r fmtx(res.r1$QE)` = `r fmtx(res.anova$QE)`$).
 
 Finally, the predicted/estimated effect for 'random = 0' and 'random = 1' can be obtained with:
 
@@ -206,7 +203,7 @@ The amount of heterogeneity accounted for by the moderator(s) included in the mo
 anova(res.re, res.me)
 ```
 
-The value under `R^2` is the amount of variance (heterogeneity) accounted for. In this particular example, we estimate that `r fc(res.me$R2, 1)`% of the total amount of heterogeneity is accounted for by the two moderators. Note that Lipsey and Wilson calculate $R^2$ in a different way than is usually done in meta-analyses, so the value for $R^2$ shown in Exhibit 7.7 (page 141) is different from the value computed above.
+The value under `R^2` is the amount of variance (heterogeneity) accounted for. In this particular example, we estimate that `r fmtx(res.me$R2, digits=1)`% of the total amount of heterogeneity is accounted for by the two moderators. Note that Lipsey and Wilson calculate $R^2$ in a different way than is usually done in meta-analyses, so the value for $R^2$ shown in Exhibit 7.7 (page 141) is different from the value computed above.
 
 ***
 
