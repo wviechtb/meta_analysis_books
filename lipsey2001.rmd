@@ -33,7 +33,6 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ```{r crayon, echo=FALSE, message=FALSE, include=TRUE}
 library(crayon)
-.mstyle <- list(legend=crayon::make_style("gray90"))
 options(crayon.enabled = TRUE)
 knitr::knit_hooks$set(output = function(x, options){
    paste0(
@@ -61,7 +60,8 @@ library(metafor)
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-.rmspace <- TRUE
+setmfopt(space=FALSE)
+setmfopt(style=list(legend=make_style("gray90")))
 pointsize <- 14
 
 options(width=94)

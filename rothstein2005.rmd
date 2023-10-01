@@ -33,7 +33,6 @@ klippy::klippy(position = c("top", "right"), color="gray20")
 
 ```{r crayon, echo=FALSE, message=FALSE, include=TRUE}
 library(crayon)
-.mstyle <- list(legend=crayon::make_style("gray90"))
 options(crayon.enabled = TRUE)
 knitr::knit_hooks$set(output = function(x, options){
    paste0(
@@ -67,7 +66,8 @@ A few additional notes:
 3. The results are generally given without discussion or context. The code below is not a substitute for reading the book, but is meant to be used together with it. In other words, readers of the book interested in replicating the results with R can see here how this is possible.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-.rmspace <- TRUE
+setmfopt(space=FALSE)
+setmfopt(style=list(legend=make_style("gray90")))
 pointsize <- 14
 
 options(width=94)
@@ -481,22 +481,22 @@ Note: The values obtained above differ slightly from those in the book due to tw
 ```{r}
 # failsafe N for dataset 1 using Orwin's method
 
-fsn(yi, vi, data=dat1, type="Orwin", target=0.05, weighted=TRUE)
+fsn(yi, vi, data=dat1, type="Orwin", target=0.05)
 ```
 
 ```{r}
 # failsafe N for dataset 2 using Orwin's method
 
-fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05), weighted=TRUE)
+fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05))
 ```
 
 ```{r}
 # failsafe N for dataset 3 using Orwin's method
 
-fsn(yi, vi, data=dat3r, type="Orwin", target=0.15, weighted=TRUE)
+fsn(yi, vi, data=dat3r, type="Orwin", target=0.15)
 ```
 
-Note: As originally described by Orwin (1983), the calculations are based on *unweighted* averages. To replicate the results in the book, we need to set `weighted=TRUE`, so that (inverse-variance) weighted averages are used. However, note that for dataset 3, the mean correlation used as input for Orwin's method in the book (i.e., 0.21) is based on a random-effects model and hence the result above differs from what is shown in the book. With a simple trick, we can however reproduce the results in the book exactly. For this, we just create a vector of the same length as the original data with the mean effect size used as input and pass this to the `fsn()` function.
+Note: As originally described by Orwin (1983), the calculations are based on *unweighted* averages, but to replicate the results in the book, we need to supply the sampling variances as the second argument to the `fsn()` function, so that (inverse-variance) weighted averages are used. However, note that for dataset 3, the mean correlation used as input for Orwin's method in the book (i.e., 0.21) is based on a random-effects model and hence the result above differs from what is shown in the book. With a simple trick, we can however reproduce the results in the book exactly. For this, we just create a vector of the same length as the original data with the mean effect size used as input and pass this to the `fsn()` function.
 
 ```{r}
 # failsafe N using Orwin's method calculated exactly as described in the book
@@ -542,19 +542,19 @@ fisher(pval3)
 ```{r}
 # Fisher failsafe N for datasets 1
 
-fsn(yi, vi, data=dat1, test="Fisher")
+fsn(yi, vi, data=dat1, pool="Fisher")
 ```
 
 ```{r}
 # Fisher failsafe N for datasets 2
 
-fsn(yi, vi, data=dat2, test="Fisher")
+fsn(yi, vi, data=dat2, pool="Fisher")
 ```
 
 ```{r}
 # Fisher failsafe N for datasets 3
 
-fsn(yi, vi, data=dat3z, test="Fisher")
+fsn(yi, vi, data=dat3z, pool="Fisher")
 ```
 
 The results again differ slightly due to the two reasons outlined earlier.
@@ -846,7 +846,7 @@ invisible(sapply(seq_along(wi), function(i) rect(3.5, i-0.35, 3.5+wi[i]/20, i+0.
 par(mar=c(5,4,2,2))
 
 funnel(res, xlim=c(-2,2), ylim=c(0,0.8), las=1, digits=1,
-       back=NA, shade=NA, hlines=NA, lty=1, pch=21)
+       back=NA, shade=NA, hlines=NA, lty=1, pch=21, bg="white")
 ```
 
 ```{r}
@@ -870,7 +870,7 @@ fsn(yi, vi, data=dat2)
 ```{r}
 # failsafe N (Orwin's method)
 
-fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05), weighted=TRUE)
+fsn(yi, vi, data=dat2, type="Orwin", target=log(1.05))
 ```
 
 ```{r}
@@ -886,7 +886,8 @@ predict(taf, transf=exp, digits=3)
 par(mar=c(5,4,2,2))
 
 funnel(taf, xlim=c(-2,2), ylim=c(0,0.8), las=1, digits=1,
-       back=NA, shade=NA, hlines=NA, lty=1, pch=21, pch.fill=19)
+       back=NA, shade=NA, hlines=NA, lty=1,
+       pch=21, bg=c("white", "gray10"), legend=list(show=NA))
 ```
 
 ```{r, figure11_5, fig.width=8.5, fig.height=14, dev.args=list(pointsize=pointsize), fig.align='center'}
