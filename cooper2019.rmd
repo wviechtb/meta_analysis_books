@@ -67,7 +67,7 @@ A few additional notes:
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 setmfopt(space=FALSE)
-setmfopt(style=list(legend=make_style("gray90")))
+setmfopt(style=list(legend=make_style("gray90"), warning=strip_style))
 pointsize <- 14
 
 options(width=94)
